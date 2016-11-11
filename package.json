@@ -1,0 +1,26 @@
+{
+  "name": "serverless-s3-local",
+  "version": "0.0.1",
+  "description": "Serverless s3 local plugin",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ar90n/serverless-s3-local.git"
+  },
+  "keywords": [
+    "serverless",
+    "s3"
+  ],
+  "author": "Masahiro Wada",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ar90n/serverless-s3-local/issues"
+  },
+  "homepage": "https://github.com/ar90n/serverless-s3-local#readme",
+  "dependencies": {
+    "s3rver": "^1.0.2"
+  }
+}
