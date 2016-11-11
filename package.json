@@ -15,12 +15,20 @@
     "s3"
   ],
   "author": "Masahiro Wada",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/ar90n/serverless-s3-local/issues"
   },
   "homepage": "https://github.com/ar90n/serverless-s3-local#readme",
   "dependencies": {
+    "aws-sdk": "^2.7.0",
+    "bluebird": "^3.4.6",
     "s3rver": "^1.0.2"
+  },
+  "eslintConfig": {
+    "extends": "airbnb",
+    "plugins": [
+      "import"
+    ]
   }
 }
