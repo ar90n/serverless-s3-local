@@ -20,7 +20,7 @@ class ServerlessS3Local {
                 shortcut: 'p',
                 usage: 'The port number that S3 will use to communicate with your application. If you do not specify this option, the default port is 4569',
               },
-              path: {
+              directory: {
                 shortcut: 'd',
                 usage: 'The directory where S3 will store its objects. If you do not specify this option, the file will be written to the current directory.',
               },
@@ -48,7 +48,7 @@ class ServerlessS3Local {
       const port = options.port || 4569;
       const hostname = 'localhost';
       const silent = false;
-      const directory = options.path || fs.realpathSync('./');
+      const directory = options.directory || fs.realpathSync('./');
       new S3rver({ port, hostname, silent, directory }).run((err, s3Host, s3Port) => {
         if (err) {
           console.error('Error occured while starting S3 local.');
