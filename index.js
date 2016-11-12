@@ -11,9 +11,9 @@ class ServerlessS3Local {
 
     this.commands = {
       s3: {
-        usage: 'Start S3 local server.',
         commands: {
           start: {
+            usage: 'Start S3 local server.',
             lifecycleEvents: ['startHandler'],
             options: {
               port: {
