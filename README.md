@@ -13,6 +13,7 @@ Installation
 Example
 ===============
 serverless.yaml  
+
     service: serverless-s3-local-example
     provider:
       name: aws
@@ -34,6 +35,7 @@ serverless.yaml
               method: GET
 
 handler.js  
+
     const AWS = require('aws-sdk');
     module.exports.webhook = (event, context, callback) => {
       const S3 = new AWS.S3({
