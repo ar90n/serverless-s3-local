@@ -1,0 +1,19 @@
+service: serverless-s3-local-example
+provider:
+  name: aws
+  runtime: nodejs4.3
+plugins:
+  - serverless-offline
+  - serverless-s3-local
+custom:
+  s3:
+    port: 8000
+    buckets:
+      - local-bucket
+    directory: /tmp
+functions:
+  webhook:
+    handler: handler.webhook
+    events:
+      - http:
+          method: GET
