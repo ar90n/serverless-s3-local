@@ -36,6 +36,7 @@ class ServerlessS3Local {
 
     this.hooks = {
       's3:start:startHandler': this.startHandler.bind(this),
+      'before:offline:start': this.startHandler.bind(this),
     };
   }
 
