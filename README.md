@@ -19,8 +19,8 @@ serverless.yaml
       name: aws
       runtime: nodejs4.3
     plugins:
-      - serverless-offline
       - serverless-s3-local
+      - serverless-offline
     custom:
       s3:
         port: 8000
