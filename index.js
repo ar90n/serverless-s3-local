@@ -26,7 +26,11 @@ class ServerlessS3Local {
               },
               buckets: {
                 shortcut: 'b',
-                usage: 'After starting S3 local, craete specified buckets',
+                usage: 'After starting S3 local, create specified buckets',
+              },
+              cors: {
+                shortcut: 'c',
+                usage: 'Enable CORS',
               },
             },
           },
@@ -49,8 +53,9 @@ class ServerlessS3Local {
       const port = options.port || 4569;
       const hostname = 'localhost';
       const silent = false;
+      const cors = options.cors || false;
       const directory = options.directory || fs.realpathSync('./');
-      new S3rver({ port, hostname, silent, directory }).run((err, s3Host, s3Port) => {
+      new S3rver({ port, hostname, silent, directory, cors }).run((err, s3Host, s3Port) => {
         if (err) {
           console.error('Error occured while starting S3 local.');
           return;

@@ -27,6 +27,7 @@ serverless.yaml
         buckets:
           - local-bucket
         directory: /tmp
+        cors: false
     functions:
       webhook:
         handler: handler.webhook
