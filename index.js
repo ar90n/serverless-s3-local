@@ -8,6 +8,7 @@ class ServerlessS3Local {
     this.serverless = serverless;
     this.options = options;
     this.provider = 'aws';
+    this.client = null;
 
     this.commands = {
       s3: {
@@ -41,6 +42,8 @@ class ServerlessS3Local {
     this.hooks = {
       's3:start:startHandler': this.startHandler.bind(this),
       'before:offline:start': this.startHandler.bind(this),
+      'before:offline:start:init': this.startHandler.bind(this),
+      'before:offline:start:end': this.endHandler.bind(this)
     };
   }
 
@@ -55,7 +58,7 @@ class ServerlessS3Local {
       const silent = false;
       const cors = options.cors || false;
       const directory = options.directory || fs.realpathSync('./');
-      new S3rver({ port, hostname, silent, directory, cors }).run((err, s3Host, s3Port) => {
+      this.client = new S3rver({ port, hostname, silent, directory, cors }).run((err, s3Host, s3Port) => {
         if (err) {
           console.error('Error occured while starting S3 local.');
           return;
@@ -74,6 +77,11 @@ class ServerlessS3Local {
 
       resolve();
     });
+  }
+
+  endHandler() {
+    client.close();
+    console.log('S3 local closed');
   }
 }
 
