@@ -24,6 +24,7 @@
   "dependencies": {
     "aws-sdk": "^2.7.0",
     "bluebird": "^3.4.6",
+    "fs-extra": "^4.0.0",
     "s3rver": "^1.0.2"
   },
   "eslintConfig": {
@@ -31,5 +32,10 @@
     "plugins": [
       "import"
     ]
+  },
+  "devDependencies": {
+    "eslint": "^4.3.0",
+    "eslint-config-airbnb-base": "^11.3.1",
+    "eslint-plugin-import": "^2.7.0"
   }
 }
