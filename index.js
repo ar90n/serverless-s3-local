@@ -102,7 +102,7 @@ class ServerlessS3Local {
    * @return {object} Array of bucket name
    */
   buckets() {
-    const resources = this.service.resources.Resources;
+    const resources = (this.service.resources && this.service.resources.Resources) || {};
     return Object.keys(resources).map((key) => {
       if (resources[key].Type === 'AWS::S3::Bucket') {
         return resources[key].Properties.BucketName;

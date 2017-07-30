@@ -24,10 +24,14 @@ serverless.yaml
     custom:
       s3:
         port: 8000
-        buckets:
-          - local-bucket
         directory: /tmp
         cors: false
+    resources:
+      Resources:
+        NewResource:
+          Type: AWS::S3::Bucket
+          Properties:
+            BucketName: local-bucket
     functions:
       webhook:
         handler: handler.webhook
