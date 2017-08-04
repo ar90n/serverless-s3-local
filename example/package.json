@@ -18,7 +18,7 @@
   "homepage": "https://github.com/ar90n/serverless-s3-local#readme",
   "devDependencies": {
     "serverless-offline": "^3.3.1",
-    "serverless-s3-local": "^0.2.4"
+    "serverless-s3-local": "^0.2.5"
   },
   "dependencies": {
     "aws-sdk": "^2.94.0"

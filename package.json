@@ -1,6 +1,6 @@
 {
   "name": "serverless-s3-local",
-  "version": "0.2.4",
+  "version": "0.2.5",
   "description": "Serverless s3 local plugin",
   "main": "index.js",
   "scripts": {

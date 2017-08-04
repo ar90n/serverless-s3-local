@@ -94,10 +94,7 @@ class ServerlessS3Local {
   }
 
   endHandler() {
-    const config = (this.serverless.service.custom && this.serverless.service.custom.s3) || {};
-    const options = Object.assign({}, this.options, config);
-
-    if (!options.noStart) {
+    if (!this.options.noStart) {
       this.client.close();
       console.log('S3 local closed');
     }
