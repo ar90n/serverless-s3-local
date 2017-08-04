@@ -26,6 +26,8 @@ serverless.yaml
         port: 8000
         directory: /tmp
         cors: false
+        # Uncomment only if you already have a S3 server running locally
+        # noStart: true
     resources:
       Resources:
         NewResource:

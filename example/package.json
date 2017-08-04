@@ -19,5 +19,8 @@
   "devDependencies": {
     "serverless-offline": "^3.3.1",
     "serverless-s3-local": "^0.2.4"
+  },
+  "dependencies": {
+    "aws-sdk": "^2.94.0"
   }
 }
