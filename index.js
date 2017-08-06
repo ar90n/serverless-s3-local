@@ -54,7 +54,7 @@ class ServerlessS3Local {
   }
 
   startHandler() {
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
       const config = (this.serverless.service.custom && this.serverless.service.custom.s3) || {};
       const options = Object.assign({}, this.options, config);
 
@@ -66,7 +66,9 @@ class ServerlessS3Local {
       const cors = options.cors || false;
 
       if (options.noStart) {
-        this.createBuckets(port, buckets);
+        ServerlessS3Local.createBuckets(port, buckets);
+        resolve();
+        return;
       }
       const dirPath = options.directory || './buckets';
       fs.ensureDirSync(dirPath); // Create destination directory if not exist
@@ -81,15 +83,15 @@ class ServerlessS3Local {
       }).run((err, s3Host, s3Port) => {
         if (err) {
           console.error('Error occured while starting S3 local.');
+          reject(err);
           return;
         }
 
         console.log(`S3 local started ( port:${s3Port} )`);
 
-        this.createBuckets(s3Port, buckets);
+        ServerlessS3Local.createBuckets(s3Port, buckets);
+        resolve();
       });
-
-      resolve();
     });
   }
 
