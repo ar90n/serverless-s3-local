@@ -23,6 +23,7 @@ serverless.yaml
       - serverless-offline
     custom:
       s3:
+        host: 0.0.0.0
         port: 8000
         directory: /tmp
         cors: false
