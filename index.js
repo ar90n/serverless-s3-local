@@ -61,7 +61,7 @@ class ServerlessS3Local {
       // Mix buckets from resources list and buckets from parameters
       const buckets = this.buckets().concat(options.buckets) || [];
       const port = options.port || 4569;
-      const hostname = 'localhost';
+      const hostname = options.host || 'localhost';
       const silent = false;
       const cors = options.cors || false;
 
