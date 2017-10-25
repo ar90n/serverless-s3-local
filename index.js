@@ -1,3 +1,4 @@
+const _ = require('lodash');
 const Promise = require('bluebird');
 const S3rver = require('s3rver');
 const fs = require('fs-extra'); // Using fs-extra to ensure destination directory exist
@@ -20,11 +21,13 @@ class ServerlessS3Local {
             options: {
               port: {
                 shortcut: 'p',
-                usage: 'The port number that S3 will use to communicate with your application. If you do not specify this option, the default port is 4569',
+                usage:
+                  'The port number that S3 will use to communicate with your application. If you do not specify this option, the default port is 4569',
               },
               directory: {
                 shortcut: 'd',
-                usage: 'The directory where S3 will store its objects. If you do not specify this option, the file will be written to the current directory.',
+                usage:
+                  'The directory where S3 will store its objects. If you do not specify this option, the file will be written to the current directory.',
               },
               buckets: {
                 shortcut: 'b',
@@ -82,7 +85,7 @@ class ServerlessS3Local {
         cors,
       }).run((err, s3Host, s3Port) => {
         if (err) {
-          console.error('Error occured while starting S3 local.');
+          console.error('Error occurred while starting S3 local.');
           reject(err);
           return;
         }
@@ -112,19 +115,42 @@ class ServerlessS3Local {
     });
   }
 
+  getAdditionalStacks() {
+    return _.values(_.get(this.service, 'custom.additionalStacks', {}));
+  }
+
+  hasAdditionalStacksPlugin() {
+    return _.get(this.service, 'plugins', []).includes('serverless-plugin-additional-stacks');
+  }
+
   /**
-   * Get bucket list from serveless.yml resources
+   * Get bucket list from serverless.yml resources and additional stacks
    *
    * @return {object} Array of bucket name
    */
   buckets() {
     const resources = (this.service.resources && this.service.resources.Resources) || {};
-    return Object.keys(resources).map((key) => {
-      if (resources[key].Type === 'AWS::S3::Bucket') {
-        return resources[key].Properties.BucketName;
-      }
-      return null;
-    }).filter(n => n);
+    if (this.hasAdditionalStacksPlugin()) {
+      let additionalStacks = [];
+      additionalStacks = additionalStacks.concat(this.getAdditionalStacks());
+      additionalStacks.forEach((stack) => {
+        if (stack.Resources) {
+          Object.keys(stack.Resources).forEach((key) => {
+            if (stack.Resources[key].Type === 'AWS::S3::Bucket') {
+              resources[key] = stack.Resources[key];
+            }
+          });
+        }
+      });
+    }
+    return Object.keys(resources)
+      .map((key) => {
+        if (resources[key].Type === 'AWS::S3::Bucket') {
+          return resources[key].Properties.BucketName;
+        }
+        return null;
+      })
+      .filter(n => n);
   }
 }
 

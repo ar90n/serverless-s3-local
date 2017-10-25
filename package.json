@@ -25,6 +25,7 @@
     "aws-sdk": "^2.7.0",
     "bluebird": "^3.4.6",
     "fs-extra": "^4.0.0",
+    "lodash": "^4.17.0",
     "s3rver": "^1.0.2"
   },
   "eslintConfig": {
