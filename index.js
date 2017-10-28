@@ -1,4 +1,3 @@
-const _ = require('lodash');
 const Promise = require('bluebird');
 const S3rver = require('s3rver');
 const fs = require('fs-extra'); // Using fs-extra to ensure destination directory exist
@@ -116,11 +115,20 @@ class ServerlessS3Local {
   }
 
   getAdditionalStacks() {
-    return _.values(_.get(this.service, 'custom.additionalStacks', {}));
+    const serviceAdditionalStacks = this.service.custom.additionalStacks || {};
+    const additionalStacks = [];
+    Object.keys(serviceAdditionalStacks).forEach((stack) => {
+      additionalStacks.push(serviceAdditionalStacks[stack]);
+    });
+    return additionalStacks;
   }
 
   hasAdditionalStacksPlugin() {
-    return _.get(this.service, 'plugins', []).includes('serverless-plugin-additional-stacks');
+    return (
+      this.service &&
+      this.service.plugins &&
+      this.service.plugins.indexOf('serverless-plugin-additional-stacks') >= 0
+    );
   }
 
   /**
