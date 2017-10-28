@@ -1,6 +1,6 @@
 {
   "name": "serverless-s3-local-example",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "",
   "main": "handler.js",
   "scripts": {
@@ -18,7 +18,7 @@
   "homepage": "https://github.com/ar90n/serverless-s3-local#readme",
   "devDependencies": {
     "serverless-offline": "^3.3.1",
-    "serverless-s3-local": "^0.2.5"
+    "serverless-s3-local": "^0.2.7"
   },
   "dependencies": {
     "aws-sdk": "^2.94.0"

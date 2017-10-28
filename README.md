@@ -22,6 +22,14 @@ serverless.yaml
       - serverless-s3-local
       - serverless-offline
     custom:
+      # Uncomment only if you want to collaborate with serverless-plugin-additional-stacks
+      # additionalStacks:
+      #    permanent:
+      #      Resources:
+      #        S3BucketData:
+      #            Type: AWS::S3::Bucket
+      #            Properties:
+      #                BucketName: ${self:service}-data
       s3:
         host: 0.0.0.0
         port: 8000
@@ -61,11 +69,13 @@ Feature
 ===============
 * Start local S3 server with specified root directory and port.
 * Create buckets at launching.
+* Support serverless-plugin-additional-stacks
 
 See also
 ===============
 * [s3rver](https://github.com/jamhall/s3rver)
 * [serverless-offline](https://github.com/dherault/serverless-offline)
+* [serverless-plugin-additional-stacks](https://github.com/SC5/serverless-plugin-additional-stacks)
 
 License
 ===============
