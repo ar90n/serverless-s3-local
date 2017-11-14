@@ -153,7 +153,7 @@ class ServerlessS3Local {
     }
     return Object.keys(resources)
       .map((key) => {
-        if (resources[key].Type === 'AWS::S3::Bucket') {
+        if (resources[key].Type === 'AWS::S3::Bucket' && resources[key].Properties && resources[key].Properties.BucketName) {
           return resources[key].Properties.BucketName;
         }
         return null;
