@@ -63,17 +63,16 @@ class ServerlessS3Local {
       this.options = options;
 
       // Mix buckets from resources list and buckets from parameters
-      const buckets = this.buckets().concat(options.buckets) || [];
+      const buckets = this.buckets().concat(options.buckets || []);
       const port = options.port || 4569;
       const hostname = options.host || 'localhost';
       const silent = false;
       const cors = options.cors || false;
 
       if (options.noStart) {
-        ServerlessS3Local.createBuckets(port, buckets);
-        resolve();
-        return;
+        return this.createBuckets(port, buckets).then(resolve, reject);
       }
+
       const dirPath = options.directory || './buckets';
       fs.ensureDirSync(dirPath); // Create destination directory if not exist
       const directory = fs.realpathSync(dirPath);
@@ -93,8 +92,7 @@ class ServerlessS3Local {
 
         console.log(`S3 local started ( port:${s3Port} )`);
 
-        ServerlessS3Local.createBuckets(s3Port, buckets);
-        resolve();
+        this.createBuckets(s3Port, buckets).then(resolve, reject);
       });
     });
   }
@@ -106,13 +104,19 @@ class ServerlessS3Local {
     }
   }
 
-  static createBuckets(port, buckets) {
-    const s3Client = new AWS.S3({
-      s3ForcePathStyle: true,
-      endpoint: new AWS.Endpoint(`http://localhost:${port}`),
-    });
-    buckets.forEach((bucket) => {
-      s3Client.createBucket({ Bucket: bucket }, () => { });
+  createBuckets(port, buckets) {
+    return Promise.resolve().then(() => {
+      if (!buckets.length) return;
+
+      const s3Client = new AWS.S3({
+        s3ForcePathStyle: true,
+        endpoint: new AWS.Endpoint(`http://localhost:${port}`),
+      });
+
+      return Promise.all(buckets.map(Bucket => {
+        this.serverless.cli.log(`creating bucket: ${Bucket}`)
+        return s3Client.createBucket({ Bucket }).promise();
+      }));
     });
   }
 
