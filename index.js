@@ -60,6 +60,9 @@ class ServerlessS3Local {
       const config = (this.serverless.service.custom && this.serverless.service.custom.s3) || {};
       const options = Object.assign({}, this.options, config);
 
+      // inform endHandler
+      this.options = options;
+
       // Mix buckets from resources list and buckets from parameters
       const buckets = this.buckets().concat(options.buckets) || [];
       const port = options.port || 4569;
