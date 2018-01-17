@@ -10,7 +10,11 @@
     "type": "git",
     "url": "git+https://github.com/ar90n/serverless-s3-local.git"
   },
-  "keywords": ["serverless", "S3", "AWS"],
+  "keywords": [
+    "serverless",
+    "S3",
+    "AWS"
+  ],
   "author": "Masahiro Wada",
   "license": "MIT",
   "bugs": {
@@ -19,13 +23,14 @@
   "homepage": "https://github.com/ar90n/serverless-s3-local#readme",
   "dependencies": {
     "aws-sdk": "^2.7.0",
-    "bluebird": "^3.4.6",
     "fs-extra": "^4.0.0",
     "s3rver": "^1.0.2"
   },
   "eslintConfig": {
     "extends": "airbnb",
-    "plugins": ["import"]
+    "plugins": [
+      "import"
+    ]
   },
   "devDependencies": {
     "eslint": "^4.3.0",

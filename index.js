@@ -1,4 +1,3 @@
-const Promise = require('bluebird');
 const S3rver = require('s3rver');
 const fs = require('fs-extra'); // Using fs-extra to ensure destination directory exist
 const AWS = require('aws-sdk');
@@ -113,7 +112,7 @@ class ServerlessS3Local {
       endpoint: new AWS.Endpoint(`http://localhost:${port}`),
     });
     buckets.forEach((bucket) => {
-      s3Client.createBucket({ Bucket: bucket }, () => {});
+      s3Client.createBucket({ Bucket: bucket }, () => { });
     });
   }
 
