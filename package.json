@@ -24,7 +24,7 @@
   "dependencies": {
     "aws-sdk": "^2.7.0",
     "fs-extra": "^4.0.0",
-    "s3rver": "^1.0.2"
+    "s3rver": "^2.0.0"
   },
   "eslintConfig": {
     "extends": "airbnb",
