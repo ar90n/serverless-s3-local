@@ -94,13 +94,13 @@ class ServerlessS3Local {
 
   startHandler() {
     return new Promise((resolve, reject) => {
-      const options = this._setOptions();
-      const { noStart, port, host, cors } = options;
-      if (options.noStart) {
+      this._setOptions();
+      const { noStart, port, host, cors } = this.options;
+      if (noStart) {
         return this.createBuckets().then(resolve, reject);
       }
 
-      const dirPath = options.directory || './buckets';
+      const dirPath = this.options.directory || './buckets';
       fs.ensureDirSync(dirPath); // Create destination directory if not exist
       const directory = fs.realpathSync(dirPath);
 
@@ -144,7 +144,7 @@ class ServerlessS3Local {
 
   createBuckets() {
     return Promise.resolve().then(() => {
-      const { buckets } = this.options;
+      const buckets = this.buckets();
       if (!buckets.length) return;
 
       const s3Client = this.getClient();
@@ -152,23 +152,21 @@ class ServerlessS3Local {
         this.serverless.cli.log(`creating bucket: ${Bucket}`);
         return s3Client.createBucket({ Bucket }).promise();
       }));
-    });
+    })
+    .catch(x => {});
   }
 
   removeBuckets() {
     return Promise.resolve().then(() => {
-      const { port, buckets } = this.options;
+      const { port } = this.options;
+      const buckets = this.buckets();
       if (!buckets.length) return;
 
       return Promise.all(buckets.map(bucket => {
-        this.log(`removing bucket: ${bucket}`);
+        this.serverless.cli.log(`removing bucket: ${bucket}`);
         return removeBucket({ port, bucket });
       }));
     });
-  }
-
-  log(message) {
-    this.serverless.cli.log(`s3: ${message}`);
   }
 
   getClient() {
@@ -229,7 +227,6 @@ class ServerlessS3Local {
   _setOptions() {
     const config = (this.serverless.service.custom && this.serverless.service.custom.s3) || {};
     this.options = Object.assign({}, defaultOptions, this.options, config);
-    return this.options;
   }
 }
 
