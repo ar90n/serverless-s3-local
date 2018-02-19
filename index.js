@@ -1,6 +1,12 @@
 const S3rver = require('s3rver');
 const fs = require('fs-extra'); // Using fs-extra to ensure destination directory exist
 const AWS = require('aws-sdk');
+const shell = require('shelljs');
+const defaultOptions = {
+  port: 4569,
+  host: 'localhost',
+  cors: false
+}
 
 class ServerlessS3Local {
   constructor(serverless, options) {
@@ -42,12 +48,44 @@ class ServerlessS3Local {
               },
             },
           },
+          create: {
+            usage: 'Create local S3 buckets.',
+            lifecycleEvents: ['createHandler'],
+            options: {
+              port: {
+                shortcut: 'p',
+                usage:
+                  'The port number that S3 will use to communicate with your application. If you do not specify this option, the default port is 4569',
+              },
+              buckets: {
+                shortcut: 'b',
+                usage: 'After starting S3 local, create specified buckets',
+              },
+            }
+          },
+          remove: {
+            usage: 'Remove local S3 buckets.',
+            lifecycleEvents: ['createHandler'],
+            options: {
+              port: {
+                shortcut: 'p',
+                usage:
+                  'The port number that S3 will use to communicate with your application. If you do not specify this option, the default port is 4569',
+              },
+              buckets: {
+                shortcut: 'b',
+                usage: 'After starting S3 local, create specified buckets',
+              },
+            }
+          }
         },
       },
     };
 
     this.hooks = {
       's3:start:startHandler': this.startHandler.bind(this),
+      's3:create:createHandler': this.createHandler.bind(this),
+      's3:remove:createHandler': this.removeHandler.bind(this),
       'before:offline:start:init': this.startHandler.bind(this),
       'before:offline:start': this.startHandler.bind(this),
       'before:offline:start:end': this.endHandler.bind(this),
@@ -56,32 +94,20 @@ class ServerlessS3Local {
 
   startHandler() {
     return new Promise((resolve, reject) => {
-      const config = (this.serverless.service.custom && this.serverless.service.custom.s3) || {};
-      const options = Object.assign({}, this.options, config);
-
-      // inform endHandler
-      this.options = options;
-
-      // Mix buckets from resources list and buckets from parameters
-      const buckets = this.buckets().concat(options.buckets) || [];
-      const port = options.port || 4569;
-      const hostname = options.host || 'localhost';
-      const silent = false;
-      const cors = options.cors || false;
-
+      const options = this._setOptions();
+      const { noStart, port, host, cors } = options;
       if (options.noStart) {
-        ServerlessS3Local.createBuckets(port, buckets);
-        resolve();
-        return;
+        return this.createBuckets().then(resolve, reject);
       }
+
       const dirPath = options.directory || './buckets';
       fs.ensureDirSync(dirPath); // Create destination directory if not exist
       const directory = fs.realpathSync(dirPath);
 
       this.client = new S3rver({
         port,
-        hostname,
-        silent,
+        hostname: host,
+        silent: false,
         directory,
         cors,
       }).run((err, s3Host, s3Port) => {
@@ -91,10 +117,10 @@ class ServerlessS3Local {
           return;
         }
 
+        this.options.port = s3Port
         console.log(`S3 local started ( port:${s3Port} )`);
 
-        ServerlessS3Local.createBuckets(s3Port, buckets);
-        resolve();
+        this.createBuckets().then(resolve, reject);
       });
     });
   }
@@ -106,13 +132,49 @@ class ServerlessS3Local {
     }
   }
 
-  static createBuckets(port, buckets) {
-    const s3Client = new AWS.S3({
-      s3ForcePathStyle: true,
-      endpoint: new AWS.Endpoint(`http://localhost:${port}`),
+  createHandler() {
+    this._setOptions();
+    return this.createBuckets();
+  }
+
+  removeHandler() {
+    this._setOptions();
+    return this.removeBuckets();
+  }
+
+  createBuckets() {
+    return Promise.resolve().then(() => {
+      const { buckets } = this.options;
+      if (!buckets.length) return;
+
+      const s3Client = this.getClient();
+      return Promise.all(buckets.map(Bucket => {
+        this.serverless.cli.log(`creating bucket: ${Bucket}`);
+        return s3Client.createBucket({ Bucket }).promise();
+      }));
     });
-    buckets.forEach((bucket) => {
-      s3Client.createBucket({ Bucket: bucket }, () => { });
+  }
+
+  removeBuckets() {
+    return Promise.resolve().then(() => {
+      const { port, buckets } = this.options;
+      if (!buckets.length) return;
+
+      return Promise.all(buckets.map(bucket => {
+        this.log(`removing bucket: ${bucket}`);
+        return removeBucket({ port, bucket });
+      }));
+    });
+  }
+
+  log(message) {
+    this.serverless.cli.log(`s3: ${message}`);
+  }
+
+  getClient() {
+    return new AWS.S3({
+      s3ForcePathStyle: true,
+      endpoint: new AWS.Endpoint(`http://localhost:${this.options.port}`),
     });
   }
 
@@ -160,8 +222,28 @@ class ServerlessS3Local {
         }
         return null;
       })
+      .concat(this.options.buckets)
       .filter(n => n);
   }
+
+  _setOptions() {
+    const config = (this.serverless.service.custom && this.serverless.service.custom.s3) || {};
+    this.options = Object.assign({}, defaultOptions, this.options, config);
+    return this.options;
+  }
 }
+
+const removeBucket = ({ bucket, port }) => new Promise((resolve, reject) => {
+  shell.exec(
+    `aws --endpoint http://localhost:${port} s3 rb "s3://${bucket}" --force`,
+    { silent: true },
+    function (code, stdout, stderr) {
+      if (code === 0) return resolve();
+      if (stderr && stderr.indexOf('NoSuchBucket') !== -1) return resolve();
+
+      reject(new Error(`failed to delete bucket ${bucket}: ${stderr || stdout}`));
+    }
+  );
+});
 
 module.exports = ServerlessS3Local;
