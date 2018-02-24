@@ -2,10 +2,19 @@ const S3rver = require('s3rver');
 const fs = require('fs-extra'); // Using fs-extra to ensure destination directory exist
 const AWS = require('aws-sdk');
 const shell = require('shelljs');
+const path = require('path');
+const uuid = require('uuid/v1');
+const functionHelper = require('serverless-offline/src/functionHelper');
+const createLambdaContext = require('serverless-offline/src/createLambdaContext');
+
+require("rxjs/add/operator/map");
+require("rxjs/add/operator/mergeMap");
+
 const defaultOptions = {
   port: 4569,
   host: 'localhost',
-  cors: false
+  cors: false,
+  location: '.'
 }
 
 class ServerlessS3Local {
@@ -109,7 +118,7 @@ class ServerlessS3Local {
         hostname: host,
         silent: false,
         directory,
-        cors,
+//        cors,
       }).run((err, s3Host, s3Port) => {
         if (err) {
           console.error('Error occurred while starting S3 local.');
@@ -121,6 +130,26 @@ class ServerlessS3Local {
         console.log(`S3 local started ( port:${s3Port} )`);
 
         this.createBuckets().then(resolve, reject);
+      });
+
+      this.eventHandlers = this.getEventHandlers();
+
+      this.client.s3Event.map((event) => {
+          const bucketName = event.Records[0].s3.bucket.name;
+          if(!(bucketName in this.eventHandlers)) {
+              return [];
+          }
+
+          const eventName = event.Records[0].eventName;
+          return Object.keys(this.eventHandlers[bucketName])
+                  .filter(pattern => eventName.match(pattern) !== null)
+                  .map(pattern => this.eventHandlers[bucketName][pattern])
+                  .reduce((acc, x) => acc.concat(x), [])
+                  .map(handler => () => handler(event));
+      }).mergeMap((handlers) => {
+          return handlers
+      }).subscribe((handler) => {
+          handler();
       });
     });
   }
@@ -174,6 +203,44 @@ class ServerlessS3Local {
       s3ForcePathStyle: true,
       endpoint: new AWS.Endpoint(`http://localhost:${this.options.port}`),
     });
+  }
+
+  getEventHandlers() {
+      if (typeof this.service !== 'object' || typeof this.service.functions !== 'object') {
+          return {}
+      }
+
+      const eventHandlers = {}
+      const servicePath = path.join(this.serverless.config.servicePath, this.options.location);
+      Object.keys(this.service.functions).forEach(key => {
+          const serviceFunction = this.service.getFunction(key);
+
+          serviceFunction.events.forEach(event => {
+              const s3 = (event && event.s3) || undefined;
+              if (!s3) {
+                  return;
+              }
+
+              const name = (typeof s3 === 'object') ? s3.bucket : s3;
+              const pattern = (typeof s3 === 'object') ? s3.event.replace(/^s3:/,'').replace('*', '.*') :'.*';
+
+              const lambdaContext = createLambdaContext(serviceFunction);
+              const funOptions = functionHelper.getFunctionOptions(serviceFunction, key, servicePath);
+              const handler = functionHelper.createHandler(funOptions, this.options);
+              const eventHandler = (s3Event) => handler(s3Event, lambdaContext)
+              if(!(name in eventHandlers)) {
+                  eventHandlers[name] = {}
+              }
+              if(!(pattern in eventHandlers[name])) {
+                  eventHandlers[name][pattern] = []
+              }
+              eventHandlers[name][pattern].push(eventHandler)
+
+              this.serverless.cli.log(`Found S3 event listener for ${name}`);
+          });
+      });
+
+      return eventHandlers;
   }
 
   getAdditionalStacks() {

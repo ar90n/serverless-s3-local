@@ -24,7 +24,8 @@
   "dependencies": {
     "aws-sdk": "^2.7.0",
     "fs-extra": "^4.0.0",
-    "s3rver": "^2.0.0",
+    "s3rver": "git://github.com/jamhall/s3rver.git",
+    "serverless-offline": "^3.18.0",
     "shelljs": "^0.8.1"
   },
   "eslintConfig": {
