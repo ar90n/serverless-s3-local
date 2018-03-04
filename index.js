@@ -118,7 +118,7 @@ class ServerlessS3Local {
         hostname: host,
         silent: false,
         directory,
-//        cors,
+        cors,
       }).run((err, s3Host, s3Port) => {
         if (err) {
           console.error('Error occurred while starting S3 local.');
