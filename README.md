@@ -70,6 +70,7 @@ Feature
 * Start local S3 server with specified root directory and port.
 * Create buckets at launching.
 * Support serverless-plugin-additional-stacks
+* Support S3 events.
 
 See also
 ===============
