@@ -13,7 +13,6 @@ require("rxjs/add/operator/mergeMap");
 const defaultOptions = {
   port: 4569,
   host: 'localhost',
-  cors: false,
   location: '.'
 }
 
@@ -113,12 +112,16 @@ class ServerlessS3Local {
       fs.ensureDirSync(dirPath); // Create destination directory if not exist
       const directory = fs.realpathSync(dirPath);
 
+      const corsPolicy = cors ?
+            fs.readFileSync(path.resolve(this.serverless.config.servicePath, cors) , 'utf8') :
+            cors ;
+
       this.client = new S3rver({
         port,
         hostname: host,
         silent: false,
         directory,
-        cors,
+        cors: corsPolicy,
       }).run((err, s3Host, s3Port) => {
         if (err) {
           console.error('Error occurred while starting S3 local.');
