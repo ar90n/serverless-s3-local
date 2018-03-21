@@ -224,7 +224,9 @@ class ServerlessS3Local {
                   return;
               }
 
-              const name = (typeof s3 === 'object') ? s3.bucket : s3;
+              const handlerBucketName = (typeof s3 === 'object') ? s3.bucket : s3;
+              const bucketResource = this.getResourceForBucket(handlerBucketName);
+              const name = bucketResource ? bucketResource.Properties.BucketName : name ;
               const pattern = (typeof s3 === 'object') ? s3.event.replace(/^s3:/,'').replace('*', '.*') :'.*';
 
               const lambdaContext = createLambdaContext(serviceFunction);
@@ -244,6 +246,11 @@ class ServerlessS3Local {
       });
 
       return eventHandlers;
+  }
+
+  getResourceForBucket(bucketName){
+    const logicalResourceName = `S3Bucket${bucketName.charAt(0).toUpperCase()}${bucketName.substr(1)}`;
+    return !this.service.resources || this.service.resources.Resources[logicalResourceName];
   }
 
   getAdditionalStacks() {
