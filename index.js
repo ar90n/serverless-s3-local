@@ -23,6 +23,7 @@ class ServerlessS3Local {
     this.options = options;
     this.provider = 'aws';
     this.client = null;
+    this.env = Object.assign({}, process.env)
 
     this.commands = {
       s3: {
@@ -232,7 +233,15 @@ class ServerlessS3Local {
               const lambdaContext = createLambdaContext(serviceFunction);
               const funOptions = functionHelper.getFunctionOptions(serviceFunction, key, servicePath);
               const handler = functionHelper.createHandler(funOptions, this.options);
-              const eventHandler = (s3Event) => handler(s3Event, lambdaContext, lambdaContext.done)
+              const eventHandler = (s3Event) => {
+                  process.env = Object.assign(
+                      {},
+                      this.serverless.service.provider.environment,
+                      serviceFunction.environment,
+                      this.env
+                  );
+                  handler(s3Event, lambdaContext, lambdaContext.done)
+              };
               if(!(name in eventHandlers)) {
                   eventHandlers[name] = {}
               }
