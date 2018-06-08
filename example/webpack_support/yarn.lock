@@ -4155,8 +4155,9 @@ serverless-offline@^3.18.0, serverless-offline@^3.25.4:
     serverless-offline "^3.18.0"
     shelljs "^0.8.1"
 
-"serverless-webpack@file:../../../serverless-webpack":
+"serverless-webpack@https://github.com/ar90n/serverless-webpack.git#support-serverless-s3-local":
   version "5.1.5"
+  resolved "https://github.com/ar90n/serverless-webpack.git#ce88857f06341bb512daf33e611ff323376675a6"
   dependencies:
     archiver "^2.1.1"
     bluebird "^3.5.1"
