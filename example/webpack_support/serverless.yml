@@ -1,0 +1,30 @@
+service: serverless-s3-local-example
+provider:
+  name: aws
+  runtime: nodejs6.10
+plugins:
+  - serverless-webpack
+  - serverless-s3-local
+  - serverless-offline
+custom:
+  webpackIncludeModules: true
+  s3:
+    port: 8000
+    directory: /tmp
+    cors: false
+resources:
+  Resources:
+    NewResource:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: local-bucket
+functions:
+  webhook:
+    handler: src/handler.webhook
+    events:
+      - http:
+          method: GET
+  s3hook:
+    handler: src/handler.s3hook
+    events:
+      - s3: local-bucket
