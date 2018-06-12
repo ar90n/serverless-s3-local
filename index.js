@@ -139,18 +139,16 @@ class ServerlessS3Local {
 
       this.client.s3Event.map((event) => {
           const bucketName = event.Records[0].s3.bucket.name;
-          if(!(bucketName in this.eventHandlers)) {
-              return [];
-          }
-
           const eventName = event.Records[0].eventName;
-          return Object.keys(this.eventHandlers[bucketName])
-                  .filter(pattern => eventName.match(pattern) !== null)
-                  .map(pattern => this.eventHandlers[bucketName][pattern])
-                  .reduce((acc, x) => acc.concat(x), [])
-                  .map(handler => () => handler(event));
-      }).mergeMap((handlers) => {
-          return handlers
+          const key = event.Records[0].s3.object.key;
+
+          return this.eventHandlers
+              .filter(handler => handler.name == bucketName)
+              .filter(handler => eventName.match(handler.pattern) !== null)
+              .filter(handler => handler.rules.every(rule => key.match(rule)))
+              .map(handler => () => handler.func(event));
+      }).mergeMap((handler) => {
+          return handler;
       }).subscribe((handler) => {
           handler();
       });
@@ -213,11 +211,29 @@ class ServerlessS3Local {
           return {}
       }
 
-      const eventHandlers = {}
+      const eventHandlers = [];
       const servicePath = path.join(this.serverless.config.servicePath, this.options.location);
       Object.keys(this.service.functions).forEach(key => {
           const serviceFunction = this.service.getFunction(key);
 
+          const lambdaContext = createLambdaContext(serviceFunction);
+          const funOptions = functionHelper.getFunctionOptions(serviceFunction, key, servicePath);
+          const handler = functionHelper.createHandler(funOptions, this.options);
+          const func = (s3Event) => {
+              const oldEnv = process.env;
+
+              try {
+                  process.env = Object.assign(
+                    {},
+                    oldEnv,
+                    serviceFunction.environment
+                  );
+                  handler(s3Event, lambdaContext, lambdaContext.done);
+              }
+              finally {
+                  process.env = oldEnv;
+              }
+          };
           serviceFunction.events.forEach(event => {
               const s3 = (event && event.s3) || undefined;
               if (!s3) {
@@ -229,32 +245,15 @@ class ServerlessS3Local {
               const name = bucketResource ? bucketResource.Properties.BucketName : handlerBucketName ;
               const pattern = (typeof s3 === 'object') ? s3.event.replace(/^s3:/,'').replace('*', '.*') :'.*';
 
-              const lambdaContext = createLambdaContext(serviceFunction);
-              const funOptions = functionHelper.getFunctionOptions(serviceFunction, key, servicePath);
-              const handler = functionHelper.createHandler(funOptions, this.options);
-              const eventHandler = (s3Event) => {
-                  const oldEnv = process.env;
+              const rule2regex = (rule) => Object.keys(rule).map( key => key == 'prefix' && `^${rule[key]}` || `${rule[key]}$`);
+              const rules = (typeof s3 === 'object') ? [].concat(...(s3.rules || []).map(rule2regex)) : [];
 
-                  try {
-                      process.env = Object.assign(
-                        {},
-                        oldEnv,
-                        serviceFunction.environment
-                      );
-                      handler(s3Event, lambdaContext, lambdaContext.done)
-                  }
-                  finally {
-                      process.env = oldEnv;
-                  }
-              };
-              if(!(name in eventHandlers)) {
-                  eventHandlers[name] = {}
-              }
-              if(!(pattern in eventHandlers[name])) {
-                  eventHandlers[name][pattern] = []
-              }
-              eventHandlers[name][pattern].push(eventHandler)
-
+              eventHandlers.push({
+                  name,
+                  pattern,
+                  rules,
+                  func
+              });
               this.serverless.cli.log(`Found S3 event listener for ${name}`);
           });
       });
