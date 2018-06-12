@@ -9,9 +9,8 @@ module.exports.webhook = (event, context, callback) => {
     Bucket: 'local-bucket',
     Key: '1234',
     Body: new Buffer('abcd'),
-  }, () => {});
+  }, () => { callback(null, 'ok'); });
 
-  callback(null, 'ok');
 };
 
 module.exports.s3hook = (event, context) => {
