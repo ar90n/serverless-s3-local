@@ -316,7 +316,7 @@ class ServerlessS3Local {
 
   _setOptions() {
     const config = (this.serverless.service.custom && this.serverless.service.custom.s3) || {};
-    this.options = Object.assign({}, defaultOptions, this.options, config);
+    this.options = Object.assign({}, defaultOptions, (this.service.custom || {})['serverless-offline'], this.options, config);
   }
 }
 

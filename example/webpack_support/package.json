@@ -1,0 +1,28 @@
+{
+  "name": "webpack_support",
+  "version": "1.0.0",
+  "description": "example for s3 event with webpack",
+  "main": "src/handler.js",
+  "repository": "git+https://github.com/ar90n/serverless-s3-local.git",
+  "license": "MIT",
+  "scripts": {
+    "start": "serverless offline start"
+  },
+  "devDependencies": {
+    "babel-core": "^6.25.0",
+    "babel-loader": "^7.1.1",
+    "babel-plugin-transform-runtime": "^6.23.0",
+    "babel-polyfill": "^6.23.0",
+    "babel-preset-es2015": "^6.24.1",
+    "babel-preset-stage-0": "^6.24.1",
+    "serverless": "^1.18.0",
+    "serverless-offline": "^3.25.4",
+    "serverless-webpack": "^5.1.5",
+    "serverless-s3-local": "file:../../",
+    "webpack": "^3.3.0",
+    "webpack-node-externals": "^1.6.0"
+  },
+  "dependencies": {
+    "babel-runtime": "^6.22.0"
+  }
+}
