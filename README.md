@@ -87,12 +87,14 @@ Feature
 * Start local S3 server with specified root directory and port.
 * Create buckets at launching.
 * Support serverless-plugin-additional-stacks
+* Support serverless-webpack
 * Support S3 events.
 
 See also
 ===============
 * [s3rver](https://github.com/jamhall/s3rver)
 * [serverless-offline](https://github.com/dherault/serverless-offline)
+* [serverless-webpack](https://github.com/serverless-heaven/serverless-webpack)
 * [serverless-plugin-additional-stacks](https://github.com/SC5/serverless-plugin-additional-stacks)
 
 License
