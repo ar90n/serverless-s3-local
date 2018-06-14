@@ -17,7 +17,7 @@
     "babel-preset-stage-0": "^6.24.1",
     "serverless": "^1.18.0",
     "serverless-offline": "^3.25.4",
-    "serverless-webpack": "https://github.com/ar90n/serverless-webpack.git#support-serverless-s3-local",
+    "serverless-webpack": "^5.1.5",
     "serverless-s3-local": "file:../../",
     "webpack": "^3.3.0",
     "webpack-node-externals": "^1.6.0"
