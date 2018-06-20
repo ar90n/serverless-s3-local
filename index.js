@@ -216,12 +216,13 @@ class ServerlessS3Local {
       Object.keys(this.service.functions).forEach(key => {
           const serviceFunction = this.service.getFunction(key);
 
+          let handler = null;
           const lambdaContext = createLambdaContext(serviceFunction);
           const funOptions = functionHelper.getFunctionOptions(serviceFunction, key, servicePath);
-          const handler = functionHelper.createHandler(funOptions, this.options);
           const func = (s3Event) => {
-              const oldEnv = process.env;
+              handler = handler || functionHelper.createHandler(funOptions, this.options);
 
+              const oldEnv = process.env;
               try {
                   process.env = Object.assign(
                     {},
