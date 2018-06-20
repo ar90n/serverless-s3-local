@@ -1,6 +1,6 @@
 const AWS = require('aws-sdk');
 
-module.exports.webhook = () => {
+module.exports.webhook = (event, context, callback) => {
   const S3 = new AWS.S3({
     s3ForcePathStyle: true,
     endpoint: new AWS.Endpoint('http://localhost:8000'),
@@ -9,5 +9,5 @@ module.exports.webhook = () => {
     Bucket: 'local-bucket',
     Key: '1234',
     Body: new Buffer('abcd'),
-  }, () => {});
+  }, () => { callback(null, 'ok'); });
 };
