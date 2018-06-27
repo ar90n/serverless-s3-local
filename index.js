@@ -212,6 +212,8 @@ class ServerlessS3Local {
       }
 
       const eventHandlers = [];
+      //Allow integration with serverless-offline and serverless-webpack
+      this.options = Object.assign({}, this.options, (this.service.custom || {})['serverless-offline']);
       const servicePath = path.join(this.serverless.config.servicePath, this.options.location);
       Object.keys(this.service.functions).forEach(key => {
           const serviceFunction = this.service.getFunction(key);
