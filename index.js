@@ -7,9 +7,6 @@ const uuid = require('uuid/v1');
 const functionHelper = require('serverless-offline/src/functionHelper');
 const createLambdaContext = require('serverless-offline/src/createLambdaContext');
 
-require("rxjs/add/operator/map");
-require("rxjs/add/operator/mergeMap");
-
 const defaultOptions = {
   port: 4569,
   host: 'localhost',
