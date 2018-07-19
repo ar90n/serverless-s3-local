@@ -10,7 +10,9 @@ const createLambdaContext = require('serverless-offline/src/createLambdaContext'
 const defaultOptions = {
   port: 4569,
   host: 'localhost',
-  location: '.'
+  location: '.',
+  accessKeyId: 'something has to be here',
+  secretAccessKey: 'to prevent requiring ~/.aws/credentials',
 }
 
 class ServerlessS3Local {
@@ -199,7 +201,9 @@ class ServerlessS3Local {
   getClient() {
     return new AWS.S3({
       s3ForcePathStyle: true,
-      endpoint: new AWS.Endpoint(`http://localhost:${this.options.port}`),
+      endpoint: new AWS.Endpoint(`http://${this.options.host}:${this.options.port}`),
+      accessKeyId: this.options.accessKeyId,
+      secretAccessKey: this.options.secretAccessKey,
     });
   }
 
