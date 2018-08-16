@@ -53,6 +53,14 @@ class ServerlessS3Local {
                 default: false,
                 usage: 'Do not start S3 local (in case it is already running)',
               },
+              indexDocument: {
+                shortcut: 'i',
+                usage: 'Get will serve indexDocument if it is found, simulating the static website mode of AWS S3'
+              },
+              errorDocument: {
+                shortcut: 'e',
+                usage: 'Get will serve errorDocument if it is found, simulating the static website mode of AWS S3'
+              },
             },
           },
           create: {
@@ -102,7 +110,7 @@ class ServerlessS3Local {
   startHandler() {
     return new Promise((resolve, reject) => {
       this._setOptions();
-      const { noStart, port, host, cors } = this.options;
+      const { noStart, port, host, cors, indexDocument, errorDocument } = this.options;
       if (noStart) {
         return this.createBuckets().then(resolve, reject);
       }
@@ -121,6 +129,8 @@ class ServerlessS3Local {
         silent: false,
         directory,
         cors: corsPolicy,
+        indexDocument,
+        errorDocument,
       }).run((err, s3Host, s3Port) => {
         if (err) {
           console.error('Error occurred while starting S3 local.');
