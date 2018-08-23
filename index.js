@@ -104,7 +104,40 @@ class ServerlessS3Local {
       'before:offline:start:init': this.startHandler.bind(this),
       'before:offline:start': this.startHandler.bind(this),
       'before:offline:start:end': this.endHandler.bind(this),
+      'after:webpack:compile:watch:compile': this.subscriptionWebpackHandler.bind(this),
     };
+  }
+
+  subscriptionWebpackHandler() {
+    return new Promise((resolve, reject) => {
+      if (!this.s3eventSubscription) {
+        resolve();
+      }
+
+      this.s3eventSubscription.unsubscribe();
+
+      this.subscribe();
+
+      resolve();
+    });
+  }
+
+  subscribe() {
+    this.eventHandlers = this.getEventHandlers();
+
+    this.s3eventSubscription = this.client.s3Event.map((event) => {
+      const bucketName = event.Records[0].s3.bucket.name;
+      const eventName = event.Records[0].eventName;
+      const key = event.Records[0].s3.object.key;
+
+      return this.eventHandlers
+        .filter(handler => handler.name == bucketName)
+        .filter(handler => eventName.match(handler.pattern) !== null)
+        .filter(handler => handler.rules.every(rule => key.match(rule)))
+        .map(handler => () => handler.func(event));
+    }).mergeMap(handler => handler).subscribe((handler) => {
+      handler();
+    });
   }
 
   startHandler() {
@@ -144,23 +177,7 @@ class ServerlessS3Local {
         this.createBuckets().then(resolve, reject);
       });
 
-      this.eventHandlers = this.getEventHandlers();
-
-      this.client.s3Event.map((event) => {
-          const bucketName = event.Records[0].s3.bucket.name;
-          const eventName = event.Records[0].eventName;
-          const key = event.Records[0].s3.object.key;
-
-          return this.eventHandlers
-              .filter(handler => handler.name == bucketName)
-              .filter(handler => eventName.match(handler.pattern) !== null)
-              .filter(handler => handler.rules.every(rule => key.match(rule)))
-              .map(handler => () => handler.func(event));
-      }).mergeMap((handler) => {
-          return handler;
-      }).subscribe((handler) => {
-          handler();
-      });
+      this.subscribe();
     });
   }
 
@@ -224,28 +241,43 @@ class ServerlessS3Local {
 
       const eventHandlers = [];
       const servicePath = path.join(this.serverless.config.servicePath, this.options.location);
+
       Object.keys(this.service.functions).forEach(key => {
           const serviceFunction = this.service.getFunction(key);
 
-          let handler = null;
           const lambdaContext = createLambdaContext(serviceFunction);
           const funOptions = functionHelper.getFunctionOptions(serviceFunction, key, servicePath);
-          const func = (s3Event) => {
-              handler = handler || functionHelper.createHandler(funOptions, this.options);
 
+          const func = (s3Event) => {
               const oldEnv = process.env;
+
+              const baseEnvironment = {
+                IS_LOCAL: true,
+                IS_OFFLINE: true
+              };
+
               try {
+                
                   process.env = Object.assign(
                     {},
                     oldEnv,
-                    serviceFunction.environment
+                    baseEnvironment,
+                    this.service.provider.environment,
+                    serviceFunction.environment || {}
                   );
+
+                  const handler = functionHelper.createHandler(funOptions, this.options);
+
                   handler(s3Event, lambdaContext, lambdaContext.done);
+              }
+              catch(e) {
+                console.error('Error while running handler', e);
               }
               finally {
                   process.env = oldEnv;
               }
           };
+
           serviceFunction.events.forEach(event => {
               const s3 = (event && event.s3) || undefined;
               if (!s3) {
@@ -266,6 +298,7 @@ class ServerlessS3Local {
                   rules,
                   func
               });
+
               this.serverless.cli.log(`Found S3 event listener for ${name}`);
           });
       });
