@@ -104,7 +104,40 @@ class ServerlessS3Local {
       'before:offline:start:init': this.startHandler.bind(this),
       'before:offline:start': this.startHandler.bind(this),
       'before:offline:start:end': this.endHandler.bind(this),
+      'after:webpack:compile:watch:compile': this.subscriptionWebpackHandler.bind(this),
     };
+  }
+
+  subscriptionWebpackHandler() {
+    return new Promise((resolve, reject) => {
+      if (!this.s3eventSubscription) {
+        resolve();
+      }
+
+      this.s3eventSubscription.unsubscribe();
+
+      this.subscribe();
+
+      resolve();
+    });
+  }
+
+  subscribe() {
+    this.eventHandlers = this.getEventHandlers();
+
+    this.s3eventSubscription = this.client.s3Event.map((event) => {
+      const bucketName = event.Records[0].s3.bucket.name;
+      const eventName = event.Records[0].eventName;
+      const key = event.Records[0].s3.object.key;
+
+      return this.eventHandlers
+        .filter(handler => handler.name == bucketName)
+        .filter(handler => eventName.match(handler.pattern) !== null)
+        .filter(handler => handler.rules.every(rule => key.match(rule)))
+        .map(handler => () => handler.func(event));
+    }).mergeMap(handler => handler).subscribe((handler) => {
+      handler();
+    });
   }
 
   startHandler() {
@@ -144,23 +177,7 @@ class ServerlessS3Local {
         this.createBuckets().then(resolve, reject);
       });
 
-      this.eventHandlers = this.getEventHandlers();
-
-      this.client.s3Event.map((event) => {
-          const bucketName = event.Records[0].s3.bucket.name;
-          const eventName = event.Records[0].eventName;
-          const key = event.Records[0].s3.object.key;
-
-          return this.eventHandlers
-              .filter(handler => handler.name == bucketName)
-              .filter(handler => eventName.match(handler.pattern) !== null)
-              .filter(handler => handler.rules.every(rule => key.match(rule)))
-              .map(handler => () => handler.func(event));
-      }).mergeMap((handler) => {
-          return handler;
-      }).subscribe((handler) => {
-          handler();
-      });
+      this.subscribe();
     });
   }
 
