@@ -1,6 +1,6 @@
 {
   "name": "serverless-s3-local",
-  "version": "0.3.13",
+  "version": "0.3.14",
   "description": "Serverless s3 local plugin",
   "main": "index.js",
   "scripts": {
@@ -37,6 +37,6 @@
   "devDependencies": {
     "eslint": "^4.19.1",
     "eslint-config-airbnb-base": "^12.1.0",
-    "eslint-plugin-import": "^2.13.0"
+    "eslint-plugin-import": "^2.14.0"
   }
 }
