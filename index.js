@@ -171,7 +171,7 @@ class ServerlessS3Local {
           return;
         }
 
-        this.options.port = s3Port
+        this.options.port = s3Port;
         console.log(`S3 local started ( port:${s3Port} )`);
 
         this.createBuckets().then(resolve, reject);
@@ -236,7 +236,7 @@ class ServerlessS3Local {
 
   getEventHandlers() {
       if (typeof this.service !== 'object' || typeof this.service.functions !== 'object') {
-          return {}
+          return {};
       }
 
       const eventHandlers = [];
@@ -257,7 +257,7 @@ class ServerlessS3Local {
               };
 
               try {
-                
+
                   process.env = Object.assign(
                     {},
                     oldEnv,
@@ -296,7 +296,7 @@ class ServerlessS3Local {
                   name,
                   pattern,
                   rules,
-                  func
+                  func,
               });
 
               this.serverless.cli.log(`Found S3 event listener for ${name}`);
@@ -306,7 +306,7 @@ class ServerlessS3Local {
       return eventHandlers;
   }
 
-  getResourceForBucket(bucketName){
+  getResourceForBucket(bucketName) {
     const logicalResourceName = `S3Bucket${bucketName.charAt(0).toUpperCase()}${bucketName.substr(1)}`;
     return this.service.resources ? this.service.resources.Resources[logicalResourceName] : false ;
   }
@@ -325,6 +325,14 @@ class ServerlessS3Local {
       this.service &&
       this.service.plugins &&
       this.service.plugins.indexOf('serverless-plugin-additional-stacks') >= 0
+    );
+  }
+
+  hasExistingS3Plugin() {
+    return (
+      this.service &&
+      this.service.plugins &&
+      this.service.plugins.indexOf('serverless-plugin-existing-s3') >= 0
     );
   }
 
@@ -348,6 +356,31 @@ class ServerlessS3Local {
         }
       });
     }
+
+    // support for serverless-plugin-existing-s3
+    // https://www.npmjs.com/package/serverless-plugin-existing-s3
+    if(this.hasExistingS3Plugin()) {
+        const functions = this.serverless.service.functions;
+        const functionNames = Object.keys(functions);
+        functionNames.forEach(name => {
+            functions[name].events.forEach(event => {
+                const eventKeys = Object.keys(event);
+                // check if the event has an existingS3 and add if the bucket name
+                // is not already in the array
+                if(eventKeys.indexOf('existingS3') > -1) {
+                    const resourceName = `LocalS3Bucket${event.existingS3.bucket}`;
+                    const localBucket = {
+                        Type: 'AWS::S3::Bucket',
+                        Properties: {
+                            BucketName: event.existingS3.bucket,
+                        },
+                    };
+                    resources[resourceName] = localBucket;
+                }
+            });
+        });
+    }
+
     return Object.keys(resources)
       .map((key) => {
         if (resources[key].Type === 'AWS::S3::Bucket' && resources[key].Properties && resources[key].Properties.BucketName) {
