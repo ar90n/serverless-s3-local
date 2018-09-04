@@ -257,7 +257,7 @@ class ServerlessS3Local {
               };
 
               try {
-                
+
                   process.env = Object.assign(
                     {},
                     oldEnv,
@@ -328,6 +328,14 @@ class ServerlessS3Local {
     );
   }
 
+  hasExistingS3Plugin() {
+    return (
+        this.service &&
+        this.service.plugins &&
+        this.service.plugins.indexOf('serverless-plugin-existing-s3') >= 0
+      );
+  }
+
   /**
    * Get bucket list from serverless.yml resources and additional stacks
    *
@@ -347,6 +355,20 @@ class ServerlessS3Local {
           });
         }
       });
+    }
+
+    // support for serverless-plugin-existing-s3
+    // https://www.npmjs.com/package/serverless-plugin-existing-s3
+    if(this.hasExistingS3Plugin()) {
+        return Object.keys(resources)
+            .map(key => {
+                if(resources[key].events.indexOf('existingS3') > -1) {
+                    const events = resources[key].events;
+                    events.forEach(event => {
+                        this.options.buckets.push(event.bucket);
+                    })
+                }
+            })
     }
     return Object.keys(resources)
       .map((key) => {
