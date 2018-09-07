@@ -37,3 +37,13 @@ functions:
     events:
       - http:
           method: get
+  s3EventResponse:
+    handler: handler.s3EventResponse
+    events:
+      - existingS3:
+          bucket: existing-bucket
+          events:
+            - s3:ObjectCreated:Put
+        # rules:
+        #   - prefix: streams/
+        #   - suffix: playlist.m3u8

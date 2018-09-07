@@ -1,0 +1,28 @@
+{
+  "name": "serverless-s3-local-example",
+  "version": "0.0.3",
+  "description": "",
+  "main": "handler.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ar90n/serverless-s3-local.git"
+  },
+  "author": "Masahiro Wada <argon.argon.argon@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ar90n/serverless-s3-local/issues"
+  },
+  "homepage": "https://github.com/ar90n/serverless-s3-local#readme",
+  "devDependencies": {
+    "serverless": "^1.30.3",
+    "serverless-offline": "^3.3.1",
+    "serverless-plugin-existing-s3": "^2.2.2",
+    "serverless-s3-local": "file:../../"
+  },
+  "dependencies": {
+    "aws-sdk": "^2.94.0"
+  }
+}
