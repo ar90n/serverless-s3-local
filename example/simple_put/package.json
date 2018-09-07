@@ -17,7 +17,9 @@
   },
   "homepage": "https://github.com/ar90n/serverless-s3-local#readme",
   "devDependencies": {
+    "serverless": "^1.30.3",
     "serverless-offline": "^3.3.1",
+    "serverless-plugin-existing-s3": "^2.2.2",
     "serverless-s3-local": "file:../../"
   },
   "dependencies": {

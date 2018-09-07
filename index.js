@@ -294,7 +294,7 @@ class ServerlessS3Local {
           };
 
           serviceFunction.events.forEach(event => {
-              const s3 = (event && event.s3) || undefined;
+              const s3 = (event && (event.s3 || event.existingS3)) || undefined;
               if (!s3) {
                   return;
               }
@@ -302,23 +302,28 @@ class ServerlessS3Local {
               const handlerBucketName = (typeof s3 === 'object') ? s3.bucket : s3;
               const bucketResource = this.getResourceForBucket(handlerBucketName);
               const name = bucketResource ? bucketResource.Properties.BucketName : handlerBucketName ;
-              const pattern = (typeof s3 === 'object') ? s3.event.replace(/^s3:/,'').replace('*', '.*') :'.*';
-
-              const rule2regex = (rule) => Object.keys(rule).map( key => key == 'prefix' && `^${rule[key]}` || `${rule[key]}$`);
-              const rules = (typeof s3 === 'object') ? [].concat(...(s3.rules || []).map(rule2regex)) : [];
-
-              eventHandlers.push({
-                  name,
-                  pattern,
-                  rules,
-                  func
+              const s3Events = s3.events  ? s3.events : [s3.event]
+              s3Events.forEach(existingEvent => {
+                const pattern = (typeof s3 === 'object') ? existingEvent.replace(/^s3:/,'').replace('*', '.*') :'.*';
+                eventHandlers.push(this.buildEventHandler(name, pattern, s3.rules, func));
               });
-
               this.serverless.cli.log(`Found S3 event listener for ${name}`);
           });
       });
 
       return eventHandlers;
+  }
+
+  buildEventHandler(name, pattern, s3Rules, func) {
+    const rule2regex = (rule) => Object.keys(rule).map( key => key == 'prefix' && `^${rule[key]}` || `${rule[key]}$`);
+    const rules = (typeof s3 === 'object') ? [].concat(...(s3Rules || []).map(rule2regex)) : [];
+
+    return {
+        name,
+        pattern,
+        rules,
+        func
+    };
   }
 
   getResourceForBucket(bucketName){
@@ -375,26 +380,27 @@ class ServerlessS3Local {
     // support for serverless-plugin-existing-s3
     // https://www.npmjs.com/package/serverless-plugin-existing-s3
     if (this.hasExistingS3Plugin()) {
-        const functions = this.serverless.service.functions;
-        const functionNames = Object.keys(functions);
-        functionNames.forEach((name) => {
-            functions[name].events.forEach((event) => {
-                const eventKeys = Object.keys(event);
-                // check if the event has an existingS3 and add if the bucket name
-                // is not already in the array
-                if(eventKeys.indexOf('existingS3') > -1) {
-                    const resourceName = `LocalS3Bucket${event.existingS3.bucket}`;
-                    const localBucket = {
-                        Type: 'AWS::S3::Bucket',
-                        Properties: {
-                            BucketName: event.existingS3.bucket,
-                        },
-                    };
-                    resources[resourceName] = localBucket;
-                }
-            })
+      const functions = this.serverless.service.functions;
+      const functionNames = Object.keys(functions);
+      functionNames.forEach((name) => {
+        functions[name].events.forEach((event) => {
+          const eventKeys = Object.keys(event);
+          // check if the event has an existingS3 and add if the bucket name
+          // is not already in the array
+          if (eventKeys.indexOf('existingS3') > -1) {
+            const resourceName = `LocalS3Bucket${event.existingS3.bucket}`;
+            const localBucket = {
+              Type: 'AWS::S3::Bucket',
+              Properties: {
+                BucketName: event.existingS3.bucket,
+              },
+            };
+            resources[resourceName] = localBucket;
+          }
         });
+      });
     }
+
     return Object.keys(resources)
       .map((key) => {
         if (resources[key].Type === 'AWS::S3::Bucket' && resources[key].Properties && resources[key].Properties.BucketName) {

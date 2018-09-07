@@ -4,6 +4,7 @@ provider:
   runtime: nodejs4.3
 plugins:
   - serverless-s3-local
+  - serverless-plugin-existing-s3
   - serverless-offline
 custom:
   # Uncomment only if you want to collaborate with serverless-plugin-additional-stacks
@@ -16,7 +17,7 @@ custom:
   #                BucketName: ${self:service}-data
   s3:
     port: 8000
-    directory: /tmp
+    directory: ./tmp
     # Uncomment the first line only if you want to use cors with specified policy
     # Uncomment the second line only if you don't want to use cors
     # Not uncomment the these lines only if your wanto use cors with default policy
@@ -35,4 +36,14 @@ functions:
     handler: handler.webhook
     events:
       - http:
-          method: GET
+          method: get
+  s3EventResponse:
+    handler: handler.s3EventResponse
+    events:
+      - existingS3:
+          bucket: existing-bucket
+          events:
+            - s3:ObjectCreated:Put
+        # rules:
+        #   - prefix: streams/
+        #   - suffix: playlist.m3u8

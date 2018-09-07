@@ -6,8 +6,13 @@ module.exports.webhook = (event, context, callback) => {
     endpoint: new AWS.Endpoint('http://localhost:8000'),
   });
   S3.putObject({
-    Bucket: 'local-bucket',
-    Key: '1234',
-    Body: new Buffer('abcd'),
+    Bucket: 'existing-bucket',
+    Key: '1234/data.txt',
+    Body: Buffer.from('abcd'),
   }, () => { callback(null, 'ok'); });
+};
+
+module.exports.s3EventResponse = (event, context, callback) => {
+  console.log('S3 Event HEARD');
+  callback(null, 'ok');
 };
