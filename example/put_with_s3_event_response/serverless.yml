@@ -44,6 +44,3 @@ functions:
           bucket: existing-bucket
           events:
             - s3:ObjectCreated:Put
-        # rules:
-        #   - prefix: streams/
-        #   - suffix: playlist.m3u8
