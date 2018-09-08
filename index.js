@@ -308,7 +308,8 @@ class ServerlessS3Local {
 
   getResourceForBucket(bucketName){
     const logicalResourceName = `S3Bucket${bucketName.charAt(0).toUpperCase()}${bucketName.substr(1)}`;
-    return this.service.resources ? this.service.resources.Resources[logicalResourceName] : false ;
+    return this.service.resources && this.service.resources.Resources 
+      ? this.service.resources.Resources[logicalResourceName] : false;
   }
 
   getAdditionalStacks() {
