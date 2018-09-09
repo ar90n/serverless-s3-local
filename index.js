@@ -3,7 +3,6 @@ const fs = require('fs-extra'); // Using fs-extra to ensure destination director
 const AWS = require('aws-sdk');
 const shell = require('shelljs');
 const path = require('path');
-const uuid = require('uuid/v1');
 const functionHelper = require('serverless-offline/src/functionHelper');
 const createLambdaContext = require('serverless-offline/src/createLambdaContext');
 
@@ -13,7 +12,20 @@ const defaultOptions = {
   location: '.',
   accessKeyId: 'something has to be here',
   secretAccessKey: 'to prevent requiring ~/.aws/credentials',
-}
+};
+
+const removeBucket = ({ bucket, port }) => new Promise((resolve, reject) => {
+    shell.exec(
+      `aws --endpoint http://localhost:${port} s3 rb "s3://${bucket}" --force`,
+      { silent: true },
+      (code, stdout, stderr) => {
+        if (code === 0) return resolve();
+        if (stderr && stderr.indexOf('NoSuchBucket') !== -1) return resolve();
+
+        return reject(new Error(`failed to delete bucket ${bucket}: ${stderr || stdout}`));
+      }
+    );
+  });
 
 class ServerlessS3Local {
   constructor(serverless, options) {
@@ -55,11 +67,11 @@ class ServerlessS3Local {
               },
               indexDocument: {
                 shortcut: 'i',
-                usage: 'Get will serve indexDocument if it is found, simulating the static website mode of AWS S3'
+                usage: 'Get will serve indexDocument if it is found, simulating the static website mode of AWS S3',
               },
               errorDocument: {
                 shortcut: 'e',
-                usage: 'Get will serve errorDocument if it is found, simulating the static website mode of AWS S3'
+                usage: 'Get will serve errorDocument if it is found, simulating the static website mode of AWS S3',
               },
             },
           },
@@ -76,7 +88,7 @@ class ServerlessS3Local {
                 shortcut: 'b',
                 usage: 'After starting S3 local, create specified buckets',
               },
-            }
+            },
           },
           remove: {
             usage: 'Remove local S3 buckets.',
@@ -91,8 +103,8 @@ class ServerlessS3Local {
                 shortcut: 'b',
                 usage: 'After starting S3 local, create specified buckets',
               },
-            }
-          }
+            },
+          },
         },
       },
     };
@@ -109,7 +121,7 @@ class ServerlessS3Local {
   }
 
   subscriptionWebpackHandler() {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       if (!this.s3eventSubscription) {
         resolve();
       }
@@ -117,7 +129,7 @@ class ServerlessS3Local {
       this.s3eventSubscription.unsubscribe();
 
       this.subscribe();
-
+      console.log('constructor');
       resolve();
     });
   }
@@ -125,13 +137,14 @@ class ServerlessS3Local {
   subscribe() {
     this.eventHandlers = this.getEventHandlers();
 
+    console.log('client s3event', typeof this.client.s3Event);
     this.s3eventSubscription = this.client.s3Event.map((event) => {
       const bucketName = event.Records[0].s3.bucket.name;
       const eventName = event.Records[0].eventName;
       const key = event.Records[0].s3.object.key;
 
       return this.eventHandlers
-        .filter(handler => handler.name == bucketName)
+        .filter(handler => handler.name === bucketName)
         .filter(handler => eventName.match(handler.pattern) !== null)
         .filter(handler => handler.rules.every(rule => key.match(rule)))
         .map(handler => () => handler.func(event));
@@ -143,7 +156,9 @@ class ServerlessS3Local {
   startHandler() {
     return new Promise((resolve, reject) => {
       this._setOptions();
-      const { noStart, port, host, cors, indexDocument, errorDocument } = this.options;
+      const {
+        noStart, port, host, cors, indexDocument, errorDocument,
+      } = this.options;
       if (noStart) {
         return this.createBuckets().then(resolve, reject);
       }
@@ -153,8 +168,7 @@ class ServerlessS3Local {
       const directory = fs.realpathSync(dirPath);
 
       const corsPolicy = cors ?
-            fs.readFileSync(path.resolve(this.serverless.config.servicePath, cors) , 'utf8') :
-            cors ;
+        fs.readFileSync(path.resolve(this.serverless.config.servicePath, cors), 'utf8') : cors;
 
       this.client = new S3rver({
         port,
@@ -176,7 +190,7 @@ class ServerlessS3Local {
 
         this.createBuckets().then(resolve, reject);
       });
-
+      console.log('starting handler');
       this.subscribe();
     });
   }
@@ -199,26 +213,27 @@ class ServerlessS3Local {
   }
 
   createBuckets() {
-    return Promise.resolve().then(() => {
-      const buckets = this.buckets();
-      if (!buckets.length) return;
+    const buckets = this.buckets();
+    if (!buckets.length) {
+      console.log('WARN: No buckets found to create');
+      return null;
+    }
 
-      const s3Client = this.getClient();
-      return Promise.all(buckets.map(Bucket => {
-        this.serverless.cli.log(`creating bucket: ${Bucket}`);
-        return s3Client.createBucket({ Bucket }).promise();
-      }));
-    })
-    .catch(x => {});
+    const s3Client = this.getClient();
+    return Promise.all(buckets.map((Bucket) => {
+      this.serverless.cli.log(`creating bucket: ${Bucket}`);
+      return s3Client.createBucket({ Bucket }).promise();
+    }))
+      .catch(() => ({}));
   }
 
   removeBuckets() {
     return Promise.resolve().then(() => {
       const { port } = this.options;
       const buckets = this.buckets();
-      if (!buckets.length) return;
+      if (!buckets.length) return null;
 
-      return Promise.all(buckets.map(bucket => {
+      return Promise.all(buckets.map((bucket) => {
         this.serverless.cli.log(`removing bucket: ${bucket}`);
         return removeBucket({ port, bucket });
       }));
@@ -235,12 +250,12 @@ class ServerlessS3Local {
   }
 
   getEventHandlers() {
-      if (typeof this.service !== 'object' || typeof this.service.functions !== 'object') {
-          return {}
-      }
+    if (typeof this.service !== 'object' || typeof this.service.functions !== 'object') {
+      return {};
+    }
 
-      const eventHandlers = [];
-      const servicePath = path.join(this.serverless.config.servicePath, this.options.location);
+    const eventHandlers = [];
+    const servicePath = path.join(this.serverless.config.servicePath, this.options.location);
 
       Object.keys(this.service.functions).forEach(key => {
           const serviceFunction = this.service.getFunction(key);
@@ -257,7 +272,7 @@ class ServerlessS3Local {
               };
 
               try {
-                
+
                   process.env = Object.assign(
                     {},
                     oldEnv,
@@ -279,7 +294,7 @@ class ServerlessS3Local {
           };
 
           serviceFunction.events.forEach(event => {
-              const s3 = (event && event.s3) || undefined;
+              const s3 = (event && (event.s3 || event.existingS3)) || undefined;
               if (!s3) {
                   return;
               }
@@ -287,23 +302,28 @@ class ServerlessS3Local {
               const handlerBucketName = (typeof s3 === 'object') ? s3.bucket : s3;
               const bucketResource = this.getResourceForBucket(handlerBucketName);
               const name = bucketResource ? bucketResource.Properties.BucketName : handlerBucketName ;
-              const pattern = (typeof s3 === 'object') ? s3.event.replace(/^s3:/,'').replace('*', '.*') :'.*';
-
-              const rule2regex = (rule) => Object.keys(rule).map( key => key == 'prefix' && `^${rule[key]}` || `${rule[key]}$`);
-              const rules = (typeof s3 === 'object') ? [].concat(...(s3.rules || []).map(rule2regex)) : [];
-
-              eventHandlers.push({
-                  name,
-                  pattern,
-                  rules,
-                  func
+              const s3Events = s3.events  ? s3.events : [s3.event]
+              s3Events.forEach(existingEvent => {
+                const pattern = (typeof s3 === 'object') ? existingEvent.replace(/^s3:/,'').replace('*', '.*') :'.*';
+                eventHandlers.push(this.buildEventHandler(name, pattern, s3.rules, func));
               });
-
               this.serverless.cli.log(`Found S3 event listener for ${name}`);
           });
       });
 
       return eventHandlers;
+  }
+
+  buildEventHandler(name, pattern, s3Rules, func) {
+    const rule2regex = (rule) => Object.keys(rule).map( key => key == 'prefix' && `^${rule[key]}` || `${rule[key]}$`);
+    const rules = (typeof s3 === 'object') ? [].concat(...(s3Rules || []).map(rule2regex)) : [];
+
+    return {
+        name,
+        pattern,
+        rules,
+        func
+    };
   }
 
   getResourceForBucket(bucketName){
@@ -328,6 +348,14 @@ class ServerlessS3Local {
     );
   }
 
+  hasExistingS3Plugin() {
+    return (
+        this.service &&
+        this.service.plugins &&
+        this.service.plugins.indexOf('serverless-plugin-existing-s3') >= 0
+      );
+  }
+
   /**
    * Get bucket list from serverless.yml resources and additional stacks
    *
@@ -348,6 +376,31 @@ class ServerlessS3Local {
         }
       });
     }
+
+    // support for serverless-plugin-existing-s3
+    // https://www.npmjs.com/package/serverless-plugin-existing-s3
+    if (this.hasExistingS3Plugin()) {
+      const functions = this.serverless.service.functions;
+      const functionNames = Object.keys(functions);
+      functionNames.forEach((name) => {
+        functions[name].events.forEach((event) => {
+          const eventKeys = Object.keys(event);
+          // check if the event has an existingS3 and add if the bucket name
+          // is not already in the array
+          if (eventKeys.indexOf('existingS3') > -1) {
+            const resourceName = `LocalS3Bucket${event.existingS3.bucket}`;
+            const localBucket = {
+              Type: 'AWS::S3::Bucket',
+              Properties: {
+                BucketName: event.existingS3.bucket,
+              },
+            };
+            resources[resourceName] = localBucket;
+          }
+        });
+      });
+    }
+
     return Object.keys(resources)
       .map((key) => {
         if (resources[key].Type === 'AWS::S3::Bucket' && resources[key].Properties && resources[key].Properties.BucketName) {
@@ -364,18 +417,5 @@ class ServerlessS3Local {
     this.options = Object.assign({}, defaultOptions, (this.service.custom || {})['serverless-offline'], this.options, config);
   }
 }
-
-const removeBucket = ({ bucket, port }) => new Promise((resolve, reject) => {
-  shell.exec(
-    `aws --endpoint http://localhost:${port} s3 rb "s3://${bucket}" --force`,
-    { silent: true },
-    function (code, stdout, stderr) {
-      if (code === 0) return resolve();
-      if (stderr && stderr.indexOf('NoSuchBucket') !== -1) return resolve();
-
-      reject(new Error(`failed to delete bucket ${bucket}: ${stderr || stdout}`));
-    }
-  );
-});
 
 module.exports = ServerlessS3Local;
