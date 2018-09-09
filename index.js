@@ -3,6 +3,7 @@ const fs = require('fs-extra'); // Using fs-extra to ensure destination director
 const AWS = require('aws-sdk');
 const shell = require('shelljs');
 const path = require('path');
+const { map, mergeMap } = require("rxjs/operators");
 const functionHelper = require('serverless-offline/src/functionHelper');
 const createLambdaContext = require('serverless-offline/src/createLambdaContext');
 
@@ -138,17 +139,21 @@ class ServerlessS3Local {
     this.eventHandlers = this.getEventHandlers();
 
     console.log('client s3event', typeof this.client.s3Event);
-    this.s3eventSubscription = this.client.s3Event.map((event) => {
-      const bucketName = event.Records[0].s3.bucket.name;
-      const eventName = event.Records[0].eventName;
-      const key = event.Records[0].s3.object.key;
+    this.s3eventSubscription = this.client.s3Event.pipe(
+      map((event) => {
+        const bucketName = event.Records[0].s3.bucket.name;
+        const eventName = event.Records[0].eventName;
+        const key = event.Records[0].s3.object.key;
 
-      return this.eventHandlers
-        .filter(handler => handler.name === bucketName)
-        .filter(handler => eventName.match(handler.pattern) !== null)
-        .filter(handler => handler.rules.every(rule => key.match(rule)))
-        .map(handler => () => handler.func(event));
-    }).mergeMap(handler => handler).subscribe((handler) => {
+        return this.eventHandlers
+          .filter(handler => handler.name == bucketName)
+          .filter(handler => eventName.match(handler.pattern) !== null)
+          .filter(handler => handler.rules.every(rule => key.match(rule)))
+          .map(handler => () => handler.func(event));
+      }),
+      mergeMap(handler => handler)
+    )
+    .subscribe((handler) => {
       handler();
     });
   }
@@ -305,7 +310,7 @@ class ServerlessS3Local {
               const s3Events = s3.events  ? s3.events : [s3.event]
               s3Events.forEach(existingEvent => {
                 const pattern = (typeof s3 === 'object') ? existingEvent.replace(/^s3:/,'').replace('*', '.*') :'.*';
-                eventHandlers.push(this.buildEventHandler(name, pattern, s3.rules, func));
+                eventHandlers.push(this.buildEventHandler(s3, name, pattern, s3.rules, func));
               });
               this.serverless.cli.log(`Found S3 event listener for ${name}`);
           });
@@ -314,7 +319,7 @@ class ServerlessS3Local {
       return eventHandlers;
   }
 
-  buildEventHandler(name, pattern, s3Rules, func) {
+  buildEventHandler(s3, name, pattern, s3Rules, func) {
     const rule2regex = (rule) => Object.keys(rule).map( key => key == 'prefix' && `^${rule[key]}` || `${rule[key]}$`);
     const rules = (typeof s3 === 'object') ? [].concat(...(s3Rules || []).map(rule2regex)) : [];
 
