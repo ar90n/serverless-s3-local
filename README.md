@@ -88,6 +88,7 @@ Feature
 * Create buckets at launching.
 * Support serverless-plugin-additional-stacks
 * Support serverless-webpack
+* Support serverless-plugin-existing-s3
 * Support S3 events.
 
 See also
@@ -96,6 +97,7 @@ See also
 * [serverless-offline](https://github.com/dherault/serverless-offline)
 * [serverless-webpack](https://github.com/serverless-heaven/serverless-webpack)
 * [serverless-plugin-additional-stacks](https://github.com/SC5/serverless-plugin-additional-stacks)
+* [serverless-plugin-existing-s3](https://www.npmjs.com/package/serverless-plugin-existing-s3)
 
 License
 ===============
