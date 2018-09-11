@@ -221,7 +221,7 @@ class ServerlessS3Local {
     const buckets = this.buckets();
     if (!buckets.length) {
       console.log('WARN: No buckets found to create');
-      return null;
+      return Promise.resolve([]);
     }
 
     const s3Client = this.getClient();
