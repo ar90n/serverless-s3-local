@@ -148,7 +148,21 @@ class ServerlessS3Local {
         return this.eventHandlers
           .filter(handler => handler.name == bucketName)
           .filter(handler => eventName.match(handler.pattern) !== null)
-          .filter(handler => handler.rules.every(rule => key.match(rule)))
+          .filter(handler => {
+            const obj = handler.rules.reduce((acc, rule) => {
+              if (!acc.prefix && rule.prefix) {
+                acc.prefix = key.match(rule.prefix);
+              }
+              else if (!acc.suffix && rule.suffix) {
+                acc.suffix = key.match(rule.suffix);
+              }
+              return acc;
+            }, {
+                prefix: !handler.rules.some(rule => rule.prefix),
+                suffix: !handler.rules.some(rule => rule.suffix)
+              })
+            return obj.prefix && obj.suffix
+          })
           .map(handler => () => handler.func(event));
       }),
       mergeMap(handler => handler)
@@ -320,7 +334,7 @@ class ServerlessS3Local {
   }
 
   buildEventHandler(s3, name, pattern, s3Rules, func) {
-    const rule2regex = (rule) => Object.keys(rule).map( key => key == 'prefix' && `^${rule[key]}` || `${rule[key]}$`);
+    const rule2regex = (rule) => Object.keys(rule).map(key => key == 'prefix' && { prefix: `^${rule[key]}` } || { suffix: `${rule[key]}$` });
     const rules = (typeof s3 === 'object') ? [].concat(...(s3Rules || []).map(rule2regex)) : [];
 
     return {
