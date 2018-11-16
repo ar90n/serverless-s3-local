@@ -375,8 +375,8 @@ class ServerlessS3Local {
         this.service &&
         this.service.plugins &&
         this.service.plugins.modules
-				? this.service.plugins.modules.indexOf('serverless-plugin-additional-stacks') >= 0
-				: this.service.plugins.indexOf('serverless-plugin-additional-stacks') >= 0
+				? this.service.plugins.modules.indexOf('serverless-plugin-existing-s3') >= 0
+				: this.service.plugins.indexOf('serverless-plugin-existing-s3') >= 0
       );
   }
 
