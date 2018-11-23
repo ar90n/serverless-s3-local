@@ -207,7 +207,7 @@ class ServerlessS3Local {
         this.options.port = s3Port
         console.log(`S3 local started ( port:${s3Port} )`);
 
-        this.createBuckets().then(resolve, reject);
+        this.createBuckets();
       });
       console.log('starting handler');
       this.subscribe();
