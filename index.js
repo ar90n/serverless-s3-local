@@ -270,67 +270,65 @@ class ServerlessS3Local {
 
   getEventHandlers() {
     if (typeof this.service !== 'object' || typeof this.service.functions !== 'object') {
-      return {};
+        return {};
     }
 
     const eventHandlers = [];
     const servicePath = path.join(this.serverless.config.servicePath, this.options.location);
 
-      Object.keys(this.service.functions).forEach(key => {
-          const serviceFunction = this.service.getFunction(key);
+    Object.keys(this.service.functions).forEach(key => {
+        const serviceFunction = this.service.getFunction(key);
 
-          const lambdaContext = createLambdaContext(serviceFunction);
-          const funOptions = functionHelper.getFunctionOptions(serviceFunction, key, servicePath);
+        const lambdaContext = createLambdaContext(serviceFunction);
+        const funOptions = functionHelper.getFunctionOptions(serviceFunction, key, servicePath);
 
-          const func = (s3Event) => {
-              const oldEnv = process.env;
+        const func = (s3Event) => {
+          const oldEnv = process.env;
 
-              const baseEnvironment = {
-                IS_LOCAL: true,
-                IS_OFFLINE: true
-              };
-
-              try {
-
-                  process.env = Object.assign(
-                    {},
-                    oldEnv,
-                    baseEnvironment,
-                    this.service.provider.environment,
-                    serviceFunction.environment || {}
-                  );
-
-                  const handler = functionHelper.createHandler(funOptions, this.options);
-
-                  handler(s3Event, lambdaContext, lambdaContext.done);
-              }
-              catch(e) {
-                console.error('Error while running handler', e);
-              }
-              finally {
-                  process.env = oldEnv;
-              }
+          const baseEnvironment = {
+            IS_LOCAL: true,
+            IS_OFFLINE: true
           };
 
-          serviceFunction.events.forEach(event => {
-              const s3 = (event && (event.s3 || event.existingS3)) || undefined;
-              if (!s3) {
-                  return;
-              }
+          try {
+            process.env = Object.assign(
+              {},
+              oldEnv,
+              baseEnvironment,
+              this.service.provider.environment,
+              serviceFunction.environment || {}
+            );
 
-              const handlerBucketName = (typeof s3 === 'object') ? s3.bucket : s3;
-              const bucketResource = this.getResourceForBucket(handlerBucketName);
-              const name = bucketResource ? bucketResource.Properties.BucketName : handlerBucketName ;
-              const s3Events = s3.events  ? s3.events : [s3.event]
-              s3Events.forEach(existingEvent => {
-                const pattern = (typeof s3 === 'object') ? existingEvent.replace(/^s3:/,'').replace('*', '.*') :'.*';
-                eventHandlers.push(this.buildEventHandler(s3, name, pattern, s3.rules, func));
-              });
-              this.serverless.cli.log(`Found S3 event listener for ${name}`);
+            const handler = functionHelper.createHandler(funOptions, this.options);
+            handler(s3Event, lambdaContext, lambdaContext.done);
+          }
+          catch(e) {
+            console.error('Error while running handler', e);
+          }
+          finally {
+            process.env = oldEnv;
+          }
+        };
+
+        serviceFunction.events.forEach(event => {
+          const s3 = (event && (event.s3 || event.existingS3)) || undefined;
+          if (!s3) {
+            return;
+          }
+
+          const handlerBucketName = (typeof s3 === 'object') ? s3.bucket : s3;
+          const bucketResource = this.getResourceForBucket(handlerBucketName);
+          const name = bucketResource ? bucketResource.Properties.BucketName : handlerBucketName ;
+          const s3Events = s3.events  ? s3.events : [s3.event]
+          s3Events.forEach(existingEvent => {
+            const pattern = (typeof s3 === 'object') ? existingEvent.replace(/^s3:/,'').replace('*', '.*') :'.*';
+            eventHandlers.push(this.buildEventHandler(s3, name, pattern, s3.rules, func));
           });
-      });
+          this.serverless.cli.log(`Found S3 event listener for ${name}`);
+        });
+    });
 
-      return eventHandlers;
+    return eventHandlers;
   }
 
   buildEventHandler(s3, name, pattern, s3Rules, func) {
@@ -365,19 +363,19 @@ class ServerlessS3Local {
       this.service &&
       this.service.plugins &&
       this.service.plugins.modules
-			? this.service.plugins.modules.indexOf('serverless-plugin-additional-stacks') >= 0
-			: this.service.plugins.indexOf('serverless-plugin-additional-stacks') >= 0
+        ? this.service.plugins.modules.indexOf('serverless-plugin-additional-stacks') >= 0
+        : this.service.plugins.indexOf('serverless-plugin-additional-stacks') >= 0
     );
   }
 
   hasExistingS3Plugin() {
     return (
-        this.service &&
-        this.service.plugins &&
-        this.service.plugins.modules
-				? this.service.plugins.modules.indexOf('serverless-plugin-existing-s3') >= 0
-				: this.service.plugins.indexOf('serverless-plugin-existing-s3') >= 0
-      );
+      this.service &&
+      this.service.plugins &&
+      this.service.plugins.modules
+        ? this.service.plugins.modules.indexOf('serverless-plugin-existing-s3') >= 0
+        : this.service.plugins.indexOf('serverless-plugin-existing-s3') >= 0
+    );
   }
 
   /**
@@ -425,6 +423,17 @@ class ServerlessS3Local {
       });
     }
 
+    const event_source_buckets = Object.keys(this.service.functions).flatMap(key => {
+      const serviceFunction = this.service.getFunction(key);
+      return serviceFunction.events.map(event => {
+        const s3 = (event && (event.s3 || event.existingS3)) || undefined;
+        if (!s3) {
+          return;
+        }
+        return (typeof s3 === 'object') ? s3.bucket : s3;
+      })
+    });
+
     return Object.keys(resources)
       .map((key) => {
         if (resources[key].Type === 'AWS::S3::Bucket' && resources[key].Properties && resources[key].Properties.BucketName) {
@@ -433,6 +442,7 @@ class ServerlessS3Local {
         return null;
       })
       .concat(this.options.buckets)
+      .concat(event_source_buckets)
       .filter(n => n);
   }
 

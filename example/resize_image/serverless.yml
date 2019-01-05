@@ -20,12 +20,6 @@ custom:
     cors: false
     # Uncomment only if you already have a S3 server running locally
     # noStart: true
-resources:
-  Resources:
-    NewResource:
-      Type: AWS::S3::Bucket
-      Properties:
-        BucketName: local-bucket
 functions:
   s3hook:
     handler: handler.s3hook
