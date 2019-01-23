@@ -423,16 +423,17 @@ class ServerlessS3Local {
       });
     }
 
-    const event_source_buckets = Object.keys(this.service.functions).flatMap(key => {
+    const event_source_buckets = Object.keys(this.service.functions).reduce((acc, key) => {
       const serviceFunction = this.service.getFunction(key);
-      return serviceFunction.events.map(event => {
+      return acc.concat(serviceFunction.events.map(event => {
         const s3 = (event && (event.s3 || event.existingS3)) || undefined;
         if (!s3) {
           return;
         }
+
         return (typeof s3 === 'object') ? s3.bucket : s3;
-      })
-    });
+      }));
+    }, []);
 
     return Object.keys(resources)
       .map((key) => {
