@@ -283,17 +283,14 @@ class ServerlessS3Local {
         const funOptions = functionHelper.getFunctionOptions(serviceFunction, key, servicePath);
 
         const func = (s3Event) => {
-          const oldEnv = process.env;
-
           const baseEnvironment = {
             IS_LOCAL: true,
             IS_OFFLINE: true
           };
 
           try {
-            process.env = Object.assign(
-              {},
-              oldEnv,
+            Object.assign(
+              process.env,
               baseEnvironment,
               this.service.provider.environment,
               serviceFunction.environment || {}
@@ -304,9 +301,6 @@ class ServerlessS3Local {
           }
           catch(e) {
             console.error('Error while running handler', e);
-          }
-          finally {
-            process.env = oldEnv;
           }
         };
 
