@@ -3,6 +3,7 @@ const fs = require('fs-extra'); // Using fs-extra to ensure destination director
 const AWS = require('aws-sdk');
 const shell = require('shelljs');
 const path = require('path');
+const { fromEvent } = require("rxjs/observable/fromEvent");
 const { map, mergeMap } = require("rxjs/operators");
 const functionHelper = require('serverless-offline/src/functionHelper');
 const createLambdaContext = require('serverless-offline/src/createLambdaContext');
@@ -11,8 +12,8 @@ const defaultOptions = {
   port: 4569,
   host: 'localhost',
   location: '.',
-  accessKeyId: 'something has to be here',
-  secretAccessKey: 'to prevent requiring ~/.aws/credentials',
+  accessKeyId: 'S3RVER',
+  secretAccessKey: 'S3RVER',
 };
 
 const removeBucket = ({ bucket, port }) => new Promise((resolve, reject) => {
@@ -138,8 +139,9 @@ class ServerlessS3Local {
   subscribe() {
     this.eventHandlers = this.getEventHandlers();
 
-    console.log('client s3event', typeof this.client.s3Event);
-    this.s3eventSubscription = this.client.s3Event.pipe(
+    const s3Event = fromEvent(this.client, "event");
+
+    this.s3eventSubscription = s3Event.pipe(
       map((event) => {
         const bucketName = event.Records[0].s3.bucket.name;
         const eventName = event.Records[0].eventName;
@@ -197,15 +199,15 @@ class ServerlessS3Local {
         cors: corsPolicy,
         indexDocument,
         errorDocument,
-      }).run((err, s3Host, s3Port) => {
+      }).run((err, { address, port } = {}) => {
         if (err) {
           console.error('Error occurred while starting S3 local.');
           reject(err);
           return;
         }
 
-        this.options.port = s3Port
-        console.log(`S3 local started ( port:${s3Port} )`);
+        this.options.port = port
+        console.log(`S3 local started ( port:${port} )`);
 
         this.createBuckets().then(resolve, reject);
       });
