@@ -14,9 +14,14 @@ I think it is good to collaborate with serverless-offline.
 
 Installation
 ===============
-
+Use npm
 ```bash
 npm install serverless-s3-local --save-dev
+```
+
+Use serverless plugin install
+```bash
+sls plugin install --name serverless-s3-local
 ```
 
 Example
@@ -27,7 +32,7 @@ Example
 service: serverless-s3-local-example
 provider:
   name: aws
-  runtime: nodejs4.3
+  runtime: nodejs8.10
 plugins:
   - serverless-s3-local
   - serverless-offline
@@ -63,6 +68,10 @@ functions:
     events:
       - http:
         method: GET
+  s3hook:
+    handler: handler.s3hook
+    events:
+      - s3: local-bucket
 ```
 
 **handler.js**
@@ -79,6 +88,12 @@ module.exports.webhook = (event, context, callback) => {
     Key: '1234',
     Body: new Buffer('abcd')
   }, () => {} );
+};
+
+module.exports.s3hook = (event, context) => {
+  console.log(JSON.stringify(event));
+  console.log(JSON.stringify(context));
+  console.log(JSON.stringify(process.env));
 };
 ```
 

@@ -1,7 +1,7 @@
 service: serverless-s3-local-example
 provider:
   name: aws
-  runtime: nodejs6.10
+  runtime: nodejs8.10
 plugins:
   - serverless-webpack
   - serverless-s3-local
@@ -20,11 +20,13 @@ resources:
         BucketName: local-bucket
 functions:
   webhook:
+    runtime: "nodejs"
     handler: src/handler.webhook
     events:
       - http:
           method: GET
   s3hook:
+    runtime: "nodejs"
     handler: src/handler.s3hook
     events:
       - s3: local-bucket

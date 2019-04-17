@@ -3,6 +3,8 @@ const aws = require('aws-sdk');
 const s3 = new aws.S3({
     s3ForcePathStyle: true,
     endpoint: new aws.Endpoint('http://localhost:8000'),
+    accessKeyId: 'S3RVER',
+    secretAccessKey: 'S3RVER',
 });
 const sharp = require('sharp');
 

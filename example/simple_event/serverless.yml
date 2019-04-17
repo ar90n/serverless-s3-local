@@ -2,7 +2,7 @@ service: serverless-s3-local-example
 
 provider:
   name: aws
-  runtime: nodejs4.3
+  runtime: nodejs8.10
 
 plugins:
   - serverless-s3-local
@@ -32,6 +32,7 @@ functions:
           path: /
           method: GET
   s3hook:
+    runtime: "nodejs"
     handler: handler.s3hook
     environment:
       ENV_000: 123
