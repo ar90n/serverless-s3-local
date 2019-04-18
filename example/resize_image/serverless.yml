@@ -22,7 +22,6 @@ custom:
     # noStart: true
 functions:
   s3hook:
-    runtime: "nodejs"
     handler: handler.s3hook
     events:
       - s3:

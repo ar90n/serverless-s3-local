@@ -32,7 +32,6 @@ functions:
       - http:
           method: get
   s3EventResponse:
-    runtime: "nodejs"
     handler: handler.s3EventResponse
     events:
       - existingS3:

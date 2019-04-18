@@ -270,6 +270,36 @@ class ServerlessS3Local {
     });
   }
 
+  getServiceRuntime() {
+    // Following codes are derived from serverless/index.js
+    let serviceRuntime = this.service.provider.runtime;
+
+    if (!serviceRuntime) {
+      throw new Error('Missing required property "runtime" for provider.');
+    }
+
+    if (typeof serviceRuntime !== 'string') {
+      throw new Error('Provider configuration property "runtime" wasn\'t a string.');
+    }
+
+    if (serviceRuntime === 'provided') {
+      if (this.options.providedRuntime) {
+        serviceRuntime = this.options.providedRuntime;
+      }
+      else {
+        throw new Error('Runtime "provided" is unsupported. Please add a --providedRuntime CLI option.');
+      }
+    }
+
+    if (!(serviceRuntime.startsWith('nodejs') || serviceRuntime.startsWith('python') || serviceRuntime.startsWith('ruby'))) {
+      this.serverless.cli.log(`Warning: found unsupported runtime '${serviceRuntime}'`);
+
+      return null;
+    }
+
+    return serviceRuntime;
+  }
+
   getEventHandlers() {
     if (typeof this.service !== 'object' || typeof this.service.functions !== 'object') {
         return {};
@@ -277,12 +307,13 @@ class ServerlessS3Local {
 
     const eventHandlers = [];
     const servicePath = path.join(this.serverless.config.servicePath, this.options.location);
+    const serviceRuntime = this.getServiceRuntime();
 
     Object.keys(this.service.functions).forEach(key => {
         const serviceFunction = this.service.getFunction(key);
 
         const lambdaContext = createLambdaContext(serviceFunction);
-        const funOptions = functionHelper.getFunctionOptions(serviceFunction, key, servicePath);
+        const funOptions = functionHelper.getFunctionOptions(serviceFunction, key, servicePath, serviceRuntime);
 
         const func = (s3Event) => {
           const baseEnvironment = {

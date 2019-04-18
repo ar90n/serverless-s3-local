@@ -32,7 +32,6 @@ functions:
           path: /
           method: GET
   s3hook:
-    runtime: "nodejs"
     handler: handler.s3hook
     environment:
       ENV_000: 123
