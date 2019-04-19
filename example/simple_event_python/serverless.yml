@@ -1,0 +1,21 @@
+service: serverless-s3-local-example
+
+provider:
+  name: aws
+  runtime: python3.6
+
+plugins:
+  - serverless-s3-local
+  - serverless-offline
+
+custom:
+  s3:
+    port: 8000
+    directory: /tmp
+    cors: false
+
+functions:
+  s3hook:
+    handler: handler.s3hook
+    events:
+      - s3: local-bucket
