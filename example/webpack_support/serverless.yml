@@ -11,7 +11,7 @@ custom:
   s3:
     port: 8000
     directory: /tmp
-    cors: false
+
 resources:
   Resources:
     NewResource:

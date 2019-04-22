@@ -52,8 +52,8 @@ custom:
     # Uncomment the first line only if you want to use cors with specified policy
     # Uncomment the second line only if you don't want to use cors
     # Not uncomment the these lines only if your wanto use cors with default policy
-    # cors: relative/path/to/your/cors/policy/xml
-    # cors: false
+    # cors: relative/path/to/your/cors.xml
+    # website: relative/path/to/your/website.xml
     # Uncomment only if you already have a S3 server running locally
     # noStart: true
 resources:

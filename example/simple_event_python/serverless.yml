@@ -12,7 +12,6 @@ custom:
   s3:
     port: 8000
     directory: /tmp
-    cors: false
 
 functions:
   s3hook:

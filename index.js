@@ -10,7 +10,7 @@ const createLambdaContext = require('serverless-offline/src/createLambdaContext'
 
 const defaultOptions = {
   port: 4569,
-  host: 'localhost',
+  address: 'localhost',
   location: '.',
   accessKeyId: 'S3RVER',
   secretAccessKey: 'S3RVER',
@@ -60,20 +60,16 @@ class ServerlessS3Local {
               },
               cors: {
                 shortcut: 'c',
-                usage: 'Enable CORS',
+                usage: 'Path to cors configutation xml',
               },
               noStart: {
                 shortcut: 'n',
                 default: false,
                 usage: 'Do not start S3 local (in case it is already running)',
               },
-              indexDocument: {
-                shortcut: 'i',
-                usage: 'Get will serve indexDocument if it is found, simulating the static website mode of AWS S3',
-              },
-              errorDocument: {
-                shortcut: 'e',
-                usage: 'Get will serve errorDocument if it is found, simulating the static website mode of AWS S3',
+              website: {
+                shortcut: 'w',
+                usage: 'Path to website configutation xml',
               },
             },
           },
@@ -178,7 +174,7 @@ class ServerlessS3Local {
     return new Promise((resolve, reject) => {
       this._setOptions();
       const {
-        noStart, port, host, cors, indexDocument, errorDocument,
+        noStart, address, port, cors, website,
       } = this.options;
       if (noStart) {
         return this.createBuckets().then(resolve, reject);
@@ -188,17 +184,18 @@ class ServerlessS3Local {
       fs.ensureDirSync(dirPath); // Create destination directory if not exist
       const directory = fs.realpathSync(dirPath);
 
-      const corsPolicy = cors ?
-        fs.readFileSync(path.resolve(this.serverless.config.servicePath, cors), 'utf8') : cors;
+      const configs = [
+        cors ? fs.readFileSync(path.resolve(this.serverless.config.servicePath, cors), 'utf8') : null,
+        website ? fs.readFileSync(path.resolve(this.serverless.config.servicePath, website), 'utf8') : null,
+      ].filter(x => !!x)
+      const configureBuckets = this.buckets().map(name => ({ name, configs }))
 
       this.client = new S3rver({
+        address,
         port,
-        hostname: host,
         silent: false,
         directory,
-        cors: corsPolicy,
-        indexDocument,
-        errorDocument,
+        configureBuckets
       }).run((err, { address, port } = {}) => {
         if (err) {
           console.error('Error occurred while starting S3 local.');
