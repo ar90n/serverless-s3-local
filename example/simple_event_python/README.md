@@ -8,7 +8,7 @@ $ sls offline start
 
 ## Send a request
 ```
-$ aws --endpoint http://localhost:8000 s3api put-object --bucket local-bucket --key  1234.txt --body 1234.txt
+$ AWS_ACCESS_KEY_ID=S3RVER AWS_SECRET_ACCESS_KEY=S3RVER aws --endpoint http://localhost:8000 s3api put-object --bucket local-bucket --key  1234.txt --body 1234.txt
 {
     "ETag": "\"e2fc714c4727ee9395f324cd2e7f331f\""
 }
