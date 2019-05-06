@@ -60,7 +60,7 @@ class ServerlessS3Local {
               },
               cors: {
                 shortcut: 'c',
-                usage: 'Path to cors configutation xml',
+                usage: 'Path to cors configuration xml',
               },
               noStart: {
                 shortcut: 'n',
@@ -69,7 +69,7 @@ class ServerlessS3Local {
               },
               website: {
                 shortcut: 'w',
-                usage: 'Path to website configutation xml',
+                usage: 'Path to website configuration xml',
               },
             },
           },
@@ -369,7 +369,7 @@ class ServerlessS3Local {
 
   getResourceForBucket(bucketName){
     const logicalResourceName = `S3Bucket${bucketName.charAt(0).toUpperCase()}${bucketName.substr(1)}`;
-    return this.service.resources && this.service.resources.Resources 
+    return this.service.resources && this.service.resources.Resources
       ? this.service.resources.Resources[logicalResourceName] : false;
   }
 
@@ -387,8 +387,8 @@ class ServerlessS3Local {
       this.service &&
       this.service.plugins &&
       this.service.plugins.modules
-        ? this.service.plugins.modules.indexOf('serverless-plugin-additional-stacks') >= 0
-        : this.service.plugins.indexOf('serverless-plugin-additional-stacks') >= 0
+        ? this.service.plugins.modules.indexOf('additional-stacks') >= 0
+        : this.service.plugins.indexOf('additional-stacks') >= 0
     );
   }
 
@@ -397,8 +397,8 @@ class ServerlessS3Local {
       this.service &&
       this.service.plugins &&
       this.service.plugins.modules
-        ? this.service.plugins.modules.indexOf('serverless-plugin-existing-s3') >= 0
-        : this.service.plugins.indexOf('serverless-plugin-existing-s3') >= 0
+        ? this.service.plugins.modules.indexOf('existing-s3') >= 0
+        : this.service.plugins.indexOf('existing-s3') >= 0
     );
   }
 
