@@ -459,11 +459,11 @@ class ServerlessS3Local {
   }
 
   hasAdditionalStacksPlugin() {
-    return hasPlugin('additional-stacks');
+    return this.hasPlugin('additional-stacks');
   }
 
   hasExistingS3Plugin() {
-    return hasPlugin('existing-s3');
+    return this.hasPlugin('existing-s3');
   }
 
   /**
