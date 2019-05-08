@@ -347,7 +347,7 @@ class ServerlessS3Local {
     Object.keys(this.service.functions).forEach(key => {
       const serviceFunction = this.service.getFunction(key);
 
-      const lambdaContext = createLambdaContext(serviceFunction);
+      const lambdaContext = createLambdaContext(serviceFunction, this.service.provider);
       const funOptions = functionHelper.getFunctionOptions(
         serviceFunction,
         key,

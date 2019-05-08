@@ -27,7 +27,7 @@
     "rxjs": "^6.0.0",
     "rxjs-compat": "^6.4.0",
     "s3rver": "^3.0.3",
-    "serverless-offline": "^4.9.4",
+    "serverless-offline": "^4.10.0",
     "shelljs": "^0.8.2"
   },
   "eslintConfig": {
