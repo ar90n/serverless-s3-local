@@ -48,7 +48,7 @@ custom:
   s3:
     host: 0.0.0.0
     port: 8000
-    directory: /tmp
+    directory: /tmp  # this directory must be already created.
     # Uncomment the first line only if you want to use cors with specified policy
     # Uncomment the second line only if you don't want to use cors
     # Not uncomment the these lines only if your wanto use cors with default policy
@@ -105,6 +105,28 @@ Feature
 * Support serverless-webpack
 * Support serverless-plugin-existing-s3
 * Support S3 events.
+
+
+Working with IaC tools
+===============
+If your want to work with IaC tools such as terraform, you have to manage creating bucket process.
+In this case, please follow the below steps.
+
+1. Comment out configurations about S3 Bucket from resouces section in serverless.yml.
+```
+#resources:
+#  Resources:
+#    NewResource:
+#      Type: AWS::S3::Bucket
+#      Properties:
+#        BucketName: local-bucket
+```
+
+2. Create bucket directory in s3rver working directory.
+```
+$ mkdir /tmp/local-bucket
+```
+
 
 See also
 ===============
