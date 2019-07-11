@@ -46,7 +46,11 @@ custom:
 #            Properties:
 #                BucketName: ${self:service}-data
   s3:
-    host: 0.0.0.0
+    # Uncomment the following line only if you want to specify host address of S3 service.
+    # adress: 0.0.0.0
+    # Uncomment the following line only if you want to specify S3 server address.
+    # Ordinary, this value is localhost. But you can modify this value to use other S3 server.
+    # host: 0.0.0.0
     port: 8000
     directory: /tmp  # this directory must be already created.
     # Uncomment the first line only if you want to use cors with specified policy
