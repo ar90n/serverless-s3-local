@@ -1,6 +1,6 @@
 {
   "name": "serverless-s3-local-example",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "",
   "main": "handler.js",
   "scripts": {
@@ -17,8 +17,7 @@
   },
   "homepage": "https://github.com/ar90n/serverless-s3-local#readme",
   "devDependencies": {
-    "serverless": "^1.30.3",
-    "serverless-offline": "^3.3.1",
+    "serverless-offline": "^5.7.3",
     "serverless-plugin-existing-s3": "^2.2.2",
     "serverless-s3-local": "file:../../"
   },

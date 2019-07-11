@@ -6,7 +6,7 @@ const path = require('path');
 const { fromEvent } = require('rxjs/observable/fromEvent');
 const { map, mergeMap } = require('rxjs/operators');
 const functionHelper = require('serverless-offline/src/functionHelper');
-const createLambdaContext = require('serverless-offline/src/createLambdaContext');
+const LambdaContext = require('serverless-offline/src/LambdaContext');
 
 const defaultOptions = {
   port: 4569,
@@ -347,7 +347,16 @@ class ServerlessS3Local {
     Object.keys(this.service.functions).forEach(key => {
       const serviceFunction = this.service.getFunction(key);
 
-      const lambdaContext = createLambdaContext(serviceFunction, this.service.provider);
+      const lambdaContext = new LambdaContext(serviceFunction,
+                                              this.service.provider,
+                                              (err, res, fromPromise) => {
+                                                  if (err) {
+                                                      console.error(err)
+                                                  }
+                                                  if (res) {
+                                                      this.serverless.cli.log(res)
+                                                  }
+                                              });
       const funOptions = functionHelper.getFunctionOptions(
         serviceFunction,
         key,
@@ -373,7 +382,7 @@ class ServerlessS3Local {
             funOptions,
             this.options,
           );
-          handler(s3Event, lambdaContext, lambdaContext.done);
+          handler(s3Event, lambdaContext);
         } catch (e) {
           console.error('Error while running handler', e);
         }

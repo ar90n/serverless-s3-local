@@ -23,11 +23,11 @@
   "homepage": "https://github.com/ar90n/serverless-s3-local#readme",
   "dependencies": {
     "aws-sdk": "^2.266.1",
-    "fs-extra": "^7.0.1",
+    "fs-extra": "^8.0.1",
     "rxjs": "^6.0.0",
     "rxjs-compat": "^6.4.0",
     "s3rver": "^3.0.3",
-    "serverless-offline": "^4.10.0",
+    "serverless-offline": "^5.7.3",
     "shelljs": "^0.8.3"
   },
   "eslintConfig": {
