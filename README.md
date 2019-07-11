@@ -76,6 +76,8 @@ functions:
     handler: handler.s3hook
     events:
       - s3: local-bucket
+        event: s3:*
+
 ```
 
 **handler.js**
@@ -131,6 +133,20 @@ In this case, please follow the below steps.
 $ mkdir /tmp/local-bucket
 ```
 
+
+Triggering AWS Events offline
+===============
+This plugin will create a temporary directory to store mock S3 info.  You must use the aws cli to trigger events locally.
+First, using aws configure set up a new profile, i.e. `aws s3 configure --profile s3local` .  The default creds are 
+```
+aws_access_key_id = S3RVER
+aws_secret_access_key = S3RVER
+```
+ 
+ You can now use this profile to trigger events. e.g. to trigger a put-object on a file at `~/tmp/userdata.csv` in a local bucket run:
+ `aws --endpoint http://localhost:4569 s3api put-object --bucket local-bucket --key userdata.csv --body ~/tmp/data.csv --profile s3local`
+
+You should see the event trigger in the serverless offline console: `info: PUT /local-bucket/user-data.csv 200 16ms 0b` and a new object with metadata will appear in your local bucket.
 
 See also
 ===============
