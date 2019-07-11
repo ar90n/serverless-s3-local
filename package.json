@@ -28,7 +28,7 @@
     "rxjs-compat": "^6.4.0",
     "s3rver": "^3.0.3",
     "serverless-offline": "^4.10.0",
-    "shelljs": "^0.8.2"
+    "shelljs": "^0.8.3"
   },
   "eslintConfig": {
     "extends": "airbnb",
@@ -37,7 +37,7 @@
     ]
   },
   "devDependencies": {
-    "eslint": "^5.12.1",
+    "eslint": "^6.0.1",
     "eslint-config-airbnb-base": "^13.1.0",
     "eslint-plugin-import": "^2.14.0"
   }
