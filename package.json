@@ -4,7 +4,9 @@
   "description": "Serverless s3 local plugin",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint './**/*.js'",
+    "lint:fix": "eslint --fix './**/*.js'"
   },
   "repository": {
     "type": "git",
@@ -30,15 +32,9 @@
     "serverless-offline": "^5.7.3",
     "shelljs": "^0.8.3"
   },
-  "eslintConfig": {
-    "extends": "airbnb",
-    "plugins": [
-      "import"
-    ]
-  },
   "devDependencies": {
-    "eslint": "^6.0.1",
-    "eslint-config-airbnb-base": "^13.1.0",
-    "eslint-plugin-import": "^2.14.0"
+    "eslint": "^6.2.2",
+    "eslint-config-airbnb-base": "^14.0.0",
+    "eslint-plugin-import": "^2.18.2"
   }
 }
