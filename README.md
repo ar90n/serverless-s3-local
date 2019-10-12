@@ -60,6 +60,8 @@ custom:
     # website: relative/path/to/your/website.xml
     # Uncomment only if you already have a S3 server running locally
     # noStart: true
+    # Uncomment only if you want to prevent SignatureDoesNotMatch errors for all well-formed signatures
+    # allowMismatchedSignatures: true
 resources:
   Resources:
     NewResource:

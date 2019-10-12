@@ -69,6 +69,11 @@ class ServerlessS3Local {
                 default: false,
                 usage: 'Do not start S3 local (in case it is already running)',
               },
+              allowMismatchedSignatures: {
+                shortcut: 'a',
+                default: false,
+                usage: 'Prevent SignatureDoesNotMatch errors for all well-formed signatures',
+              },
               website: {
                 shortcut: 'w',
                 usage: 'Path to website configuration xml',
@@ -181,7 +186,7 @@ class ServerlessS3Local {
     return new Promise((resolve, reject) => {
       this.setOptions();
       const {
-        noStart, address, port, cors, website,
+        noStart, address, port, cors, website, allowMismatchedSignatures
       } = this.options;
       if (noStart) {
         this.createBuckets().then(resolve, reject);
@@ -213,6 +218,7 @@ class ServerlessS3Local {
         port,
         silent: false,
         directory,
+        allowMismatchedSignatures,
         configureBuckets,
       }).run((err, { s3Port } = {}) => {
         if (err) {
