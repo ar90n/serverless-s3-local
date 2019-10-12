@@ -390,7 +390,10 @@ class ServerlessS3Local {
             funOptions,
             this.options,
           );
-          handler(s3Event, lambdaContext);
+          const callback = (error, response) => {
+            console.log(`serverless-s3-local: callback is called with ${error} and$ {response}`)
+          }
+          handler(s3Event, lambdaContext, callback);
         } catch (e) {
           console.error('Error while running handler', e);
         }
