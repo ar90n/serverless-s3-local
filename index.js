@@ -391,7 +391,7 @@ class ServerlessS3Local {
             this.options,
           );
           const callback = (error, response) => {
-            console.log(`serverless-s3-local: callback is called with ${error} and$ {response}`)
+            console.log(`serverless-s3-local: callback is called with ${error} and ${response}`)
           }
           handler(s3Event, lambdaContext, callback);
         } catch (e) {
