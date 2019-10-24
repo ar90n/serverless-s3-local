@@ -220,15 +220,15 @@ class ServerlessS3Local {
         directory,
         allowMismatchedSignatures,
         configureBuckets,
-      }).run((err, { s3Port } = {}) => {
+      }).run((err, { port, family, address } = {}) => {
         if (err) {
           console.error('Error occurred while starting S3 local.');
           reject(err);
           return;
         }
 
-        this.options.port = s3Port;
-        console.log(`S3 local started ( port:${s3Port} )`);
+        this.options.port = port;
+        console.log(`S3 local started ( port:${port}, family: ${family}, address: ${address} )`);
 
         this.createBuckets().then(resolve, reject);
       });
