@@ -216,7 +216,7 @@ class ServerlessS3Local {
       this.client = new S3rver({
         address,
         port,
-        silent: false,
+        silent: this.options.silent,
         directory,
         allowMismatchedSignatures,
         configureBuckets,
