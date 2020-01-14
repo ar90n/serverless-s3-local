@@ -122,7 +122,7 @@ Working with IaC tools
 If your want to work with IaC tools such as terraform, you have to manage creating bucket process.
 In this case, please follow the below steps.
 
-1. Comment out configurations about S3 Bucket from resouces section in serverless.yml.
+1. Comment out configurations about S3 Bucket from resources section in serverless.yml.
 ```
 #resources:
 #  Resources:
