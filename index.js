@@ -122,7 +122,7 @@ class ServerlessS3Local {
       'before:offline:start': this.startHandler.bind(this),
       'before:offline:start:end': this.endHandler.bind(this),
       'after:webpack:compile:watch:compile': this.subscriptionWebpackHandler.bind(
-        this,
+        this
       ),
     };
   }
@@ -169,13 +169,13 @@ class ServerlessS3Local {
                 {
                   prefix: !handler.rules.some((rule) => rule.prefix),
                   suffix: !handler.rules.some((rule) => rule.suffix),
-                },
+                }
               );
               return obj.prefix && obj.suffix;
             })
             .map((handler) => () => handler.func(event));
         }),
-        mergeMap((handler) => handler),
+        mergeMap((handler) => handler)
       )
       .subscribe((handler) => {
         handler();
@@ -201,13 +201,13 @@ class ServerlessS3Local {
         cors
           ? fs.readFileSync(
             path.resolve(this.serverless.config.servicePath, cors),
-            'utf8',
+            'utf8'
           )
           : null,
         website
           ? fs.readFileSync(
             path.resolve(this.serverless.config.servicePath, website),
-            'utf8',
+            'utf8'
           )
           : null,
       ].filter((x) => !!x);
@@ -266,7 +266,7 @@ class ServerlessS3Local {
       buckets.map((Bucket) => {
         this.serverless.cli.log(`creating bucket: ${Bucket}`);
         return s3Client.createBucket({ Bucket }).promise();
-      }),
+      })
     ).catch(() => ({}));
   }
 
@@ -280,7 +280,7 @@ class ServerlessS3Local {
         buckets.map((bucket) => {
           this.serverless.cli.log(`removing bucket: ${bucket}`);
           return removeBucket({ port, bucket });
-        }),
+        })
       );
     });
   }
@@ -289,7 +289,7 @@ class ServerlessS3Local {
     return new AWS.S3({
       s3ForcePathStyle: true,
       endpoint: new AWS.Endpoint(
-        `http://${this.options.host}:${this.options.port}`,
+        `http://${this.options.host}:${this.options.port}`
       ),
       accessKeyId: this.options.accessKeyId,
       secretAccessKey: this.options.secretAccessKey,
@@ -306,7 +306,7 @@ class ServerlessS3Local {
 
     if (typeof serviceRuntime !== 'string') {
       throw new Error(
-        'Provider configuration property "runtime" wasn\'t a string.',
+        'Provider configuration property "runtime" wasn\'t a string.'
       );
     }
 
@@ -315,7 +315,7 @@ class ServerlessS3Local {
         serviceRuntime = this.options.providedRuntime;
       } else {
         throw new Error(
-          'Runtime "provided" is unsupported. Please add a --providedRuntime CLI option.',
+          'Runtime "provided" is unsupported. Please add a --providedRuntime CLI option.'
         );
       }
     }
@@ -328,7 +328,7 @@ class ServerlessS3Local {
       )
     ) {
       this.serverless.cli.log(
-        `Warning: found unsupported runtime '${serviceRuntime}'`,
+        `Warning: found unsupported runtime '${serviceRuntime}'`
       );
 
       return null;
@@ -348,7 +348,7 @@ class ServerlessS3Local {
     const eventHandlers = [];
     const servicePath = path.join(
       this.serverless.config.servicePath,
-      this.options.location,
+      this.options.location
     );
     const serviceRuntime = this.getServiceRuntime();
 
@@ -369,7 +369,7 @@ class ServerlessS3Local {
         serviceFunction,
         key,
         servicePath,
-        serviceRuntime,
+        serviceRuntime
       );
 
       const func = (s3Event) => {
@@ -383,12 +383,12 @@ class ServerlessS3Local {
             process.env,
             baseEnvironment,
             this.service.provider.environment,
-            serviceFunction.environment || {},
+            serviceFunction.environment || {}
           );
 
           const handler = functionHelper.createHandler(
             funOptions,
-            this.options,
+            this.options
           );
           const callback = (error, response) => {
             console.log(`serverless-s3-local: callback is called with ${error} and ${response}`)
@@ -416,7 +416,7 @@ class ServerlessS3Local {
             ? existingEvent.replace(/^s3:/, '').replace('*', '.*')
             : '.*';
           eventHandlers.push(
-            ServerlessS3Local.buildEventHandler(s3, name, pattern, s3.rules, func),
+            ServerlessS3Local.buildEventHandler(s3, name, pattern, s3.rules, func)
           );
         });
         this.serverless.cli.log(`Found S3 event listener for ${name}`);
@@ -430,7 +430,7 @@ class ServerlessS3Local {
     const rule2regex = (rule) => Object.keys(rule).map(
       (key) => (key === 'prefix' && { prefix: `^${rule[key]}` }) || {
         suffix: `${rule[key]}$`,
-      },
+      }
     );
     const rules = typeof s3 === 'object'
       ? [].concat(...(s3Rules || []).map(rule2regex))
@@ -538,10 +538,10 @@ class ServerlessS3Local {
             }
 
             return typeof s3 === 'object' ? s3.bucket : s3;
-          }).filter((bucket) => bucket !== null),
+          }).filter((bucket) => bucket !== null)
         );
       },
-      [],
+      []
     );
 
     return Object.keys(resources)
