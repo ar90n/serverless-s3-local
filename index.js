@@ -25,7 +25,7 @@ const removeBucket = ({ bucket, port }) => new Promise((resolve, reject) => {
       if (stderr && stderr.indexOf('NoSuchBucket') !== -1) return resolve();
 
       return reject(
-        new Error(`failed to delete bucket ${bucket}: ${stderr || stdout}`),
+        new Error(`failed to delete bucket ${bucket}: ${stderr || stdout}`)
       );
     },
   );
