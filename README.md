@@ -141,7 +141,7 @@ $ mkdir /tmp/local-bucket
 Triggering AWS Events offline
 ===============
 This plugin will create a temporary directory to store mock S3 info.  You must use the aws cli to trigger events locally.
-First, using aws configure set up a new profile, i.e. `aws s3 configure --profile s3local` .  The default creds are 
+First, using aws configure set up a new profile, i.e. `aws configure --profile s3local` .  The default creds are 
 ```
 aws_access_key_id = S3RVER
 aws_secret_access_key = S3RVER
