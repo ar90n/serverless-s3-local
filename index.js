@@ -5,8 +5,7 @@ const shell = require('shelljs');
 const path = require('path');
 const { fromEvent } = require('rxjs');
 const { map, mergeMap } = require('rxjs/operators');
-const functionHelper = require('serverless-offline/src/functionHelper');
-const LambdaContext = require('serverless-offline/src/LambdaContext');
+const { default: Lambda} = require('serverless-offline/dist/lambda/');
 
 const defaultOptions = {
   port: 4569,
@@ -143,6 +142,7 @@ class ServerlessS3Local {
 
   subscribe() {
     this.eventHandlers = this.getEventHandlers();
+    console.log(this.eventHandlers);
 
     const s3Event = fromEvent(this.client, 'event');
 
@@ -345,32 +345,12 @@ class ServerlessS3Local {
       return {};
     }
 
+    const lambda = new Lambda(this.serverless, this.options);
     const eventHandlers = [];
-    const servicePath = path.join(
-      this.serverless.config.servicePath,
-      this.options.location,
-    );
-    const serviceRuntime = this.getServiceRuntime();
 
-    Object.keys(this.service.functions).forEach((key) => {
-      const serviceFunction = this.service.getFunction(key);
-
-      const lambdaContext = new LambdaContext(serviceFunction,
-        this.service.provider,
-        (err, res) => {
-          if (err) {
-            console.error(err);
-          }
-          if (res) {
-            this.serverless.cli.log(res);
-          }
-        });
-      const funOptions = functionHelper.getFunctionOptions(
-        serviceFunction,
-        key,
-        servicePath,
-        serviceRuntime,
-      );
+    this.service.getAllFunctions().forEach((functionKey) => {
+      const functionDefinition = this.service.getFunction(functionKey);
+      lambda._create(functionKey, functionDefinition)
 
       const func = (s3Event) => {
         const baseEnvironment = {
@@ -383,23 +363,18 @@ class ServerlessS3Local {
             process.env,
             baseEnvironment,
             this.service.provider.environment,
-            serviceFunction.environment || {},
+            functionDefinition.environment || {},
           );
 
-          const handler = functionHelper.createHandler(
-            funOptions,
-            this.options,
-          );
-          const callback = (error, response) => {
-            console.log(`serverless-s3-local: callback is called with ${error} and ${response}`)
-          }
-          handler(s3Event, lambdaContext, callback);
+          const handler = lambda.get(functionKey);
+          handler.setEvent(s3Event);
+          handler.runHandler();
         } catch (e) {
           console.error('Error while running handler', e);
         }
       };
 
-      serviceFunction.events.forEach((event) => {
+      functionDefinition.events.forEach((event) => {
         const s3 = (event && (event.s3 || event.existingS3)) || undefined;
         if (!s3) {
           return;

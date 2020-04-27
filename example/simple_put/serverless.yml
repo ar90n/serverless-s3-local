@@ -1,10 +1,9 @@
 service: serverless-s3-local-example
 provider:
   name: aws
-  runtime: nodejs8.10
+  runtime: nodejs12.x
 plugins:
   - serverless-s3-local
-  - serverless-plugin-existing-s3
   - serverless-offline
 custom:
   # Uncomment only if you want to collaborate with serverless-plugin-additional-stacks
@@ -36,4 +35,5 @@ functions:
     handler: handler.webhook
     events:
       - http:
+          path: /
           method: get

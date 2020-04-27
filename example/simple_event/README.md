@@ -1,3 +1,3 @@
 How to run
 ===============
-    sls offline start
+    serverless offline start
