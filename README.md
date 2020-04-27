@@ -32,7 +32,7 @@ Example
 service: serverless-s3-local-example
 provider:
   name: aws
-  runtime: nodejs8.10
+  runtime: nodejs12.x
 plugins:
   - serverless-s3-local
   - serverless-offline
@@ -74,6 +74,7 @@ functions:
     events:
       - http:
         method: GET
+        path: /
   s3hook:
     handler: handler.s3hook
     events:
