@@ -142,7 +142,6 @@ class ServerlessS3Local {
 
   subscribe() {
     this.eventHandlers = this.getEventHandlers();
-    console.log(this.eventHandlers);
 
     const s3Event = fromEvent(this.client, 'event');
 
@@ -380,18 +379,26 @@ class ServerlessS3Local {
           return;
         }
 
-        const handlerBucketName = typeof s3 === 'object' ? s3.bucket : s3;
+        let handlerBucketName, s3Events,s3Rules;
+        if(typeof s3 === 'object') {
+          handlerBucketName = s3.bucket
+          s3Events = s3.events || [s3.event || '*']
+          s3Rules = s3.rules || []
+        }
+        else {
+          handlerBucketName = s3
+          s3Events = event.events || [event.event || '*']
+          s3Rules = event.rules || []
+        }
+
         const bucketResource = this.getResourceForBucket(handlerBucketName);
         const name = bucketResource
           ? bucketResource.Properties.BucketName
           : handlerBucketName;
-        const s3Events = s3.events ? s3.events : [s3.event];
         s3Events.forEach((existingEvent) => {
-          const pattern = typeof s3 === 'object'
-            ? existingEvent.replace(/^s3:/, '').replace('*', '.*')
-            : '.*';
+          const pattern = existingEvent.replace(/^s3:/, '').replace('*', '.*')
           eventHandlers.push(
-            ServerlessS3Local.buildEventHandler(s3, name, pattern, s3.rules, func),
+            ServerlessS3Local.buildEventHandler(s3, name, pattern, s3Rules, func),
           );
         });
         this.serverless.cli.log(`Found S3 event listener for ${name}`);
@@ -407,9 +414,7 @@ class ServerlessS3Local {
         suffix: `${rule[key]}$`,
       },
     );
-    const rules = typeof s3 === 'object'
-      ? [].concat(...(s3Rules || []).map(rule2regex))
-      : [];
+    const rules = [].concat(...s3Rules.map(rule2regex));
 
     return {
       name,
