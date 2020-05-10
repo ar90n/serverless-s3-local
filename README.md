@@ -8,9 +8,9 @@ serverless-s3-local
 [![dependencies](https://david-dm.org/ar90n/serverless-s3-local/status.svg)](https://david-dm.org/ar90n/serverless-s3-local)
 [![dev-dependencies](https://david-dm.org/ar90n/serverless-s3-local/dev-status.svg)](https://david-dm.org/ar90n/serverless-s3-local?type=dev)
 
-serverless-s3-local is a Serverless plugin to run S3 clone in local.  
-This is aimed to accelerate development of AWS Lambda functions by local testing.  
-I think it is good to collaborate with serverless-offline.  
+serverless-s3-local is a Serverless plugin to run S3 clone in local.
+This is aimed to accelerate development of AWS Lambda functions by local testing.
+I think it is good to collaborate with serverless-offline.
 
 Installation
 ===============
@@ -46,22 +46,8 @@ custom:
 #            Properties:
 #                BucketName: ${self:service}-data
   s3:
-    # Uncomment the following line only if you want to specify host address of S3 service.
-    # adress: 0.0.0.0
-    # Uncomment the following line only if you want to specify S3 server address.
-    # Ordinary, this value is localhost. But you can modify this value to use other S3 server.
-    # host: 0.0.0.0
-    port: 8000
-    directory: /tmp  # this directory must be already created.
-    # Uncomment the first line only if you want to use cors with specified policy
-    # Uncomment the second line only if you don't want to use cors
-    # Not uncomment the these lines only if your wanto use cors with default policy
-    # cors: relative/path/to/your/cors.xml
-    # website: relative/path/to/your/website.xml
-    # Uncomment only if you already have a S3 server running locally
-    # noStart: true
-    # Uncomment only if you want to prevent SignatureDoesNotMatch errors for all well-formed signatures
-    # allowMismatchedSignatures: true
+    host: localhost
+    directory: /tmp
 resources:
   Resources:
     NewResource:
@@ -108,6 +94,28 @@ module.exports.s3hook = (event, context) => {
 };
 ```
 
+Configuration options
+===============
+
+Configuration options can be defined in multiple ways. They will be parsed with the following priority:
+- `custom.s3` in serverless.yml
+- `custom.serverless-offline` in serverless.yml
+- Default values (see table below)
+
+| Option | Description | Type | Default value |
+| ------ | ----------- | ---- | ------------- |
+| address | The host/IP to bind the S3 server to | string | `'localhost'` |
+| host | The host where internal S3 calls are made. Should be the same as address | string | |
+| port | The port that S3 server will listen to | number | `4569` |
+| directory | The location where the S3 files will be created. The directory must exist, it won't be created | string | `'./buckets'` |
+| accessKeyId | The Access Key Id to authenticate requests | string | `'S3RVER'` |
+| secretAccessKey | The Secret Access Key to authenticate requests | string | `'S3RVER'` |
+| cors | The S3 CORS configuration XML. See [AWS docs](https://docs.aws.amazon.com/AmazonS3/latest/API/API_PutBucketCors.html) | string \| Buffer | |
+| website | The S3 Website configuration XML. See [AWS docs](https://docs.aws.amazon.com/AmazonS3/latest/API/API_PutBucketWebsite.html) | string \| Buffer | |
+| noStart | Set to true if you already have an S3rver instance running | boolean | `false` |
+| allowMismatchedSignatures | Prevent SignatureDoesNotMatch errors for all well-formed signatures | boolean | `false` |
+| silent | Suppress S3rver log messages | boolean | `false` |
+
 Feature
 ===============
 * Start local S3 server with specified root directory and port.
@@ -142,12 +150,12 @@ $ mkdir /tmp/local-bucket
 Triggering AWS Events offline
 ===============
 This plugin will create a temporary directory to store mock S3 info.  You must use the aws cli to trigger events locally.
-First, using aws configure set up a new profile, i.e. `aws configure --profile s3local` .  The default creds are 
+First, using aws configure set up a new profile, i.e. `aws configure --profile s3local` .  The default creds are
 ```
 aws_access_key_id = S3RVER
 aws_secret_access_key = S3RVER
 ```
- 
+
  You can now use this profile to trigger events. e.g. to trigger a put-object on a file at `~/tmp/userdata.csv` in a local bucket run:
  `aws --endpoint http://localhost:4569 s3api put-object --bucket local-bucket --key userdata.csv --body ~/tmp/data.csv --profile s3local`
 
