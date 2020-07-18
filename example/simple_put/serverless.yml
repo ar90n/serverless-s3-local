@@ -15,6 +15,7 @@ custom:
   #            Properties:
   #                BucketName: ${self:service}-data
   s3:
+    host: localhost
     port: 8000
     directory: ./s3-local
     # Uncomment the first line only if you want to use cors with specified policy

@@ -229,7 +229,7 @@ class ServerlessS3Local {
         this.options.port = bindedPort;
         this.serverless.cli.log(`S3 local started ( port:${bindedPort}, family: ${family}, address: ${bindedAddress} )`);
 
-        this.createBuckets().then(resolve, reject);
+        resolve();
       });
       this.serverless.cli.log('starting handler');
       this.subscribe();
