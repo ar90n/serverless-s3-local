@@ -210,7 +210,15 @@ class ServerlessS3Local {
           )
           : null,
       ].filter((x) => !!x);
-      const configureBuckets = this.buckets().map((name) => ({ name, configs }));
+      
+      const configureBuckets = this.buckets().map((name) => {
+        if (typeof name === "object") {
+          // Fn::Sub, Fn::Join, Fn::Select
+          const awsFuncKey = Object.keys(name)[0];
+          name = name[awsFuncKey];
+        }
+        return { name, configs };
+      });
 
       this.client = new S3rver({
         address,
