@@ -77,6 +77,10 @@ class ServerlessS3Local {
                 shortcut: 'w',
                 usage: 'Path to website configuration xml',
               },
+              serviceEndpoint: {
+                shortcut: 's',
+                usage: 'Override the AWS service root for subdomain-style access',
+              },
             },
           },
           create: {
@@ -185,7 +189,7 @@ class ServerlessS3Local {
     return new Promise((resolve, reject) => {
       this.setOptions();
       const {
-        noStart, address, port, cors, website, allowMismatchedSignatures,
+        noStart, address, port, cors, website, allowMismatchedSignatures,serviceEndpoint,
       } = this.options;
       if (noStart) {
         this.createBuckets().then(resolve, reject);
@@ -193,6 +197,7 @@ class ServerlessS3Local {
       }
 
       const dirPath = this.options.directory || './buckets';
+      const serviceEndpoint = this.options.serviceEndpoint;
       fs.ensureDirSync(dirPath); // Create destination directory if not exist
       const directory = fs.realpathSync(dirPath);
 
@@ -227,6 +232,7 @@ class ServerlessS3Local {
         directory,
         allowMismatchedSignatures,
         configureBuckets,
+        serviceEndpoint
       }).run((err, { port: bindedPort, family, address: bindedAddress } = {}) => {
         if (err) {
           this.serverless.cli.log('Error occurred while starting S3 local.');
