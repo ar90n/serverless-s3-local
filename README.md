@@ -115,6 +115,7 @@ Configuration options can be defined in multiple ways. They will be parsed with 
 | noStart | Set to true if you already have an S3rver instance running | boolean | `false` |
 | allowMismatchedSignatures | Prevent SignatureDoesNotMatch errors for all well-formed signatures | boolean | `false` |
 | silent | Suppress S3rver log messages | boolean | `false` |
+| serviceEndpoint | Override the AWS service root for subdomain-style access | string | `	amazonaws.com` |
 
 Feature
 ===============
