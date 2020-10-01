@@ -84,6 +84,11 @@ class ServerlessS3Local {
                 usage:
                   "Override the AWS service root for subdomain-style access",
               },
+              httpsProtocol: {
+                shortcut: "H",
+                usage:
+                    "To enable HTTPS, specify directory (relative to your cwd, typically your project dir) for both cert.pem and key.pem files.",
+              },
               vhostBuckets: {
                 shortcut: "v",
                 default: true,
@@ -205,6 +210,7 @@ class ServerlessS3Local {
         website,
         allowMismatchedSignatures,
         serviceEndpoint,
+        httpsProtocol,
         vhostBuckets,
       } = this.options;
       if (noStart) {
@@ -240,6 +246,12 @@ class ServerlessS3Local {
         return { name, configs };
       });
 
+      let cert;
+      let key;
+      if (typeof httpsProtocol === 'string' && httpsProtocol.length > 0) {
+        cert = fs.readFileSync(path.resolve(httpsProtocol, 'cert.pem'), 'ascii');
+        key = fs.readFileSync(path.resolve(httpsProtocol, 'key.pem'), 'ascii');
+      }
       this.client = new S3rver({
         address,
         port,
@@ -248,6 +260,8 @@ class ServerlessS3Local {
         allowMismatchedSignatures,
         configureBuckets,
         serviceEndpoint,
+        cert,
+        key,
         vhostBuckets,
       }).run(
         (err, { port: bindedPort, family, address: bindedAddress } = {}) => {
