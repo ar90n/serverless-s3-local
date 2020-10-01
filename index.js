@@ -84,6 +84,12 @@ class ServerlessS3Local {
                 usage:
                   "Override the AWS service root for subdomain-style access",
               },
+              vhostBuckets: {
+                shortcut: "v",
+                default: true,
+                usage:
+                  "Disable vhost-style access for all buckets",
+              },
             },
           },
           create: {
@@ -199,6 +205,7 @@ class ServerlessS3Local {
         website,
         allowMismatchedSignatures,
         serviceEndpoint,
+        vhostBuckets,
       } = this.options;
       if (noStart) {
         this.createBuckets().then(resolve, reject);
@@ -241,6 +248,7 @@ class ServerlessS3Local {
         allowMismatchedSignatures,
         configureBuckets,
         serviceEndpoint,
+        vhostBuckets,
       }).run(
         (err, { port: bindedPort, family, address: bindedAddress } = {}) => {
           if (err) {
