@@ -116,6 +116,7 @@ Configuration options can be defined in multiple ways. They will be parsed with 
 | allowMismatchedSignatures | Prevent SignatureDoesNotMatch errors for all well-formed signatures | boolean | `false` |
 | silent | Suppress S3rver log messages | boolean | `false` |
 | serviceEndpoint | Override the AWS service root for subdomain-style access | string | `	amazonaws.com` |
+| vhostBuckets | Disable vhost-style access for all buckets | boolean | `true` |
 
 Feature
 ===============
