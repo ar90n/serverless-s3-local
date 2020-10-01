@@ -89,6 +89,12 @@ class ServerlessS3Local {
                 usage:
                     "To enable HTTPS, specify directory (relative to your cwd, typically your project dir) for both cert.pem and key.pem files.",
               },
+              vhostBuckets: {
+                shortcut: "v",
+                default: true,
+                usage:
+                  "Disable vhost-style access for all buckets",
+              },
             },
           },
           create: {
@@ -205,6 +211,7 @@ class ServerlessS3Local {
         allowMismatchedSignatures,
         serviceEndpoint,
         httpsProtocol,
+        vhostBuckets,
       } = this.options;
       if (noStart) {
         this.createBuckets().then(resolve, reject);
@@ -255,6 +262,7 @@ class ServerlessS3Local {
         serviceEndpoint,
         cert,
         key,
+        vhostBuckets,
       }).run(
         (err, { port: bindedPort, family, address: bindedAddress } = {}) => {
           if (err) {
