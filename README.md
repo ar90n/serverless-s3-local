@@ -78,7 +78,7 @@ module.exports.webhook = (event, context, callback) => {
     s3ForcePathStyle: true,
     accessKeyId: 'S3RVER', // This specific key is required when working offline
     secretAccessKey: 'S3RVER',
-    endpoint: new AWS.Endpoint('http://localhost:8000'),
+    endpoint: new AWS.Endpoint('http://localhost:4569'),
   });
   S3.putObject({
     Bucket: 'local-bucket',
