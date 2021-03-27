@@ -3,7 +3,9 @@ This example is a demo about s3 event handler by python
 
 ## Start server
 ```
-$ sls offline start
+$ cd serverless-s3-local
+$ yarn install
+$ yarn workspace simple-event-python run start
 ```
 
 ## Send a request

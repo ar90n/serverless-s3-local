@@ -3,7 +3,9 @@ This example is a demo to resize image which is uploaded to s3.
 
 ## Start server
 ```
-$ serverless offline start
+$ cd serverless-s3-local
+$ yarn install
+$ yarn workspace resize-image-put run start
 ```
 
 ## Send a request
