@@ -41,3 +41,6 @@ jspm_packages
 
 # webpack
 .webpack
+
+# README.md for package 
+serverless-s3-local/README.md
