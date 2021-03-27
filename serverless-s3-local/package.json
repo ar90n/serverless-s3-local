@@ -17,7 +17,7 @@
         "test": "echo \"Error: no test specified\" && exit 1",
         "lint": "eslint index.js",
         "lint:fix": "eslint --fix index.js",
-        "publish": "cp ../README.md && yarn publish && rm README.md"
+        "publish": "cp ../README.md ./ && yarn publish && rm README.md"
     },
     "repository": {
         "type": "git",
