@@ -1,12 +1,22 @@
 {
-  "name": "serverless-s3-local",
+  "name": "serverless-s3-local-project",
   "version": "0.6.7",
-  "description": "Serverless s3 local plugin",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "lint": "eslint './**/*.js'",
-    "lint:fix": "eslint --fix './**/*.js'"
+  "private": true,
+  "author": "Masahiro Wada",
+  "dependencies": {
+    "aws-sdk": "^2.738.0",
+    "fs-extra": "^9.0.0",
+    "rxjs": "^6.6.2",
+    "rxjs-compat": "^6.6.2",
+    "s3rver": "^3.6.1",
+    "shelljs": "^0.8.3"
+  },
+  "devDependencies": {
+    "eslint": "^7.0.0",
+    "eslint-config-airbnb-base": "^14.2.0",
+    "eslint-plugin-import": "^2.22.0",
+    "serverless": "^2.31.0",
+    "serverless-offline": "^6.9.0"
   },
   "repository": {
     "type": "git",
@@ -17,24 +27,13 @@
     "S3",
     "AWS"
   ],
-  "author": "Masahiro Wada",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/ar90n/serverless-s3-local/issues"
   },
   "homepage": "https://github.com/ar90n/serverless-s3-local#readme",
-  "dependencies": {
-    "aws-sdk": "^2.738.0",
-    "fs-extra": "^9.0.0",
-    "rxjs": "^6.6.2",
-    "rxjs-compat": "^6.6.2",
-    "s3rver": "^3.6.1",
-    "serverless-offline": "^6.5.0",
-    "shelljs": "^0.8.3"
-  },
-  "devDependencies": {
-    "eslint": "^7.0.0",
-    "eslint-config-airbnb-base": "^14.2.0",
-    "eslint-plugin-import": "^2.22.0"
-  }
+  "workspaces": [
+    "serverless-s3-local",
+    "example/*"
+  ]
 }

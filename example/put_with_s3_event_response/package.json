@@ -1,27 +1,9 @@
 {
-  "name": "serverless-s3-local-example",
-  "version": "0.0.5",
-  "description": "",
+  "name": "put-with-s3-event-response",
+  "version": "1.0.0",
+  "private": true,
   "main": "handler.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/ar90n/serverless-s3-local.git"
-  },
-  "author": "Masahiro Wada <argon.argon.argon@gmail.com>",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/ar90n/serverless-s3-local/issues"
-  },
-  "homepage": "https://github.com/ar90n/serverless-s3-local#readme",
-  "devDependencies": {
-    "serverless": "^1.60.0",
-    "serverless-offline": "^6.0.0",
-    "serverless-s3-local": "file:../../"
-  },
-  "dependencies": {
-    "aws-sdk": "^2.94.0"
+    "start": "serverless offline start"
   }
 }
