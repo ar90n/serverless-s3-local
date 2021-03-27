@@ -1,11 +1,40 @@
 {
-  "name": "serverless-s3-local",
-  "version": "0.6.8",
-  "private": true,
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "lint": "eslint index.js",
-    "lint:fix": "eslint --fix index.js"
-  }
+    "name": "serverless-s3-local",
+    "version": "0.6.9",
+    "author": "Masahiro Wada",
+    "main": "index.js",
+    "dependencies": {
+      "aws-sdk": "^2.738.0",
+      "fs-extra": "^9.0.0",
+      "rxjs": "^6.6.2",
+      "rxjs-compat": "^6.6.2",
+      "s3rver": "^3.6.1",
+      "shelljs": "^0.8.3"
+    },
+    "devDependencies": {
+      "eslint": "^7.0.0",
+      "eslint-config-airbnb-base": "^14.2.0",
+      "eslint-plugin-import": "^2.22.0",
+      "serverless": "^2.31.0",
+      "serverless-offline": "^6.9.0"
+    },
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "lint": "eslint index.js",
+        "lint:fix": "eslint --fix index.js"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/ar90n/serverless-s3-local.git"
+    },
+    "keywords": [
+        "serverless",
+        "S3",
+        "AWS"
+    ],
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/ar90n/serverless-s3-local/issues"
+    },
+    "homepage": "https://github.com/ar90n/serverless-s3-local#readme"
 }

@@ -1,6 +1,5 @@
 {
   "name": "serverless-s3-local-project",
-  "version": "0.6.7",
   "private": true,
   "author": "Masahiro Wada",
   "dependencies": {
@@ -18,20 +17,6 @@
     "serverless": "^2.31.0",
     "serverless-offline": "^6.9.0"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/ar90n/serverless-s3-local.git"
-  },
-  "keywords": [
-    "serverless",
-    "S3",
-    "AWS"
-  ],
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/ar90n/serverless-s3-local/issues"
-  },
-  "homepage": "https://github.com/ar90n/serverless-s3-local#readme",
   "workspaces": [
     "serverless-s3-local",
     "example/*"
