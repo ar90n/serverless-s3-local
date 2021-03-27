@@ -2,6 +2,7 @@ env:
   commonjs: true
   es6: true
   node: true
+root: true
 extends:
   - airbnb-base
 globals:
@@ -10,3 +11,5 @@ globals:
 parserOptions:
   ecmaVersion: 2018
 rules: {}
+settings:
+  import/external-module-folders: ["."]
