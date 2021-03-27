@@ -12,16 +12,12 @@
       "shelljs": "^0.8.3"
     },
     "devDependencies": {
-      "eslint": "^7.0.0",
-      "eslint-config-airbnb-base": "^14.2.0",
-      "eslint-plugin-import": "^2.22.0",
-      "serverless": "^2.31.0",
-      "serverless-offline": "^6.9.0"
     },
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
         "lint": "eslint index.js",
-        "lint:fix": "eslint --fix index.js"
+        "lint:fix": "eslint --fix index.js",
+        "publish": "cp ../README.md && yarn publish && rm README.md"
     },
     "repository": {
         "type": "git",

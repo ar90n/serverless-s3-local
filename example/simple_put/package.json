@@ -1,9 +1,12 @@
 {
-  "name": "simple-put",
-  "version": "1.0.0",
-  "private": true,
-  "main": "handler.js",
-  "scripts": {
-    "start": "serverless offline start"
-  }
+    "name": "simple-put",
+    "version": "1.0.0",
+    "private": true,
+    "main": "handler.js",
+    "scripts": {
+        "start": "serverless offline start"
+    },
+    "dependencies": {
+        "serverless-s3-local": "*"
+    }
 }

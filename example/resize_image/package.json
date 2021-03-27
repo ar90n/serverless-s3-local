@@ -1,12 +1,13 @@
 {
-  "name": "resize-image",
-  "version": "1.0.0",
-  "private": true,
-  "main": "handler.js",
-  "scripts": {
-    "start": "serverless offline start"
-  },
-  "dependencies": {
-    "sharp": "^0.25.2"
-  }
+    "name": "resize-image",
+    "version": "1.0.0",
+    "private": true,
+    "main": "handler.js",
+    "scripts": {
+        "start": "serverless offline start"
+    },
+    "dependencies": {
+        "sharp": "^0.25.2",
+        "serverless-s3-local": "*"
+    }
 }
