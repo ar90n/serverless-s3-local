@@ -15,7 +15,7 @@
         "babel-preset-es2015": "^6.24.1",
         "babel-preset-stage-0": "^6.24.1",
         "serverless-webpack": "^5.1.5",
-        "webpack": "^3.3.0",
+        "webpack": "^5.28.0",
         "webpack-node-externals": "^2.5.2"
     },
     "dependencies": {
