@@ -7,7 +7,7 @@
         "aws-sdk": "^2.738.0",
         "fs-extra": "^9.0.0",
         "rxjs": "^6.6.2",
-        "rxjs-compat": "^6.6.2",
+        "rxjs-compat": "^6.6.7",
         "s3rver": "^3.6.1",
         "shelljs": "^0.8.3"
     },
