@@ -2151,7 +2151,7 @@ bcrypt-pbkdf@^1.0.0:
   dependencies:
     tweetnacl "^0.14.3"
 
-bestzip@^2.1.7:
+bestzip@^2.2.0:
   version "2.2.0"
   resolved "https://registry.yarnpkg.com/bestzip/-/bestzip-2.2.0.tgz#a6757c04469eeb503708881e1910a4b413155ee7"
   integrity sha512-MCuN3sjLA//zKhheXSOAMlFtj4oZEHKCa+gHGLYUDnL2VRuuwARVV+QKMwtbDk5CL2AQs+3Dw20h8KJJrbENSg==
@@ -6813,18 +6813,18 @@ serverless-offline@^6.9.0:
     velocityjs "^2.0.3"
     ws "^7.4.2"
 
-serverless-webpack@^5.1.5:
-  version "5.4.0"
-  resolved "https://registry.yarnpkg.com/serverless-webpack/-/serverless-webpack-5.4.0.tgz#75a9201629c4285da43d795b59f27733f84763bf"
-  integrity sha512-d/BrLoiyBUmzhtDcqm4XiZSIwv/NDnEGBASfsbu4DJBiMv1Kgw3EXrn+QPKfSv+a0a2qcfUahT75IzrdJR2Irw==
+serverless-webpack@^5.4.1:
+  version "5.4.1"
+  resolved "https://registry.yarnpkg.com/serverless-webpack/-/serverless-webpack-5.4.1.tgz#7d6cee2b097edc1cd05b5de559e4db3d29302df8"
+  integrity sha512-yhCFXHgbHjiSdvcFhQ+/X5Tgh+j7nnWQei37W3DVXaaJ1DDUHV2y+SrEjB3tb4JNDzUipndLzUgvspgPEPFHfg==
   dependencies:
-    bestzip "^2.1.7"
+    bestzip "^2.2.0"
     bluebird "^3.7.2"
     fs-extra "^9.1.0"
     glob "^7.1.6"
     is-builtin-module "^3.0.0"
     lodash "^4.17.21"
-    semver "^7.3.4"
+    semver "^7.3.5"
   optionalDependencies:
     ts-node ">= 8.3.0"
 
