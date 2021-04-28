@@ -2151,7 +2151,7 @@ bcrypt-pbkdf@^1.0.0:
   dependencies:
     tweetnacl "^0.14.3"
 
-bestzip@^2.1.7:
+bestzip@^2.2.0:
   version "2.2.0"
   resolved "https://registry.yarnpkg.com/bestzip/-/bestzip-2.2.0.tgz#a6757c04469eeb503708881e1910a4b413155ee7"
   integrity sha512-MCuN3sjLA//zKhheXSOAMlFtj4oZEHKCa+gHGLYUDnL2VRuuwARVV+QKMwtbDk5CL2AQs+3Dw20h8KJJrbENSg==
@@ -4543,10 +4543,10 @@ is-boolean-object@^1.1.0:
   dependencies:
     call-bind "^1.0.0"
 
-is-builtin-module@^3.0.0:
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/is-builtin-module/-/is-builtin-module-3.0.0.tgz#137d3d2425023a19a660fb9dd6ddfabe52c03466"
-  integrity sha512-/93sDihsAD652hrMEbJGbMAVBf1qc96kyThHQ0CAOONHaE3aROLpTjDe4WQ5aoC5ITHFxEq1z8XqSU7km+8amw==
+is-builtin-module@^3.1.0:
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/is-builtin-module/-/is-builtin-module-3.1.0.tgz#6fdb24313b1c03b75f8b9711c0feb8c30b903b00"
+  integrity sha512-OV7JjAgOTfAFJmHZLvpSTb4qi0nIILDV1gWPYDnDJUTNFM5aGlRAhk4QcT8i7TuAleeEV5Fdkqn3t4mS+Q11fg==
   dependencies:
     builtin-modules "^3.0.0"
 
@@ -6813,18 +6813,18 @@ serverless-offline@^6.9.0:
     velocityjs "^2.0.3"
     ws "^7.4.2"
 
-serverless-webpack@^5.1.5:
-  version "5.4.0"
-  resolved "https://registry.yarnpkg.com/serverless-webpack/-/serverless-webpack-5.4.0.tgz#75a9201629c4285da43d795b59f27733f84763bf"
-  integrity sha512-d/BrLoiyBUmzhtDcqm4XiZSIwv/NDnEGBASfsbu4DJBiMv1Kgw3EXrn+QPKfSv+a0a2qcfUahT75IzrdJR2Irw==
+serverless-webpack@^5.4.2:
+  version "5.4.2"
+  resolved "https://registry.yarnpkg.com/serverless-webpack/-/serverless-webpack-5.4.2.tgz#ba6d5ffc6f9b75f74b529d92da2fd1e6b778b6bf"
+  integrity sha512-QX3ZQbCItACW8midkQf/w5gNdT2glSB4Aoxad5RU2xzXoWww/f9VOF5Et2bOLNFr+jlXTOk8XbcZxxL6AIan/A==
   dependencies:
-    bestzip "^2.1.7"
+    bestzip "^2.2.0"
     bluebird "^3.7.2"
     fs-extra "^9.1.0"
     glob "^7.1.6"
-    is-builtin-module "^3.0.0"
+    is-builtin-module "^3.1.0"
     lodash "^4.17.21"
-    semver "^7.3.4"
+    semver "^7.3.5"
   optionalDependencies:
     ts-node ">= 8.3.0"
 
