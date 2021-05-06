@@ -4,7 +4,7 @@
     "author": "Masahiro Wada",
     "main": "index.js",
     "dependencies": {
-        "aws-sdk": "^2.738.0",
+        "aws-sdk": "^2.902.0",
         "fs-extra": "^9.0.0",
         "rxjs": "^6.6.7",
         "rxjs-compat": "^6.6.7",
