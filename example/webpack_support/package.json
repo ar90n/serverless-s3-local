@@ -8,8 +8,8 @@
         "start": "serverless offline start"
     },
     "devDependencies": {
-        "@babel/core": "7.13.14",
-        "@babel/preset-env": "7.13.12",
+        "@babel/core": "7.14.0",
+        "@babel/preset-env": "7.14.1",
         "babel-loader": "8.2.2",
         "serverless-webpack": "5.4.0",
         "webpack": "5.35.1",
