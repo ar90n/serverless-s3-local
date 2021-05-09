@@ -49,50 +49,60 @@ class ServerlessS3Local {
                 shortcut: 'p',
                 usage:
                   'The port number that S3 will use to communicate with your application. If you do not specify this option, the default port is 4569',
+                type: "string",
               },
               directory: {
                 shortcut: 'd',
                 usage:
                   'The directory where S3 will store its objects. If you do not specify this option, the file will be written to the current directory.',
+                type: "string",
               },
               buckets: {
                 shortcut: 'b',
                 usage: 'After starting S3 local, create specified buckets',
+                type: "string",
               },
               cors: {
                 shortcut: 'c',
                 usage: 'Path to cors configuration xml',
+                type: "string",
               },
               noStart: {
                 shortcut: 'n',
                 default: false,
                 usage: 'Do not start S3 local (in case it is already running)',
+                type: "boolean",
               },
               allowMismatchedSignatures: {
                 shortcut: 'a',
                 default: false,
                 usage:
                   'Prevent SignatureDoesNotMatch errors for all well-formed signatures',
+                type: "boolean",
               },
               website: {
                 shortcut: 'w',
                 usage: 'Path to website configuration xml',
+                type: "string",
               },
               serviceEndpoint: {
                 shortcut: 's',
                 usage:
                   'Override the AWS service root for subdomain-style access',
+                type: "string",
               },
               httpsProtocol: {
                 shortcut: 'H',
                 usage:
                     'To enable HTTPS, specify directory (relative to your cwd, typically your project dir) for both cert.pem and key.pem files.',
+                type: "string",
               },
               vhostBuckets: {
                 shortcut: 'v',
                 default: true,
                 usage:
                   'Disable vhost-style access for all buckets',
+                type: "string",
               },
             },
           },
@@ -104,10 +114,12 @@ class ServerlessS3Local {
                 shortcut: 'p',
                 usage:
                   'The port number that S3 will use to communicate with your application. If you do not specify this option, the default port is 4569',
+                type: "string",
               },
               buckets: {
                 shortcut: 'b',
                 usage: 'After starting S3 local, create specified buckets',
+                type: "string",
               },
             },
           },
@@ -119,10 +131,12 @@ class ServerlessS3Local {
                 shortcut: 'p',
                 usage:
                   'The port number that S3 will use to communicate with your application. If you do not specify this option, the default port is 4569',
+                type: "string",
               },
               buckets: {
                 shortcut: 'b',
                 usage: 'After starting S3 local, create specified buckets',
+                type: "string",
               },
             },
           },
