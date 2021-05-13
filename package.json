@@ -6,7 +6,7 @@
     "eslint": "7.26.0",
     "eslint-config-airbnb-base": "14.2.1",
     "eslint-plugin-import": "2.22.1",
-    "serverless": "2.40.0"
+    "serverless": "2.41.2"
   },
   "workspaces": [
     "serverless-s3-local",
