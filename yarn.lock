@@ -6848,10 +6848,10 @@ rxjs@^6.4.0, rxjs@^6.6.0, rxjs@^6.6.2, rxjs@^6.6.7:
   dependencies:
     tslib "^1.9.0"
 
-s3rver@^3.6.1:
-  version "3.6.1"
-  resolved "https://registry.yarnpkg.com/s3rver/-/s3rver-3.6.1.tgz#6e46a7f53029cc622f1426e09b983846608525f9"
-  integrity sha512-8PI1yIUJ6WQbDYjidZo/EOknMRxos3uukM1a70VQE2lqzH9A8FUTOhlUGaRiAU/K0teROou1mesUsfrYwpwkCw==
+s3rver@^3.7.0:
+  version "3.7.0"
+  resolved "https://registry.yarnpkg.com/s3rver/-/s3rver-3.7.0.tgz#e0aed000d0c196d5eb9164623c696830d525e705"
+  integrity sha512-Y/omIxk13qeNmoitsRxbFD/ME9dlcbrais7biuKtdQX43WSufc8P2A482j3BpkjrkoA1F57oBq4skMgeljKzcg==
   dependencies:
     "@koa/router" "^9.0.0"
     busboy "^0.3.1"
