@@ -1,0 +1,72 @@
+# from https://dev.to/puku0x/github-actions-1mi5
+name: Bump version
+
+on:
+ workflow_dispatch:
+  inputs:
+    bumpTarget:
+      description: 'bump target major/minor/patch'
+      required: true
+      default: 'patch'
+
+jobs:
+  bump:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Switch branch
+        run: git switch -c tmp
+      - name: Git config
+        run: |
+          git config --local user.email "machineuser+github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+      - name: Get branch
+        id: get_branch
+        run: echo ::set-output name=BRANCH::${GITHUB_REF/refs\/heads\//}
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 12
+      - name: Bump version
+        id: bump_version
+        run: |
+          pushd  serverless-s3-local
+          version=$(npm version ${{ github.event.inputs.bumpTarget }})
+          echo ::set-output name=VERSION::${version}
+          popd
+      - name: Commit pyproject.toml
+        id: commit_pyproject_toml
+        run: |
+          git add serverless-s3-local/package.json
+          git commit -m "chore(*): bump version to v${VERSION}"
+        env:
+          VERSION: ${{ github.bump_version.outputs.VERSION }}
+      - name: Extract changelog
+        id: extract_changelog
+        run: |
+          changelog=$(git diff -u -U0 HEAD^ CHANGELOG.md | tail -n +6 | sed "s/^\+//")
+          echo ::set-output name=CHANGELOG::${changelog//$'\n'/\\n}
+      - name: Push branch
+        run: |
+          git branch -m bump-v${VERSION}
+          git push -u origin bump-v${VERSION}
+        env:
+          VERSION: ${{ steps.bump_version.outputs.VERSION }}
+      - name: Create pull request
+        uses: actions/github-script@v2
+        env:
+          BRANCH: ${{ steps.get_branch.outputs.BRANCH }}
+          CHANGELOG: ${{ steps.extract_changelog.outputs.CHANGELOG }}
+          VERSION: ${{ steps.bump_version.outputs.VERSION }}
+        with:
+          github-token: ${{secrets.PERSONAL_ACCESS_TOKEN}}
+          script: |
+            github.pulls.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: 'chore(*): bump ' + process.env.VERSION,
+              head: context.repo.owner + ':' + 'bump-v' + process.env.VERSION,
+              base: process.env.BRANCH,
+              body: process.env.CHANGELOG.replace(/\\n/g, '\n')
+            })
