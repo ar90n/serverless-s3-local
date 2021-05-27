@@ -42,11 +42,6 @@ jobs:
           git commit -m "chore(*): bump version to v${VERSION}"
         env:
           VERSION: ${{ github.bump_version.outputs.VERSION }}
-      - name: Extract changelog
-        id: extract_changelog
-        run: |
-          changelog=$(git diff -u -U0 HEAD^ CHANGELOG.md | tail -n +6 | sed "s/^\+//")
-          echo ::set-output name=CHANGELOG::${changelog//$'\n'/\\n}
       - name: Push branch
         run: |
           git branch -m bump-${VERSION}
@@ -57,7 +52,6 @@ jobs:
         uses: actions/github-script@v2
         env:
           BRANCH: ${{ steps.get_branch.outputs.BRANCH }}
-          CHANGELOG: ${{ steps.extract_changelog.outputs.CHANGELOG }}
           VERSION: ${{ steps.bump_version.outputs.VERSION }}
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
@@ -68,5 +62,5 @@ jobs:
               title: 'chore(*): bump ' + process.env.VERSION,
               head: context.repo.owner + ':' + 'bump-' + process.env.VERSION,
               base: process.env.BRANCH,
-              body: process.env.CHANGELOG.replace(/\\n/g, '\n')
+              body: ''
             })
