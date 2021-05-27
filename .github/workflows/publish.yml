@@ -1,0 +1,25 @@
+name: Publish
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+jobs:
+  bump:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 12
+      - name: Setup .npmrc
+        run: |
+          echo ${{ secrets.NPMRC }} | base64 -d > ~/.npmrc
+      - name: Publish package
+        run: |
+          pushd  serverless-s3-local
+          npm publish
+          popd

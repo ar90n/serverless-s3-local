@@ -1,0 +1,39 @@
+# from https://dev.to/puku0x/github-actions-1mi5
+name: Release
+
+on:
+  pull_request:
+    branches:
+      - main
+    types: [closed]
+
+jobs:
+  release:
+    if: github.event.pull_request.merged == true && startsWith(github.event.pull_request.head.ref, 'bump-v')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Get version
+        id: get_version
+        env:
+          HEAD_REF: ${{ github.event.pull_request.head.ref }}
+        run: echo ::set-output name=VERSION::${HEAD_REF#bump-v}
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ steps.get_version.outputs.VERSION }}
+          release_name: v${{ steps.get_version.outputs.VERSION }}
+          body: |+
+            ## Bug fixes
+            -
+
+            ## Features
+            -
+
+            ## BREAKING CHANGES
+            -
+          draft: false
+          prerelease: false
