@@ -14,6 +14,7 @@
     "npm": {
         "rangeStrategy": "bump"
     },
+    "schedule": "every weekend",
     "packageRules": [
         {
             "packagePatterns": [
