@@ -41,7 +41,7 @@ jobs:
           git add serverless-s3-local/package.json
           git commit -m "chore(*): bump version to v${VERSION}"
         env:
-          VERSION: ${{ github.bump_version.outputs.VERSION }}
+          VERSION: ${{ steps.bump_version.outputs.VERSION }}
       - name: Push branch
         run: |
           git branch -m bump-${VERSION}
