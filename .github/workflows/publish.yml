@@ -1,25 +1,34 @@
 name: Publish
 
 on:
-  push:
-    tags:
-      - 'v*.*.*'
+ workflow_dispatch:
+  inputs:
+    tag:
+      description: 'tag'
+      required: true
+    otp:
+      description: 'one time password'
+      required: true
 
 jobs:
-  bump:
+  publish:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
         with:
           fetch-depth: 0
+          ref: ${{ github.event.inputs.tag }})
       - uses: actions/setup-node@v1
         with:
           node-version: 12
       - name: Setup .npmrc
         run: |
-          echo ${{ secrets.NPMRC }} | base64 -d > ~/.npmrc
+          bash -c "echo ${{ secrets.NPMRC }} | base64 -d > ~/.npmrc"
+      - name: Install yarn 
+        run: npm install -g yarn
       - name: Publish package
         run: |
+          yarn install
           pushd  serverless-s3-local
-          npm publish
+          yarn publish --otp ${{ github.event.inputs.otp }})
           popd
