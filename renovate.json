@@ -13,5 +13,6 @@
         "matchUpdateTypes": ["minor", "patch", "pin", "digest"],
         "automerge": true
       }
-    ]
+    ],
+    "schedule": "every weekend"
 }
