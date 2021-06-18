@@ -49,7 +49,7 @@ jobs:
         env:
           VERSION: ${{ steps.bump_version.outputs.VERSION }}
       - name: Create pull request
-        uses: actions/github-script@v2
+        uses: actions/github-script@v4
         env:
           BRANCH: ${{ steps.get_branch.outputs.BRANCH }}
           VERSION: ${{ steps.bump_version.outputs.VERSION }}
