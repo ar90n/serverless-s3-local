@@ -7042,10 +7042,10 @@ serialize-javascript@^5.0.1:
   dependencies:
     randombytes "^2.1.0"
 
-serverless-offline@^6.9.0:
-  version "6.9.0"
-  resolved "https://registry.yarnpkg.com/serverless-offline/-/serverless-offline-6.9.0.tgz#a87fee3561f34808be9ac8ab06db9278cea8fa5f"
-  integrity sha512-toKcyXUv0rFM7nGk/0QcCxP1Zlv/37IAf3vQiUlOh5XHPl6pFWfHUVF4HelMkosAeWJqJt1SngNmK38uiAsLtg==
+serverless-offline@^7.0.0:
+  version "7.0.0"
+  resolved "https://registry.yarnpkg.com/serverless-offline/-/serverless-offline-7.0.0.tgz#dc72a401d196bb7bded248338c19321adf985ad8"
+  integrity sha512-PrbRqS9796Bbb0A0JMHdBudL2+JsMJGHI8bwu3xtD4adAsYUCAONqTfNIBtbwk3KNuA1i/pdW9IIn63E0UNi0Q==
   dependencies:
     "@hapi/boom" "^7.4.11"
     "@hapi/h2o2" "^8.3.2"
