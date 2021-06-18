@@ -11,7 +11,7 @@
     "npm": {
         "rangeStrategy": "auto",
         "automerge": true,
-        "minor": {
+        "major": {
             "automerge": false
         }
     },
