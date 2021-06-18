@@ -8,22 +8,12 @@
         "renovate"
     ],
     "dependencyDashboard": true,
-    "pin": {
-        "automerge": true
-    },
     "npm": {
-        "rangeStrategy": "bump"
-    },
-    "schedule": "every weekend",
-    "packageRules": [
-        {
-            "packagePatterns": [
-                "^@types/"
-            ],
-            "automerge": true,
-            "major": {
-                "automerge": false
-            }
+        "rangeStrategy": "auto",
+        "automerge": true,
+        "minor": {
+            "automerge": false
         }
-    ]
+    },
+    "schedule": "every weekend"
 }
