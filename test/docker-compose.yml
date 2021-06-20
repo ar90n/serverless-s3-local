@@ -1,0 +1,38 @@
+version: '3.4'
+
+x-template: &example-template
+    image: node
+    volumes:
+      - ../:/serverless-s3-local:cached
+      - work:/work
+    working_dir: /work
+    command: sh -c "/serverless-s3-local/test/run_test.sh $${TARGET}"
+
+services:
+  put-with-s3-event-response:
+    environment:
+      TARGET: "put-with-s3-event-response"
+    <<: *example-template
+  resize-image:
+    environment:
+      TARGET: "resize-image"
+    <<: *example-template
+  simple-event:
+    environment:
+      TARGET: "simple-event"
+    <<: *example-template
+  simple-event-python:
+    environment:
+      TARGET: "simple-event-python"
+    <<: *example-template
+  simple-put:
+    environment:
+      TARGET: "simple-put"
+    <<: *example-template
+  webpack-support:
+    environment:
+      TARGET: "webpack-support"
+    <<: *example-template
+
+volumes:
+  work:
