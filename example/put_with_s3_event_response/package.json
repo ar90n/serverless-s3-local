@@ -4,7 +4,8 @@
     "private": true,
     "main": "handler.js",
     "scripts": {
-        "start": "serverless offline start"
+        "start": "serverless offline start",
+        "test": "jest"
     },
     "dependencies": {
         "serverless-s3-local": "*"

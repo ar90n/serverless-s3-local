@@ -1,15 +1,18 @@
 {
-  "name": "serverless-s3-local-project",
-  "private": true,
-  "dependencies": {},
-  "devDependencies": {
-    "eslint": "7.29.0",
-    "eslint-config-airbnb-base": "14.2.1",
-    "eslint-plugin-import": "2.23.4",
-    "serverless": "2.47.0"
-  },
-  "workspaces": [
-    "serverless-s3-local",
-    "example/*"
-  ]
+    "name": "serverless-s3-local-project",
+    "private": true,
+    "dependencies": {},
+    "devDependencies": {
+        "eslint": "7.29.0",
+        "eslint-config-airbnb-base": "14.2.1",
+        "eslint-plugin-import": "2.23.4",
+        "serverless": "2.47.0",
+        "aws-sdk": "^2.931.0",
+        "got": "^11.8.2",
+        "jest": "^27.0.4"
+    },
+    "workspaces": [
+        "serverless-s3-local",
+        "example/*"
+    ]
 }
