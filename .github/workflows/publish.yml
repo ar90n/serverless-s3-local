@@ -22,8 +22,7 @@ jobs:
         run: |
           yarn install
           pushd  serverless-s3-local
-          yarn config set //registry.npmjs.org/:_authToken ${NPM_TOKEN}
           yarn publish
           popd
         env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
