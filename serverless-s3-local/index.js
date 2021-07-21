@@ -1,6 +1,5 @@
 const S3rver = require('s3rver');
 const fs = require('fs-extra'); // Using fs-extra to ensure destination directory exist
-const AWS = require('aws-sdk');
 const shell = require('shelljs');
 const path = require('path');
 const { fromEvent } = require('rxjs');
@@ -346,6 +345,7 @@ class ServerlessS3Local {
   }
 
   getClient() {
+    const AWS = require('aws-sdk');
     return new AWS.S3({
       s3ForcePathStyle: true,
       endpoint: new AWS.Endpoint(
