@@ -13,7 +13,7 @@
         "@babel/preset-env": "7.15.0",
         "babel-loader": "8.2.2",
         "serverless-webpack": "5.5.1",
-        "webpack": "5.49.0",
+        "webpack": "5.50.0",
         "webpack-node-externals": "3.0.0"
     },
     "dependencies": {
