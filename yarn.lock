@@ -8294,10 +8294,10 @@ serverless-offline@^7.0.0:
     velocityjs "^2.0.3"
     ws "^7.4.2"
 
-serverless-webpack@5.5.1:
-  version "5.5.1"
-  resolved "https://registry.yarnpkg.com/serverless-webpack/-/serverless-webpack-5.5.1.tgz#cd42a90d517678907b8b5b8612f762357bc54f3e"
-  integrity sha512-pQ0TmoHp7WTJIIiLBf36p+DUvuk64z7levBrkXTEy1H3bfDZGu7B8KuUD5bI3hInYaq3P95R2HAyTSgHYU4gYg==
+serverless-webpack@5.5.2:
+  version "5.5.2"
+  resolved "https://registry.yarnpkg.com/serverless-webpack/-/serverless-webpack-5.5.2.tgz#19217cd881e5ee45f1387514c52a26f23e1e8666"
+  integrity sha512-SDMOUxo9FoyCIv1JPWgJlpaGTG78qcqt+yTXP/raEA40yInCVKSz2AP2MlukjjAfFe1O9yAwcL6IbjOmyueYHQ==
   dependencies:
     bestzip "^2.2.0"
     bluebird "^3.7.2"
