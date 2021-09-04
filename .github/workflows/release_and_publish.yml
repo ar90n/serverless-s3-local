@@ -37,3 +37,16 @@ jobs:
             -
           draft: false
           prerelease: false
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 12
+      - name: Install yarn
+        run: npm install -g yarn
+      - name: Publish package
+        run: |
+          yarn install
+          pushd  serverless-s3-local
+          yarn publish
+          popd
+        env:
+          NPM_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
