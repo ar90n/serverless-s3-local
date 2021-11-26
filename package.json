@@ -7,7 +7,7 @@
         "eslint-config-airbnb-base": "14.2.1",
         "eslint-plugin-import": "2.25.3",
         "serverless": "2.67.0",
-        "aws-sdk": "2.1033.0",
+        "aws-sdk": "2.1037.0",
         "got": "11.8.3",
         "jest": "27.3.1"
     },
