@@ -4,7 +4,7 @@
     "dependencies": {},
     "devDependencies": {
         "eslint": "7.32.0",
-        "eslint-config-airbnb-base": "14.2.1",
+        "eslint-config-airbnb-base": "15.0.0",
         "eslint-plugin-import": "2.25.4",
         "serverless": "2.70.0",
         "aws-sdk": "2.1048.0",
