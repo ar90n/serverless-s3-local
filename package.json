@@ -9,7 +9,7 @@
         "serverless": "2.70.0",
         "aws-sdk": "2.1048.0",
         "got": "11.8.3",
-        "jest": "27.4.5"
+        "jest": "27.4.7"
     },
     "workspaces": [
         "serverless-s3-local",
