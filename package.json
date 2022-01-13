@@ -8,7 +8,7 @@
         "eslint-plugin-import": "2.25.4",
         "serverless": "2.70.0",
         "aws-sdk": "2.1053.0",
-        "got": "12.0.1",
+        "got": "~11",
         "jest": "27.4.7"
     },
     "workspaces": [
