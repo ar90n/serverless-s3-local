@@ -5,8 +5,6 @@ serverless-s3-local
 [![npm version](https://badge.fury.io/js/serverless-s3-local.svg)](https://badge.fury.io/js/serverless-s3-local)
 [![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/amplify-education/serverless-domain-manager/master/LICENSE)
 [![npm downloads](https://img.shields.io/npm/dt/serverless-s3-local.svg?style=flat)](https://www.npmjs.com/package/serverless-s3-local)
-[![dependencies](https://david-dm.org/ar90n/serverless-s3-local/status.svg)](https://david-dm.org/ar90n/serverless-s3-local)
-[![dev-dependencies](https://david-dm.org/ar90n/serverless-s3-local/dev-status.svg)](https://david-dm.org/ar90n/serverless-s3-local?type=dev)
 
 serverless-s3-local is a Serverless plugin to run S3 clone in local.
 This is aimed to accelerate development of AWS Lambda functions by local testing.
