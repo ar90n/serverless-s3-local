@@ -3249,7 +3249,7 @@ color@^3.1.3:
     color-convert "^1.9.3"
     color-string "^1.6.0"
 
-color@^4.0.1:
+color@^4.2.0:
   version "4.2.0"
   resolved "https://registry.yarnpkg.com/color/-/color-4.2.0.tgz#0c782459a3e98838ea01e4bc0fb43310ca35af78"
   integrity sha512-hHTcrbvEnGjC7WBMk6ibQWFVDgEFTVmjrz2Q5HlU6ltwxv0JJN2Z8I7uRbWeQLF04dikxs8zgyZkazRJvSMtyQ==
@@ -3711,6 +3711,11 @@ detect-libc@^1.0.3:
   version "1.0.3"
   resolved "https://registry.yarnpkg.com/detect-libc/-/detect-libc-1.0.3.tgz#fa137c4bd698edf55cd5cd02ac559f91a4c4ba9b"
   integrity sha1-+hN8S9aY7fVc1c0CrFWfkaTEups=
+
+detect-libc@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/detect-libc/-/detect-libc-2.0.0.tgz#c528bc09bc6d1aa30149228240917c225448f204"
+  integrity sha512-S55LzUl8HUav8l9E2PBTlC5PAJrHK7tkM+XXFGD+fbsbkTzhCpG6K05LxJcUOEWzMa4v6ptcMZ9s3fOdJDu0Zw==
 
 detect-newline@^3.0.0:
   version "3.1.0"
@@ -6778,10 +6783,10 @@ node-abi@^3.3.0:
   dependencies:
     semver "^7.3.5"
 
-node-addon-api@^4.2.0:
-  version "4.2.0"
-  resolved "https://registry.yarnpkg.com/node-addon-api/-/node-addon-api-4.2.0.tgz#117cbb5a959dff0992e1c586ae0393573e4d2a87"
-  integrity sha512-eazsqzwG2lskuzBqCGPi7Ac2UgOoMz8JVOXVhTvvPDYhthvNpefx8jWD8Np7Gv+2Sz0FlPWZk0nJV0z598Wn8Q==
+node-addon-api@^4.3.0:
+  version "4.3.0"
+  resolved "https://registry.yarnpkg.com/node-addon-api/-/node-addon-api-4.3.0.tgz#52a1a0b475193e0928e98e0426a0d1254782b77f"
+  integrity sha512-73sE9+3UaLYYFmDsFZnqCInzPyh3MqIwZO9cw58yIqAZhONrrabrYyYe3TuIqtIiOuTXVhsGau8hcrhhwSsDIQ==
 
 node-dir@^0.1.17:
   version "0.1.17"
@@ -7326,12 +7331,12 @@ prebuild-install@5.3.0:
     tunnel-agent "^0.6.0"
     which-pm-runs "^1.0.0"
 
-prebuild-install@^7.0.0:
-  version "7.0.0"
-  resolved "https://registry.yarnpkg.com/prebuild-install/-/prebuild-install-7.0.0.tgz#3c5ce3902f1cb9d6de5ae94ca53575e4af0c1574"
-  integrity sha512-IvSenf33K7JcgddNz2D5w521EgO+4aMMjFt73Uk9FRzQ7P+QZPKrp7qPsDydsSwjGt3T5xRNnM1bj1zMTD5fTA==
+prebuild-install@^7.0.1:
+  version "7.0.1"
+  resolved "https://registry.yarnpkg.com/prebuild-install/-/prebuild-install-7.0.1.tgz#c10075727c318efe72412f333e0ef625beaf3870"
+  integrity sha512-QBSab31WqkyxpnMWQxubYAHR5S9B2+r81ucocew34Fkl98FhvKIF50jIJnNOBmAZfyNV7vE5T6gd3hTVWgY6tg==
   dependencies:
-    detect-libc "^1.0.3"
+    detect-libc "^2.0.0"
     expand-template "^2.0.3"
     github-from-package "0.0.0"
     minimist "^1.2.3"
@@ -8084,17 +8089,17 @@ setprototypeof@1.2.0:
   resolved "https://registry.yarnpkg.com/setprototypeof/-/setprototypeof-1.2.0.tgz#66c9a24a73f9fc28cbe66b09fed3d33dcaf1b424"
   integrity sha512-E5LDX7Wrp85Kil5bhZv46j8jOeboKq5JMmYM3gVGdGH8xFpPWXUMsNrlODCrkoxMEeNi/XZIwuRvY4XNwYMJpw==
 
-sharp@0.29.3:
-  version "0.29.3"
-  resolved "https://registry.yarnpkg.com/sharp/-/sharp-0.29.3.tgz#0da183d626094c974516a48fab9b3e4ba92eb5c2"
-  integrity sha512-fKWUuOw77E4nhpyzCCJR1ayrttHoFHBT2U/kR/qEMRhvPEcluG4BKj324+SCO1e84+knXHwhJ1HHJGnUt4ElGA==
+sharp@0.30.0:
+  version "0.30.0"
+  resolved "https://registry.yarnpkg.com/sharp/-/sharp-0.30.0.tgz#b2dd62d5f14088b11c72212354f31dff6511b070"
+  integrity sha512-L3m/l6yQFr3oGBUzcSAlN/R9yGFPYqM9FpMUe6Z4nHg4sWtP3hW1rcz+aaHklhD4wX5Jqh5PY9z+A1d4Qt3Hfg==
   dependencies:
-    color "^4.0.1"
-    detect-libc "^1.0.3"
-    node-addon-api "^4.2.0"
-    prebuild-install "^7.0.0"
+    color "^4.2.0"
+    detect-libc "^2.0.0"
+    node-addon-api "^4.3.0"
+    prebuild-install "^7.0.1"
     semver "^7.3.5"
-    simple-get "^4.0.0"
+    simple-get "^4.0.1"
     tar-fs "^2.1.1"
     tunnel-agent "^0.6.0"
 
@@ -8170,6 +8175,15 @@ simple-get@^4.0.0:
   version "4.0.0"
   resolved "https://registry.yarnpkg.com/simple-get/-/simple-get-4.0.0.tgz#73fa628278d21de83dadd5512d2cc1f4872bd675"
   integrity sha512-ZalZGexYr3TA0SwySsr5HlgOOinS4Jsa8YB2GJ6lUNAazyAu4KG/VmzMTwAt2YVXzzVj8QmefmAonZIK2BSGcQ==
+  dependencies:
+    decompress-response "^6.0.0"
+    once "^1.3.1"
+    simple-concat "^1.0.0"
+
+simple-get@^4.0.1:
+  version "4.0.1"
+  resolved "https://registry.yarnpkg.com/simple-get/-/simple-get-4.0.1.tgz#4a39db549287c979d352112fa03fd99fd6bc3543"
+  integrity sha512-brv7p5WgH0jmQJr1ZDDfKDOSeWWg+OVypG99A/5vYGPqJ6pxiaHLy8nxtFjBA7oMa01ebA9gfh1uMCFqOuXxvA==
   dependencies:
     decompress-response "^6.0.0"
     once "^1.3.1"
