@@ -1,23 +1,22 @@
 const got = require('got');
-const AWS = require('aws-sdk');
+const { S3Client, PutObjectCommand } = require('@aws-sdk/client-s3')
 const sharp = require('sharp');
 const fs = require('fs');
 
-const credentials = {
-  accessKeyId: 'S3RVER',
-  secretAccessKey: 'S3RVER',
-}
-
-const s3client = new AWS.S3({
-  credentials,
-  endpoint: 'http://localhost:8000',
-  s3ForcePathStyle: true
-})
+const client = new S3Client({
+  forcePathStyle: true,
+  credentials: {
+    accessKeyId: 'S3RVER',
+    secretAccessKey: 'S3RVER',
+  },
+  endpoint: `http://localhost:8000`,
+  region: 'us-east-1'
+});
 
 const sleep = msec => new Promise(resolve => setTimeout(resolve, msec));
 
 it('event handling with python', async () => {
-  const response = await s3client.upload({Bucket: "local-bucket", Key: "incoming/img.jpg", Body: "abcd"}, {responseType: 'json'}).promise();
+  const response = await client.send(new PutObjectCommand({Bucket: "local-bucket", Key: "incoming/img.jpg", Body: "abcd"}));
   const etag = response.ETag.slice(1, -1);
 
   await sleep(1000);

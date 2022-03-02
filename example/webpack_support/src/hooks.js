@@ -1,19 +1,19 @@
-import * as AWS from 'aws-sdk';
+const { S3Client, PutObjectCommand } = require('@aws-sdk/client-s3')
 
 const webhook = (event, context, callback) => {
-  const S3 = new AWS.S3({
-    s3ForcePathStyle: true,
-    endpoint: new AWS.Endpoint('http://localhost:8000'),
-    accessKeyId: 'S3RVER',
-    secretAccessKey: 'S3RVER',
+  const client = new S3Client({
+    forcePathStyle: true,
+    credentials: {
+      accessKeyId: 'S3RVER',
+      secretAccessKey: 'S3RVER',
+    },
+    endpoint: 'http://localhost:8000'
   });
-  S3.putObject({
+  client.send(new PutObjectCommand({
     Bucket: 'local-bucket',
     Key: '1234',
-    Body: new Buffer('abcd'),
-  }, () => {});
-
-  callback(null, 'ok');
+    Body: Buffer.from('abcd'),
+  })).then(() =>{ callback(null, 'ok'); });
 };
 
 const s3hook = (event, context) => {

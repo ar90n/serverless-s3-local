@@ -1,22 +1,32 @@
 const got = require('got');
-const AWS = require('aws-sdk');
+const {S3Client, GetObjectCommand} = require('@aws-sdk/client-s3')
 
-const credentials = {
-  accessKeyId: 'S3RVER',
-  secretAccessKey: 'S3RVER',
-}
-
-const s3client = new AWS.S3({
-  credentials,
-  endpoint: 'http://localhost:8000',
-  s3ForcePathStyle: true
-})
+const client = new S3Client({
+  forcePathStyle: true,
+  credentials: {
+    accessKeyId: 'S3RVER',
+    secretAccessKey: 'S3RVER',
+  },
+  endpoint: `http://localhost:8000`,
+  region: 'us-east-1'
+});
 
 it('works with async/await', async () => {
-  const {body} = await got('http://localhost:3000/dev', {responseType: 'json'});
+  const {body} = await got(`http://localhost:3000/dev`, {responseType: 'json'});
   expect(body).toEqual('ok');
 
-  const {Body: data} = await s3client.getObject({Bucket: "local-bucket", Key: "1234"}).promise();
-  const content = String.fromCharCode(...data);
+  const streamToString = (stream) =>
+    new Promise((resolve, reject) => {
+      const chunks = [];
+      stream.on("data", (chunk) => chunks.push(chunk));
+      stream.on("error", reject);
+      stream.on("end", () => resolve(Buffer.concat(chunks).toString("utf8")));
+    });
+
+  const {Body: stream} = await client.send(new GetObjectCommand({
+    Bucket: "local-bucket",
+    Key: "1234"
+  }));
+  const content = await streamToString(stream);
   expect(content).toEqual('abcd');
 });

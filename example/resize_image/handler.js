@@ -1,12 +1,20 @@
+const { Readable } = require('stream');
 const path = require('path');
-const aws = require('aws-sdk');
-const s3 = new aws.S3({
-    s3ForcePathStyle: true,
-    endpoint: new aws.Endpoint('http://localhost:8000'),
+const { S3Client, PutObjectCommand, GetObjectCommand } = require('@aws-sdk/client-s3')
+const client = new S3Client({
+  forcePathStyle: true,
+  credentials: {
     accessKeyId: 'S3RVER',
     secretAccessKey: 'S3RVER',
+  },
+  endpoint: 'http://localhost:8000'
 });
 const sharp = require('sharp');
+
+module.exports.webhook = (event, context, callback) => {
+  callback(null, 'ok');
+};
+
 
 module.exports.s3hook = (event, context) => {
     const received_key = event.Records[0].s3.object.key;
@@ -16,16 +24,27 @@ module.exports.s3hook = (event, context) => {
     };
     const filename = path.basename(received_key);
 
-    s3.getObject(get_param).promise()
-    .then(data => sharp(data.Body).resize(320).toBuffer())
-    .then(data => {
-        const put_param = {
-            Bucket: 'local-bucket',
-            Key: `processed/${filename}`,
-            Body: data,
-        };
-       return s3.putObject(put_param).promise();
-    })
-    .then(() => context.done())
-    .catch(err => context.done('fail'));
+
+    const streamToBuffer = (stream) =>
+      new Promise((resolve, reject) => {
+        const chunks = [];
+        stream.on("data", (chunk) => chunks.push(chunk));
+        stream.on("error", reject);
+        stream.on("end", () => resolve(Buffer.concat(chunks)));
+      });
+
+
+    client.send(new GetObjectCommand(get_param))
+      .then(data => streamToBuffer(data.Body))
+      .then(data => sharp(data).resize(320).toBuffer())
+      .then(data => {
+          const put_param = {
+              Bucket: 'local-bucket',
+              Key: `processed/${filename}`,
+              Body: data,
+          };
+         return client.send(new PutObjectCommand(put_param));
+      })
+      .then(() => context.done())
+      .catch(err => context.done('fail'));
 };

@@ -345,8 +345,8 @@ class ServerlessS3Local {
   }
 
   getClient() {
-    const AWS = require('aws-sdk');
-    return new AWS.S3({
+    const { S3 } = require('@aws-sdk/client-s3');
+    return new S3({
       s3ForcePathStyle: true,
       endpoint: new AWS.Endpoint(
         `http://${this.options.host}:${this.options.port}`,

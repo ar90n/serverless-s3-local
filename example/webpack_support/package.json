@@ -5,7 +5,7 @@
     "description": "example for s3 event with webpack",
     "main": "src/handler.js",
     "scripts": {
-        "start": "serverless offline start",
+        "start": "serverless offline --host 0.0.0.0 start",
         "test": "jest"
     },
     "devDependencies": {

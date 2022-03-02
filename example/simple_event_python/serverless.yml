@@ -14,6 +14,12 @@ custom:
     directory: /tmp
 
 functions:
+  webhook:
+    handler: handler.webhook
+    events:
+      - http:
+          path: /
+          method: get
   s3hook:
     handler: handler.s3hook
     events:
