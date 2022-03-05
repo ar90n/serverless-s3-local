@@ -67,22 +67,22 @@ functions:
 
 ```
 
-**handler.js**
+**handler.js (AWS SDK v2)**
 ```js
-const AWS = require('aws-sdk');
+const AWS = require("aws-sdk");
 
 module.exports.webhook = (event, context, callback) => {
   const S3 = new AWS.S3({
     s3ForcePathStyle: true,
-    accessKeyId: 'S3RVER', // This specific key is required when working offline
-    secretAccessKey: 'S3RVER',
-    endpoint: new AWS.Endpoint('http://localhost:4569'),
+    accessKeyId: "S3RVER", // This specific key is required when working offline
+    secretAccessKey: "S3RVER",
+    endpoint: new AWS.Endpoint("http://localhost:4569"),
   });
   S3.putObject({
-    Bucket: 'local-bucket',
-    Key: '1234',
-    Body: new Buffer('abcd')
-  }, () => {} );
+    Bucket: "local-bucket",
+    Key: "1234",
+    Body: new Buffer("abcd")
+  }, () => callback(null, "ok"));
 };
 
 module.exports.s3hook = (event, context) => {
@@ -91,6 +91,38 @@ module.exports.s3hook = (event, context) => {
   console.log(JSON.stringify(process.env));
 };
 ```
+
+**handler.js (AWS SDK v3)**
+```js
+const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3");
+
+module.exports.webhook = (event, context, callback) => {
+  const client = new S3Client({
+    forcePathStyle: true,
+    credentials: {
+      accessKeyId: "S3RVER", // This specific key is required when working offline
+      secretAccessKey: "S3RVER",
+    },
+    endpoint: "http://localhost:4569",
+  });
+  client
+    .send(
+      new PutObjectCommand({
+        Bucket: "local-bucket",
+        Key: "1234",
+        Body: Buffer.from("abcd"),
+      })
+    )
+    .then(() => callback(null, "ok"));
+};
+
+module.exports.s3hook = (event, context) => {
+  console.log(JSON.stringify(event));
+  console.log(JSON.stringify(context));
+  console.log(JSON.stringify(process.env));
+};
+```
+
 
 Configuration options
 ===============
