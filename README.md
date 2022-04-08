@@ -145,9 +145,10 @@ Configuration options can be defined in multiple ways. They will be parsed with 
 | noStart | Set to true if you already have an S3rver instance running | boolean | `false` |
 | allowMismatchedSignatures | Prevent SignatureDoesNotMatch errors for all well-formed signatures | boolean | `false` |
 | silent | Suppress S3rver log messages | boolean | `false` |
-| serviceEndpoint | Override the AWS service root for subdomain-style access | string | `	amazonaws.com` |
+| serviceEndpoint | Override the AWS service root for subdomain-style access | string | `amazonaws.com` |
 | httpsProtocol | To enable HTTPS, specify directory (relative to your cwd, typically your project dir) for both cert.pem and key.pem files.| string | |
 | vhostBuckets | Disable vhost-style access for all buckets | boolean | `true` |
+| buckets | Extra bucket names will be created after starting S3 local | string |  |
 
 Feature
 ===============
