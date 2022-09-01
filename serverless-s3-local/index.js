@@ -358,6 +358,29 @@ class ServerlessS3Local {
     });
   }
 
+  getSQSClient() {
+    if (this._sqsClient) return this._sqsClient;
+
+    // dependency of serverless-offline-sqs
+    const SQSClient = require("aws-sdk/clients/sqs");
+    const customConfig =
+      this.service.custom && this.service.custom["serverless-offline-sqs"];
+    const config = {
+      accessKeyId: defaultOptions.accessKeyId,
+      secretAccessKey: defaultOptions.secretAccessKey,
+      ...customConfig,
+    };
+    this._sqsClient = new SQSClient({
+      region: this.service.provider.region,
+      credentials: {
+        accessKeyId: config.accessKeyId,
+        secretAccessKey: config.secretAccessKey,
+      },
+      ...config,
+    });
+    return this._sqsClient;
+  }
+
   getServiceRuntime() {
     // Following codes are derived from serverless/index.js
     let serviceRuntime = this.service.provider.runtime;
@@ -400,6 +423,12 @@ class ServerlessS3Local {
   }
 
   getEventHandlers() {
+    const functionHandlers = this.getFunctionHandlers();
+    const notificationHandlers = this.getNotificationConfigurationHandlers();
+    return [].concat(functionHandlers, notificationHandlers);
+  }
+
+  getFunctionHandlers() {
     if (
       typeof this.service !== "object" ||
       typeof this.service.functions !== "object"
@@ -464,12 +493,11 @@ class ServerlessS3Local {
           const pattern = existingEvent.replace(/^s3:/, "").replace("*", ".*");
           eventHandlers.push(
             ServerlessS3Local.buildEventHandler(
-              s3,
               name,
               pattern,
               s3Rules,
               func
-            )
+              )
           );
         });
         this.serverless.cli.log(`Found S3 event listener for ${name}`);
@@ -479,7 +507,101 @@ class ServerlessS3Local {
     return eventHandlers;
   }
 
-  static buildEventHandler(s3, name, pattern, s3Rules, func) {
+  getNotificationConfigurationHandlers() {
+    if (
+      typeof this.service !== "object" ||
+      typeof this.service.functions !== "object" ||
+      !this.hasSQSOfflinePlugin()
+    ) {
+      return [];
+    }
+
+    const eventHandlers = [];
+
+    Object.values(this.service.resources.Resources).forEach((resource) => {
+      if (resource.Type !== "AWS::S3::Bucket") return;
+      if (
+        !resource.Properties ||
+        !resource.Properties.NotificationConfiguration
+      )
+        return;
+      // TODO support other: https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-s3-bucket-notificationconfig.html
+      const queueConfigurations =
+        resource.Properties.NotificationConfiguration.QueueConfigurations;
+      if (queueConfigurations) {
+        queueConfigurations.forEach((queueConfiguration) => {
+          const { Event, Queue, Filter } = queueConfiguration;
+          const queueName = Queue.replace(/(?:[^:]+:)+/, "");
+          const pattern = Event.replace(/^s3:/, "").replace("*", ".*");
+          let rules = [];
+          if (Filter) {
+            rules = Filter.S3Key.Rules.map((rule) => ({
+              [rule.Name]: rule.Value,
+            }));
+          }
+          const func = async (s3Event) => {
+            const baseEnvironment = {
+              IS_LOCAL: true,
+              IS_OFFLINE: true,
+            };
+
+            try {
+              Object.assign(
+                process.env,
+                baseEnvironment,
+                this.service.provider.environment
+              );
+              const sqs = this.getSQSClient();
+              const queueUrl = await new Promise((res, rej) =>
+                sqs
+                  .getQueueUrl(
+                    {
+                      QueueName: queueName,
+                    },
+                    (err, data) => {
+                      if (err) return rej(err);
+                      return res(data.QueueUrl);
+                    }
+                  )
+                  .send()
+              );
+              await new Promise((res, rej) =>
+                sqs
+                  .sendMessage(
+                    {
+                      QueueUrl: queueUrl,
+                      MessageBody: JSON.stringify(s3Event),
+                    },
+                    (err, data) => {
+                      if (err) return rej(err);
+                      return res(data);
+                    }
+                  )
+                  .send()
+              );
+            } catch (e) {
+              this.serverless.cli.log("Error while running handler", e);
+            }
+          };
+          eventHandlers.push(
+            ServerlessS3Local.buildEventHandler(
+              resource.Properties.BucketName,
+              pattern,
+              rules,
+              func
+            )
+          );
+        });
+        this.serverless.cli.log(
+          `Found S3 event listener for ${resource.Properties.BucketName}`
+        );
+      }
+    });
+
+    return eventHandlers;
+  }
+
+  static buildEventHandler(name, pattern, s3Rules, func) {
     const rule2regex = (rule) =>
       Object.keys(rule).map(
         (key) =>
@@ -498,12 +620,16 @@ class ServerlessS3Local {
   }
 
   getResourceForBucket(bucketName) {
-    const logicalResourceName = `S3Bucket${bucketName
-      .charAt(0)
-      .toUpperCase()}${bucketName.substr(1)}`;
-    return this.service.resources && this.service.resources.Resources
-      ? this.service.resources.Resources[logicalResourceName]
-      : false;
+    if (!this.service.resources || !this.service.resources.Resources)
+      return false;
+    const bucketResource = Object.values(this.service.resources.Resources).find(
+      (resource) =>
+        resource.Type === "AWS::S3::Bucket" &&
+        resource.Properties &&
+        resource.Properties.BucketName === bucketName
+    );
+
+    return bucketResource ? bucketResource : false;
   }
 
   getAdditionalStacks() {
@@ -533,6 +659,10 @@ class ServerlessS3Local {
 
   hasExistingS3Plugin() {
     return this.hasPlugin("existing-s3");
+  }
+
+  hasSQSOfflinePlugin() {
+    return this.hasPlugin("serverless-offline-sqs");
   }
 
   /**
@@ -600,7 +730,7 @@ class ServerlessS3Local {
       []
     );
 
-    return Object.keys(resources)
+    const bucketsListMerged = Object.keys(resources)
       .map((key) => {
         if (
           resources[key].Type === "AWS::S3::Bucket" &&
@@ -614,6 +744,8 @@ class ServerlessS3Local {
       .concat(this.options.buckets)
       .concat(eventSourceBuckets)
       .filter((n) => n);
+
+    return [...new Set(bucketsListMerged)];
   }
 
   setOptions() {
