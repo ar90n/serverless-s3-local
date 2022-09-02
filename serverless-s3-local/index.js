@@ -531,7 +531,7 @@ class ServerlessS3Local {
       if (queueConfigurations) {
         queueConfigurations.forEach((queueConfiguration) => {
           const { Event, Queue, Filter } = queueConfiguration;
-          const queueName = Queue.replace(/(?:[^:]+:)+/, "");
+          const queueName = this.getQueueNameForQueue(Queue);
           const pattern = Event.replace(/^s3:/, "").replace("*", ".*");
           let rules = [];
           if (Filter) {
@@ -630,6 +630,23 @@ class ServerlessS3Local {
     );
 
     return bucketResource ? bucketResource : false;
+  }
+
+  getQueueNameForQueue(Queue) {
+    if (!Queue) return null
+    if(typeof Queue === 'string' && Queue.startsWith('arn:')) {
+      return Queue.replace(/(?:[^:]+:)+/, "");
+    }
+    if (Queue['Fn::GetAtt']) {
+      const resourceName = Queue['Fn::GetAtt'][0];
+      if (!this.service.resources || !this.service.resources.Resources) return null;
+      const resource = this.service.resources.Resources[resourceName];
+      if (!resource) return null;
+      return resource.Properties.QueueName;
+    }
+    if (Queue.Type === 'AWS::SQS::QUEUE') {
+      return Queue.Properties.QueueName;
+    }
   }
 
   getAdditionalStacks() {
