@@ -9,8 +9,8 @@
         "test": "jest"
     },
     "devDependencies": {
-        "@babel/core": "7.19.0",
-        "@babel/preset-env": "7.19.0",
+        "@babel/core": "7.19.1",
+        "@babel/preset-env": "7.19.1",
         "babel-loader": "8.2.5",
         "serverless-webpack": "5.9.1",
         "webpack": "5.74.0",
