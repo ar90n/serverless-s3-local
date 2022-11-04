@@ -8,7 +8,7 @@
         "test": "jest"
     },
     "dependencies": {
-        "sharp": "0.31.1",
+        "sharp": "0.31.2",
         "serverless-s3-local": "*"
     }
 }
