@@ -3980,26 +3980,26 @@
     uuid "^8.3.2"
     write-file-atomic "^4.0.1"
 
-"@serverless/utils@^6.7.0":
-  version "6.7.0"
-  resolved "https://registry.yarnpkg.com/@serverless/utils/-/utils-6.7.0.tgz#7d09585749ff279f348109400c0a10a7738b547a"
-  integrity sha512-aUjkkOTJ5wH7f3raSIDeTCR4JsAbd9p5Pjs7yW3sVOmu0qiTPHZOr1x1TIkb3WDHiAoQQY8zGhfzW7zLTcAA3Q==
+"@serverless/utils@^6.8.2":
+  version "6.8.2"
+  resolved "https://registry.yarnpkg.com/@serverless/utils/-/utils-6.8.2.tgz#6ec34e8308b74f219cc80704e417c1a438629dd0"
+  integrity sha512-FW8zdG8OPoF6qgyutiMhz4m/5SxbQjoQdbaGcW3wU6xe3QzQh41Hif7I3Xuu4J62CvxiWuz19sxNDJz2mTcskw==
   dependencies:
     archive-type "^4.0.0"
     chalk "^4.1.2"
-    ci-info "^3.3.2"
+    ci-info "^3.5.0"
     cli-progress-footer "^2.3.2"
     content-disposition "^0.5.4"
     d "^1.0.1"
     decompress "^4.2.1"
     event-emitter "^0.3.5"
-    ext "^1.6.0"
+    ext "^1.7.0"
     ext-name "^5.0.0"
-    file-type "^16.5.3"
+    file-type "^16.5.4"
     filenamify "^4.3.0"
     get-stream "^6.0.1"
     got "^11.8.5"
-    inquirer "^8.2.4"
+    inquirer "^8.2.5"
     js-yaml "^4.1.0"
     jwt-decode "^3.1.2"
     lodash "^4.17.21"
@@ -4007,16 +4007,16 @@
     log-node "^8.0.3"
     make-dir "^3.1.0"
     memoizee "^0.4.15"
-    ncjsm "^4.3.0"
+    ncjsm "^4.3.1"
     node-fetch "^2.6.7"
-    open "^7.4.2"
+    open "^8.4.0"
     p-event "^4.2.0"
     supports-color "^8.1.1"
     timers-ext "^0.1.7"
-    type "^2.6.0"
+    type "^2.7.2"
     uni-global "^1.0.0"
     uuid "^8.3.2"
-    write-file-atomic "^4.0.1"
+    write-file-atomic "^4.0.2"
 
 "@sinclair/typebox@^0.24.1":
   version "0.24.20"
@@ -4649,10 +4649,10 @@ aws-sdk@^2.1036.0:
     uuid "3.3.2"
     xml2js "0.4.19"
 
-aws-sdk@^2.1231.0:
-  version "2.1233.0"
-  resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.1233.0.tgz#3386515966ca8a5baac048d986ad0977119c0765"
-  integrity sha512-e1GbVltsoQpWvx0gxQlEtKOdOrNWyjhD8bjFIMx/3Nwwzw4ac2KOy7CyC5I+lBj8el4AB0399umLHJZmL5WcVg==
+aws-sdk@^2.1247.0:
+  version "2.1253.0"
+  resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.1253.0.tgz#28ac12775f4d1589e366db6f2b162d8ea150c2ad"
+  integrity sha512-jlEfWPmRGRdeSVhtRhZnX/vvbJtHu6wzrm7DEUytef5I8P9kxFXnY/lByaXN20WpoU9Kw8zcEOVYIre4LLgswA==
   dependencies:
     buffer "4.9.2"
     events "1.1.1"
@@ -5126,11 +5126,6 @@ ci-info@^3.2.0, ci-info@^3.3.0:
   resolved "https://registry.yarnpkg.com/ci-info/-/ci-info-3.3.0.tgz#b4ed1fb6818dea4803a55c623041f9165d2066b2"
   integrity sha512-riT/3vI5YpVH6/qomlDnJow6TBee2PBKSEpx3O32EGPYbWGIRsIlGRms3Sm74wYE1JMo8RnO04Hb12+v1J5ICw==
 
-ci-info@^3.3.2:
-  version "3.3.2"
-  resolved "https://registry.yarnpkg.com/ci-info/-/ci-info-3.3.2.tgz#6d2967ffa407466481c6c90b6e16b3098f080128"
-  integrity sha512-xmDt/QIAdeZ9+nfdPsaBCpMvHNLFiLdjj59qjqn+6iPe6YmHGQ35sBnQ8uslRBXFmXkiZQOJRjvQeoGppoTjjg==
-
 ci-info@^3.5.0:
   version "3.5.0"
   resolved "https://registry.yarnpkg.com/ci-info/-/ci-info-3.5.0.tgz#bfac2a29263de4c829d806b1ab478e35091e171f"
@@ -5493,10 +5488,10 @@ d@1, d@^1.0.1:
     es5-ext "^0.10.50"
     type "^1.0.1"
 
-dayjs@^1.11.5:
-  version "1.11.5"
-  resolved "https://registry.yarnpkg.com/dayjs/-/dayjs-1.11.5.tgz#00e8cc627f231f9499c19b38af49f56dc0ac5e93"
-  integrity sha512-CAdX5Q3YW3Gclyo5Vpqkgpj8fSdLQcRuzfX6mC6Phy0nfJ0eGYOeS7m4mt2plDWLAtA4TqTakvbboHvUxfe4iA==
+dayjs@^1.11.6:
+  version "1.11.6"
+  resolved "https://registry.yarnpkg.com/dayjs/-/dayjs-1.11.6.tgz#2e79a226314ec3ec904e3ee1dd5a4f5e5b1c7afb"
+  integrity sha512-zZbY5giJAinCG+7AGaw0wIhNZ6J8AhWuSXKvuc1KAyMiRsvGQWqh4L+MomvhdAYjN+lqvVCMq1I41e3YHvXkyQ==
 
 debug@4, debug@^4.1.0, debug@^4.1.1, debug@^4.3.2:
   version "4.3.3"
@@ -6412,6 +6407,15 @@ file-type@^16.5.3:
     strtok3 "^6.2.4"
     token-types "^4.1.1"
 
+file-type@^16.5.4:
+  version "16.5.4"
+  resolved "https://registry.yarnpkg.com/file-type/-/file-type-16.5.4.tgz#474fb4f704bee427681f98dd390058a172a6c2fd"
+  integrity sha512-/yFHK0aGjFEgDJjEKP0pWCplsPFPhwyfwevf/pVxiN0tmE4L9LmwWxWukdJSHdoCli4VgQLehjJtwQBnqmsKcw==
+  dependencies:
+    readable-web-to-node-stream "^3.0.0"
+    strtok3 "^6.2.4"
+    token-types "^4.1.1"
+
 file-type@^3.8.0:
   version "3.9.0"
   resolved "https://registry.yarnpkg.com/file-type/-/file-type-3.9.0.tgz#257a078384d1db8087bc449d107d52a52672b9e9"
@@ -7085,10 +7089,10 @@ inquirer@^8.2.0:
     strip-ansi "^6.0.0"
     through "^2.3.6"
 
-inquirer@^8.2.4:
-  version "8.2.4"
-  resolved "https://registry.yarnpkg.com/inquirer/-/inquirer-8.2.4.tgz#ddbfe86ca2f67649a67daa6f1051c128f684f0b4"
-  integrity sha512-nn4F01dxU8VeKfq192IjLsxu0/OmMZ4Lg3xKAns148rCaXP6ntAoEkVYZThWjwON8AlzdZZi6oqnhNbxUG9hVg==
+inquirer@^8.2.5:
+  version "8.2.5"
+  resolved "https://registry.yarnpkg.com/inquirer/-/inquirer-8.2.5.tgz#d8654a7542c35a9b9e069d27e2df4858784d54f8"
+  integrity sha512-QAgPDQMEgrDssk1XiwwHoOGYF9BAbUcc1+j+FhEvaOt8/cKRqyLn0U5qA6F74fGhTMGxf92pOvPBeh29jQJDTQ==
   dependencies:
     ansi-escapes "^4.2.1"
     chalk "^4.1.1"
@@ -8555,6 +8559,20 @@ ncjsm@^4.3.0:
     fs2 "^0.3.9"
     type "^2.5.0"
 
+ncjsm@^4.3.1:
+  version "4.3.1"
+  resolved "https://registry.yarnpkg.com/ncjsm/-/ncjsm-4.3.1.tgz#794cd307c877f2dad1e2d71bf7e36074b1bde6d9"
+  integrity sha512-5hy/Mr7KKLS/AFyY4Be8q0aXz8wYd2PN3cSSMBeQHfcrK6Sbd0EGoQxiNrUoKMAYhl67v4A975f6Gy1oEqfJlA==
+  dependencies:
+    builtin-modules "^3.3.0"
+    deferred "^0.7.11"
+    es5-ext "^0.10.61"
+    es6-set "^0.1.5"
+    ext "^1.6.0"
+    find-requires "^1.0.0"
+    fs2 "^0.3.9"
+    type "^2.6.0"
+
 negotiator@0.6.2:
   version "0.6.2"
   resolved "https://registry.yarnpkg.com/negotiator/-/negotiator-0.6.2.tgz#feacf7ccf525a77ae9634436a64883ffeca346fb"
@@ -9721,18 +9739,18 @@ serverless-webpack@5.10.0:
   optionalDependencies:
     ts-node ">= 8.3.0"
 
-serverless@3.23.0:
-  version "3.23.0"
-  resolved "https://registry.yarnpkg.com/serverless/-/serverless-3.23.0.tgz#407f804d55f3c11212b8e4de4325006b01658f7d"
-  integrity sha512-R1L3QeF3KGbRANQZBAhxwwfW1VKY8Mmp5cZwJmA8d5sSGYSczN6l9ST+0Uyfal+K9HtE8MP+ggaggaabor28EQ==
+serverless@3.24.1:
+  version "3.24.1"
+  resolved "https://registry.yarnpkg.com/serverless/-/serverless-3.24.1.tgz#2d361e97192d4565131e8b11e90dc033d2d1a74f"
+  integrity sha512-v7WTprSqj0jFoKOY0BU4a7P7bOYHPsvhhxpZt8OJqYrnqyAQbnhM6GXbDimRMibsH3CNvMVWEKD+WWeimXzcHw==
   dependencies:
     "@serverless/dashboard-plugin" "^6.2.2"
     "@serverless/platform-client" "^4.3.2"
-    "@serverless/utils" "^6.7.0"
+    "@serverless/utils" "^6.8.2"
     ajv "^8.11.0"
     ajv-formats "^2.1.1"
     archiver "^5.3.1"
-    aws-sdk "^2.1231.0"
+    aws-sdk "^2.1247.0"
     bluebird "^3.7.2"
     cachedir "^2.3.0"
     chalk "^4.1.2"
@@ -9740,7 +9758,7 @@ serverless@3.23.0:
     ci-info "^3.5.0"
     cli-progress-footer "^2.3.2"
     d "^1.0.1"
-    dayjs "^1.11.5"
+    dayjs "^1.11.6"
     decompress "^4.2.1"
     dotenv "^16.0.3"
     dotenv-expand "^9.0.0"
@@ -9773,7 +9791,7 @@ serverless@3.23.0:
     signal-exit "^3.0.7"
     strip-ansi "^6.0.1"
     supports-color "^8.1.1"
-    tar "^6.1.11"
+    tar "^6.1.12"
     timers-ext "^0.1.7"
     type "^2.7.2"
     untildify "^4.0.0"
@@ -10221,10 +10239,10 @@ tar-stream@^2.1.4, tar-stream@^2.2.0:
     inherits "^2.0.3"
     readable-stream "^3.1.1"
 
-tar@^6.1.11:
-  version "6.1.11"
-  resolved "https://registry.yarnpkg.com/tar/-/tar-6.1.11.tgz#6760a38f003afa1b2ffd0ffe9e9abbd0eab3d621"
-  integrity sha512-an/KZQzQUkZCkuoAA64hM92X0Urb6VpRhAFllDzz44U2mcD5scmT3zBc4VgVpkugF580+DQn8eAFSyoQt0tznA==
+tar@^6.1.12:
+  version "6.1.12"
+  resolved "https://registry.yarnpkg.com/tar/-/tar-6.1.12.tgz#3b742fb05669b55671fb769ab67a7791ea1a62e6"
+  integrity sha512-jU4TdemS31uABHd+Lt5WEYJuzn+TJTCBLljvIAHZOz6M9Os5pJ4dD+vRFLxPa/n3T0iEFzpi+0x1UfuDZYbRMw==
   dependencies:
     chownr "^2.0.0"
     fs-minipass "^2.0.0"
@@ -10843,6 +10861,14 @@ write-file-atomic@^4.0.1:
   version "4.0.1"
   resolved "https://registry.yarnpkg.com/write-file-atomic/-/write-file-atomic-4.0.1.tgz#9faa33a964c1c85ff6f849b80b42a88c2c537c8f"
   integrity sha512-nSKUxgAbyioruk6hU87QzVbY279oYT6uiwgDoujth2ju4mJ+TZau7SQBhtbTmUyuNYTuXnSyRn66FV0+eCgcrQ==
+  dependencies:
+    imurmurhash "^0.1.4"
+    signal-exit "^3.0.7"
+
+write-file-atomic@^4.0.2:
+  version "4.0.2"
+  resolved "https://registry.yarnpkg.com/write-file-atomic/-/write-file-atomic-4.0.2.tgz#a9df01ae5b77858a027fd2e80768ee433555fcfd"
+  integrity sha512-7KxauUdBmSdWnmpaGFg+ppNjKF8uNLry8LyzjauQDOVONfFLNKrKvQOxZ/VuTIcS/gge/YNahf5RIIQWTSarlg==
   dependencies:
     imurmurhash "^0.1.4"
     signal-exit "^3.0.7"
