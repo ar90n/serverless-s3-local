@@ -11,7 +11,7 @@
     "devDependencies": {
         "@babel/core": "7.20.2",
         "@babel/preset-env": "7.20.2",
-        "babel-loader": "8.3.0",
+        "babel-loader": "9.1.0",
         "serverless-webpack": "5.10.0",
         "webpack": "5.75.0",
         "webpack-node-externals": "3.0.0"
