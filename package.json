@@ -7,7 +7,7 @@
         "eslint": "8.27.0",
         "eslint-config-airbnb-base": "15.0.0",
         "eslint-plugin-import": "2.26.0",
-        "serverless": "3.23.0",
+        "serverless": "3.24.1",
         "got": "11.8.5",
         "jest": "28.1.3"
     },
