@@ -132,23 +132,23 @@ Configuration options can be defined in multiple ways. They will be parsed with 
 - `custom.serverless-offline` in serverless.yml
 - Default values (see table below)
 
-| Option | Description | Type | Default value |
-| ------ | ----------- | ---- | ------------- |
-| address | The host/IP to bind the S3 server to | string | `'localhost'` |
-| host | The host where internal S3 calls are made. Should be the same as address | string | |
-| port | The port that S3 server will listen to | number | `4569` |
-| directory | The location where the S3 files will be created. The directory must exist, it won't be created | string | `'./buckets'` |
-| accessKeyId | The Access Key Id to authenticate requests | string | `'S3RVER'` |
-| secretAccessKey | The Secret Access Key to authenticate requests | string | `'S3RVER'` |
-| cors | The S3 CORS configuration XML. See [AWS docs](https://docs.aws.amazon.com/AmazonS3/latest/API/API_PutBucketCors.html) | string \| Buffer | |
-| website | The S3 Website configuration XML. See [AWS docs](https://docs.aws.amazon.com/AmazonS3/latest/API/API_PutBucketWebsite.html) | string \| Buffer | |
-| noStart | Set to true if you already have an S3rver instance running | boolean | `false` |
-| allowMismatchedSignatures | Prevent SignatureDoesNotMatch errors for all well-formed signatures | boolean | `false` |
-| silent | Suppress S3rver log messages | boolean | `false` |
-| serviceEndpoint | Override the AWS service root for subdomain-style access | string | `amazonaws.com` |
-| httpsProtocol | To enable HTTPS, specify directory (relative to your cwd, typically your project dir) for both cert.pem and key.pem files.| string | |
-| vhostBuckets | Disable vhost-style access for all buckets | boolean | `true` |
-| buckets | Extra bucket names will be created after starting S3 local | string |  |
+| Option | Description                                                                                                                                                      | Type | Default value |
+| ------ |------------------------------------------------------------------------------------------------------------------------------------------------------------------| ---- | ------------- |
+| address | The host/IP to bind the S3 server to                                                                                                                             | string | `'localhost'` |
+| host | The host where internal S3 calls are made. Should be the same as address                                                                                         | string | |
+| port | The port that S3 server will listen to                                                                                                                           | number | `4569` |
+| directory | The location where the S3 files will be created. The directory must exist, it won't be created                                                                   | string | `'./buckets'` |
+| accessKeyId | The Access Key Id to authenticate requests                                                                                                                       | string | `'S3RVER'` |
+| secretAccessKey | The Secret Access Key to authenticate requests                                                                                                                   | string | `'S3RVER'` |
+| cors | Path to the S3 CORS configuration XML relative to the project root. See [AWS docs](https://docs.aws.amazon.com/AmazonS3/latest/API/API_PutBucketCors.html)       | string \| Buffer | |
+| website | Path to the S3 Website configuration XML relative to the project root. See [AWS docs](https://docs.aws.amazon.com/AmazonS3/latest/API/API_PutBucketWebsite.html) | string \| Buffer | |
+| noStart | Set to true if you already have an S3rver instance running                                                                                                       | boolean | `false` |
+| allowMismatchedSignatures | Prevent SignatureDoesNotMatch errors for all well-formed signatures                                                                                              | boolean | `false` |
+| silent | Suppress S3rver log messages                                                                                                                                     | boolean | `false` |
+| serviceEndpoint | Override the AWS service root for subdomain-style access                                                                                                         | string | `amazonaws.com` |
+| httpsProtocol | To enable HTTPS, specify directory (relative to your cwd, typically your project dir) for both cert.pem and key.pem files.                                       | string | |
+| vhostBuckets | Disable vhost-style access for all buckets                                                                                                                       | boolean | `true` |
+| buckets | Extra bucket names will be created after starting S3 local                                                                                                       | string |  |
 
 Feature
 ===============
@@ -194,6 +194,35 @@ aws_secret_access_key = S3RVER
  `aws --endpoint http://localhost:4569 s3 cp ~/tmp/data.csv s3://local-bucket/userdata.csv --profile s3local`
 
 You should see the event trigger in the serverless offline console: `info: PUT /local-bucket/user-data.csv 200 16ms 0b` and a new object with metadata will appear in your local bucket.
+
+Enabling CORS
+=============
+
+Create an .xml file with CORS configuration. See [AWS docs](https://docs.aws.amazon.com/AmazonS3/latest/API/API_PutBucketCors.html)
+
+E.g. to enable CORS for GET requests:
+
+```xml
+<CORSConfiguration>
+  <CORSRule>
+    <AllowedOrigin>*</AllowedOrigin>
+    <AllowedMethod>GET</AllowedMethod>
+    <AllowedHeader>*</AllowedHeader>
+    <MaxAgeSeconds>30000</MaxAgeSeconds>
+    <ExposeHeader>x-amz-server-side-encryption</ExposeHeader>
+  </CORSRule>
+</CORSConfiguration>
+```
+
+Reference the file in your config:
+
+```yaml
+custom:
+  s3:
+    host: localhost
+    directory: /tmp
+    cors: ./path/to/cors.xml
+```
 
 See also
 ===============
