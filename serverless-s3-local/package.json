@@ -9,7 +9,7 @@
         "rxjs": "^6.6.7",
         "rxjs-compat": "^6.6.7",
         "s3rver": "^3.7.0",
-        "serverless-offline": "^8.0.0",
+        "serverless-offline": "^11.0.0",
         "shelljs": "^0.8.5"
     },
     "devDependencies": {
