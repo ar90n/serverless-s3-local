@@ -417,7 +417,7 @@ class ServerlessS3Local {
 
     this.service.getAllFunctions().forEach((functionKey) => {
       const functionDefinition = this.service.getFunction(functionKey);
-      lambda._create({functionKey, functionDefinition}); // eslint-disable-line no-underscore-dangle
+      lambda.create([{functionKey, functionDefinition}]); // eslint-disable-line no-underscore-dangle
 
       const func = (s3Event) => {
         const baseEnvironment = {
