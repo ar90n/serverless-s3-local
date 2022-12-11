@@ -4,7 +4,6 @@ const shell = require("shelljs");
 const path = require("path");
 const { fromEvent } = require("rxjs");
 const { map, mergeMap } = require("rxjs/operators");
-const { default: Lambda } = require("serverless-offline/dist/lambda/");
 
 const defaultOptions = {
   port: 4569,
@@ -37,6 +36,8 @@ class ServerlessS3Local {
     this.options = options;
     this.provider = "aws";
     this.client = null;
+    this.lambdaHandler = null;
+
 
     this.commands = {
       s3: {
@@ -266,35 +267,39 @@ class ServerlessS3Local {
         );
         key = fs.readFileSync(path.resolve(httpsProtocol, "key.pem"), "ascii");
       }
-      this.client = new S3rver({
-        address,
-        port,
-        silent: this.options.silent,
-        directory,
-        allowMismatchedSignatures,
-        configureBuckets,
-        serviceEndpoint,
-        cert,
-        key,
-        vhostBuckets,
-      }).run(
-        (err, { port: bindedPort, family, address: bindedAddress } = {}) => {
-          if (err) {
-            this.serverless.cli.log("Error occurred while starting S3 local.");
-            reject(err);
-            return;
+
+      import('serverless-offline/lambda').then(module => {
+        this.lambdaHandler = module.default;
+        this.client = new S3rver({
+          address,
+          port,
+          silent: this.options.silent,
+          directory,
+          allowMismatchedSignatures,
+          configureBuckets,
+          serviceEndpoint,
+          cert,
+          key,
+          vhostBuckets,
+        }).run(
+          (err, { port: bindedPort, family, address: bindedAddress } = {}) => {
+            if (err) {
+              this.serverless.cli.log("Error occurred while starting S3 local.");
+              reject(err);
+              return;
+            }
+
+            this.options.port = bindedPort;
+            this.serverless.cli.log(
+              `S3 local started ( port:${bindedPort}, family: ${family}, address: ${bindedAddress} )`
+            );
+
+            resolve();
           }
-
-          this.options.port = bindedPort;
-          this.serverless.cli.log(
-            `S3 local started ( port:${bindedPort}, family: ${family}, address: ${bindedAddress} )`
-          );
-
-          resolve();
-        }
-      );
-      this.serverless.cli.log("starting handler");
-      this.subscribe();
+        );
+        this.serverless.cli.log("starting handler");
+        this.subscribe();
+      });
     });
   }
 
@@ -407,12 +412,12 @@ class ServerlessS3Local {
       return {};
     }
 
-    const lambda = new Lambda(this.serverless, this.options);
+    const lambda = new this.lambdaHandler(this.serverless, this.options);
     const eventHandlers = [];
 
     this.service.getAllFunctions().forEach((functionKey) => {
       const functionDefinition = this.service.getFunction(functionKey);
-      lambda._create(functionKey, functionDefinition); // eslint-disable-line no-underscore-dangle
+      lambda.create([{functionKey, functionDefinition}]); // eslint-disable-line no-underscore-dangle
 
       const func = (s3Event) => {
         const baseEnvironment = {
