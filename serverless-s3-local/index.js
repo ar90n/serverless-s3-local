@@ -327,11 +327,13 @@ class ServerlessS3Local {
       return Promise.resolve([]);
     }
 
+    const { CreateBucketCommand } = require("@aws-sdk/client-s3")
     const s3Client = this.getClient();
     return Promise.all(
       buckets.map((Bucket) => {
         this.serverless.cli.log(`creating bucket: ${Bucket}`);
-        return s3Client.createBucket({ Bucket }).promise();
+        const command = new CreateBucketCommand({ Bucket });
+        return s3Client.send(command);
       })
     ).catch(() => ({}));
   }
@@ -352,14 +354,14 @@ class ServerlessS3Local {
   }
 
   getClient() {
-    const { S3 } = require("@aws-sdk/client-s3");
-    return new S3({
-      s3ForcePathStyle: true,
-      endpoint: new AWS.Endpoint(
-        `http://${this.options.host}:${this.options.port}`
-      ),
-      accessKeyId: this.options.accessKeyId,
-      secretAccessKey: this.options.secretAccessKey,
+    const { S3Client } = require("@aws-sdk/client-s3");
+    return new S3Client({
+      forcePathStyle: true,
+      endpoint: `http://${this.options.host}:${this.options.port}`,
+      credentials: {
+        accessKeyId: this.options.accessKeyId,
+        secretAccessKey: this.options.secretAccessKey,
+      },
     });
   }
 
