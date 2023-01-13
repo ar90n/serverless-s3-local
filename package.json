@@ -6,7 +6,7 @@
         "@aws-sdk/client-s3": "3.245.0",
         "eslint": "8.31.0",
         "eslint-config-airbnb-base": "15.0.0",
-        "eslint-plugin-import": "2.26.0",
+        "eslint-plugin-import": "2.27.4",
         "serverless": "3.26.0",
         "got": "11.8.6",
         "jest": "29.3.1"
