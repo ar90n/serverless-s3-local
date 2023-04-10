@@ -1,5 +1,5 @@
-const got = require('got');
-const {S3Client, GetObjectCommand} = require('@aws-sdk/client-s3')
+import got from 'got';
+import {S3Client, GetObjectCommand} from '@aws-sdk/client-s3'
 
 const client = new S3Client({
   forcePathStyle: true,
