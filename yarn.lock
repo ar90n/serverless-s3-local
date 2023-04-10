@@ -8487,6 +8487,14 @@ node-domexception@^1.0.0:
   resolved "https://registry.yarnpkg.com/node-domexception/-/node-domexception-1.0.0.tgz#6888db46a1f71c0b76b3f7555016b63fe64766e5"
   integrity sha512-/jKZoMpw0F8GRwl4/eLROPA3cfcXtLApP0QzLmUT/HuPCZWyB7IY9ZrMeKw2O/nFIqPQB3PVM9aYm0F312AXDQ==
 
+node-fetch-commonjs@^3.2.4:
+  version "3.2.4"
+  resolved "https://registry.yarnpkg.com/node-fetch-commonjs/-/node-fetch-commonjs-3.2.4.tgz#56ee6657b48e30b7636642a447f0f089b009a1e8"
+  integrity sha512-bZW7+ldcuuMPLTJk8DufhT6qHDRdljYD0jqBjmrYfcInaYcReX5kK42SQsu/jvtit/tER28yYjnk63PEEmNPtg==
+  dependencies:
+    formdata-polyfill "^4.0.10"
+    web-streams-polyfill "^3.1.1"
+
 node-fetch@^2.6.7:
   version "2.6.7"
   resolved "https://registry.yarnpkg.com/node-fetch/-/node-fetch-2.6.7.tgz#24de9fba827e3b4ae44dc8b20256a379160052ad"
@@ -9518,7 +9526,7 @@ serialize-javascript@^6.0.0:
   dependencies:
     randombytes "^2.1.0"
 
-serverless-offline@^12.0.0:
+serverless-offline@^12.0.0, serverless-offline@^12.0.4:
   version "12.0.4"
   resolved "https://registry.yarnpkg.com/serverless-offline/-/serverless-offline-12.0.4.tgz#93f60be0423867a5ebcf1cbc8d278e7bfa24e210"
   integrity sha512-G256wDHI12vE0CJ0uTJMBlfnaN7o7td4GgClvQtuedt/n7vKoUfN0och+LybD6YVGsR5h1xpYjPPPLy2QFqWaA==
@@ -10532,7 +10540,7 @@ wcwidth@^1.0.1:
   dependencies:
     defaults "^1.0.3"
 
-web-streams-polyfill@^3.0.3:
+web-streams-polyfill@^3.0.3, web-streams-polyfill@^3.1.1:
   version "3.2.1"
   resolved "https://registry.yarnpkg.com/web-streams-polyfill/-/web-streams-polyfill-3.2.1.tgz#71c2718c52b45fd49dbeee88634b3a60ceab42a6"
   integrity sha512-e0MO3wdXWKrLbL0DgGnUV7WHVuw9OUvL4hjgnPkIeEvESk74gAITi5G606JtZPp39cd8HA9VQzCIvA49LpPN5Q==
