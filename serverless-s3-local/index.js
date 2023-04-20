@@ -421,7 +421,7 @@ class ServerlessS3Local {
       const functionDefinition = this.service.getFunction(functionKey);
       lambda.create([{functionKey, functionDefinition}]); // eslint-disable-line no-underscore-dangle
 
-      const func = (s3Event) => {
+      const func = async (s3Event) => {
         const baseEnvironment = {
           IS_LOCAL: true,
           IS_OFFLINE: true,
@@ -437,7 +437,7 @@ class ServerlessS3Local {
 
           const handler = lambda.get(functionKey);
           handler.setEvent(s3Event);
-          handler.runHandler();
+          await handler.runHandler();
         } catch (e) {
           this.serverless.cli.log("Error while running handler", e);
         }
