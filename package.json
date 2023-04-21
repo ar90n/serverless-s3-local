@@ -4,7 +4,7 @@
     "dependencies": {},
     "devDependencies": {
         "@aws-sdk/client-s3": "3.312.0",
-        "eslint": "8.38.0",
+        "eslint": "8.39.0",
         "eslint-config-airbnb-base": "15.0.0",
         "eslint-plugin-import": "2.27.5",
         "serverless": "3.30.1",
