@@ -3,7 +3,7 @@
     "private": true,
     "dependencies": {},
     "devDependencies": {
-        "@aws-sdk/client-s3": "3.385.0",
+        "@aws-sdk/client-s3": "3.386.0",
         "eslint": "8.46.0",
         "eslint-config-airbnb-base": "15.0.0",
         "eslint-plugin-import": "2.28.0",
