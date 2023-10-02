@@ -18,7 +18,7 @@ it('event handling with python', async () => {
   const response = await client.send(new PutObjectCommand({Bucket: "local-bucket", Key: "incoming/img.jpg", Body: "abcd"}));
   const etag = response.ETag.slice(1, -1);
 
-  await sleep(1000);
+  await sleep(5000);
 
   console.log(`/tmp/${etag}`);
   const found = fs.existsSync(`/tmp/${etag}`);
