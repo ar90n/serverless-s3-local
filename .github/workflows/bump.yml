@@ -32,7 +32,7 @@ jobs:
         id: bump_version
         run: |
           pushd  serverless-s3-local
-          version=$(npm version ${{ github.event.inputs.bumpTarget }})
+          version=$(npm version ${{ github.event.inputs.bumpTarget }} --no-workspaces-update | tail -n 1)
           echo ::set-output name=VERSION::${version}
           popd
       - name: Commit pyproject.toml
