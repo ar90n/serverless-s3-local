@@ -27,7 +27,7 @@ jobs:
         run: echo ::set-output name=BRANCH::${GITHUB_REF/refs\/heads\//}
       - uses: actions/setup-node@v3
         with:
-          node-version: 12
+          node-version: 18
       - name: Bump version
         id: bump_version
         run: |
