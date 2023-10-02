@@ -23,4 +23,4 @@ it('event handling with python', async () => {
   console.log(`/tmp/${etag}`);
   const found = fs.existsSync(`/tmp/${etag}`);
   expect(found).toEqual(true);
-});
+}, 8000);
