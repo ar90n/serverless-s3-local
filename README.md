@@ -30,7 +30,7 @@ Example
 service: serverless-s3-local-example
 provider:
   name: aws
-  runtime: nodejs12.x
+  runtime: nodejs18.x
 plugins:
   - serverless-s3-local
   - serverless-offline
