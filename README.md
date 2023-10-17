@@ -224,6 +224,25 @@ custom:
     cors: ./path/to/cors.xml
 ```
 
+Running on Node 18 or higher
+===============
+You may meet an error such as following on Node 18 or higher.
+
+```
+Error: error:0308010C:digital envelope routines::unsupported
+      at Cipheriv.createCipherBase (node:internal/crypto/cipher:122:19)
+      at Cipheriv.createCipherWithIV (node:internal/crypto/cipher:141:3)
+      at new Cipheriv (node:internal/crypto/cipher:249:3)
+
+...
+```
+
+In this case, please set the following environemnt variable.
+
+```
+export NODE_OPTIONS=--openssl-legacy-provider
+```
+
 See also
 ===============
 * [s3rver](https://github.com/jamhall/s3rver)
