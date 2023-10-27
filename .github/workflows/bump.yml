@@ -25,7 +25,7 @@ jobs:
       - name: Get branch
         id: get_branch
         run: echo ::set-output name=BRANCH::${GITHUB_REF/refs\/heads\//}
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v4
         with:
           node-version: 18
       - name: Bump version
