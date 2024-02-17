@@ -1,11 +1,12 @@
 {
     "name": "simple-put",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "private": true,
     "main": "handler.js",
     "scripts": {
         "start": "serverless offline --host 0.0.0.0 start",
-        "test": "NODE_OPTIONS=--experimental-vm-modules jest"
+        "test": "NODE_OPTIONS=--experimental-vm-modules jest",
+        "info": "serverless info"
     },
     "dependencies": {
         "serverless-s3-local": "*"

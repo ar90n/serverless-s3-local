@@ -1,7 +1,9 @@
 version: '3.4'
 
 x-template: &example-template
-    image: node
+    build:
+      context: .
+      dockerfile: Dockerfile
     volumes:
       - ../:/serverless-s3-local:cached
       - work:/work

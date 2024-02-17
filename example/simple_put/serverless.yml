@@ -6,25 +6,14 @@ plugins:
   - serverless-s3-local
   - serverless-offline
 custom:
-  # Uncomment only if you want to collaborate with serverless-plugin-additional-stacks
-  # additionalStacks:
-  #    permanent:
-  #      Resources:
-  #        S3BucketData:
-  #            Type: AWS::S3::Bucket
-  #            Properties:
-  #                BucketName: ${self:service}-data
-  s3:
-    host: localhost
-    port: 8000
-    directory: ./s3-local
+  minio:
+    hostname: 127.0.0.1
+    port: 9000
     # Uncomment the first line only if you want to use cors with specified policy
     # Uncomment the second line only if you don't want to use cors
     # Not uncomment the these lines only if your wanto use cors with default policy
     # cors: relative/path/to/your/cors.xml
     # website: relative/path/to/your/website.xml
-    # Uncomment only if you already have a S3 server running locally
-    # noStart: true
 resources:
   Resources:
     NewResource:

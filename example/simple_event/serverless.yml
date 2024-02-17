@@ -1,28 +1,16 @@
 service: serverless-s3-local-example
-
 provider:
   name: aws
   runtime: nodejs18.x
-
 plugins:
   - serverless-s3-local
   - serverless-offline
-
-custom:
-  # Uncomment only if you want to collaborate with serverless-plugin-additional-stacks
-  # additionalStacks:
-  #    permanent:
-  #      Resources:
-  #        S3BucketData:
-  #            Type: AWS::S3::Bucket
-  #            Properties:
-  #                BucketName: ${self:service}-data
-  s3:
-    port: 8000
-    directory: /tmp
-    # Uncomment only if you already have a S3 server running locally
-    # noStart: true
-
+resources:
+  Resources:
+    NewResource:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: local-bucket
 functions:
   webhook:
     handler: handler.webhook
