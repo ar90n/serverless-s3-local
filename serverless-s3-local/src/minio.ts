@@ -6,6 +6,7 @@ import * as os from "os";
 import * as path from "path";
 import { startServer } from "./http";
 import aws from "aws-sdk";
+import Aws from "serverless/plugins/aws/provider/awsProvider";
 
 const MINIO_CMD = process.env.MINIO_CMD || "minio";
 const DEFAULT_HOSTNAME = "127.0.0.1";
@@ -13,9 +14,59 @@ const DEFAULT_PORT = 9000;
 const DEFAULT_ENDPOINT = DEFAULT_HOSTNAME;
 
 export type NotificationConfig = {
+  id: string;
   bucketName: string;
+  functionName: string;
   bucketNotificationConfig: Minio.NotificationConfig;
 };
+
+export namespace NotificationConfig {
+  export const of = (
+    functionName: string,
+    event: string | Aws.S3,
+  ): NotificationConfig => {
+    if (typeof event === "string") {
+      const id = Math.random().toString(36).slice(-8);
+      const bucketNotification = new Minio.NotificationConfig();
+      const arn = Minio.buildARN("minio", "sqs", "", id, "webhook");
+      console.log(arn);
+      console.log("minio", "sqs", "", id, "webhook");
+      const queue = new Minio.QueueConfig(arn);
+      queue.addEvent(Minio.ObjectCreatedAll);
+      queue.addEvent(Minio.ObjectRemovedAll);
+      bucketNotification.add(queue);
+
+      return {
+        id,
+        bucketName: event,
+        functionName,
+        bucketNotificationConfig: bucketNotification,
+      };
+    }
+
+    const bucketNotification = new Minio.NotificationConfig();
+    const id = Math.random().toString(36).slice(-8);
+    const arn = Minio.buildARN("minio", "sqs", "", id, "webhook");
+    const queue = new Minio.QueueConfig(arn);
+    for (const rule of event.rules || []) {
+      if (typeof rule.prefix === "string") {
+        queue.addFilterSuffix(rule.prefix);
+      }
+      if (typeof rule.suffix === "string") {
+        queue.addFilterSuffix(rule.suffix);
+      }
+    }
+    queue.addEvent(event.event);
+    bucketNotification.add(queue);
+
+    return {
+      id,
+      bucketName: event.bucket,
+      functionName,
+      bucketNotificationConfig: bucketNotification,
+    };
+  };
+}
 
 export type BucketConfig = {
   Name: string;
@@ -78,7 +129,6 @@ const createClient = (config: ValidatedMinioConfig): Minio.Client => {
 const waitForMinio = (minio: ChildProcessWithoutNullStreams): Promise<void> => {
   return new Promise((resolve) => {
     minio.stdout.on("data", (data) => {
-      console.log("----");
       console.log(new Buffer(data).toString("utf8"));
       if (data.includes("S3-API:")) {
         // Assuming this log line indicates that Minio has started
@@ -90,22 +140,14 @@ const waitForMinio = (minio: ChildProcessWithoutNullStreams): Promise<void> => {
 
 const spawnMinio = async (
   { hostname, log, directory, port }: ValidatedMinioConfig,
-  httpPort: number,
+  env: { [key: string]: string },
 ) => {
-  console.log("===================");
   console.log(["server", directory, "--address", `${hostname}:${port}`]);
-  console.log("===================");
-
+  console.log(env);
   const minio = spawn(
     MINIO_CMD,
     ["server", directory, "--address", `${hostname}:${port}`],
-    {
-      env: {
-        ...process.env,
-        MINIO_NOTIFY_WEBHOOK_ENABLE_1: "on",
-        MINIO_NOTIFY_WEBHOOK_ENDPOINT_1: `http://127.0.0.1:${httpPort}/aiueo`,
-      },
-    },
+    { env },
   );
 
   minio.stdout.on("data", (data) => {
@@ -156,46 +198,57 @@ export const start = async (
 
   let httpPort = 12345;
   let closeServer = () => {};
+  const env = { ...process.env } as { [key: string]: string };
   if (0 < notificationConfigs.length) {
     const aaaa = await startServer({
-      endpoint: "/aiueo",
+      endpoint: "",
       callback: async (req, res) => {
-        const clientContextData = JSON.stringify({
-          foo: "foo",
-        });
-
-        const payload = JSON.stringify({
-          data: "foo",
-        });
-
-        const lambda = new aws.Lambda({
-          apiVersion: "2015-03-31",
-          endpoint: "http://localhost:3002",
-          region: "us-west-2",
-          accessKeyId: "",
-          secretAccessKey: "",
-        });
-        const params = {
-          ClientContext: Buffer.from(clientContextData).toString("base64"),
-          // FunctionName is composed of: service name - stage - function name, e.g.
-          FunctionName: "serverless-s3-local-example-dev-s3hook",
-          InvocationType: "RequestResponse",
-          Payload: payload,
-        };
-
-        const response = await lambda.invoke(params).promise();
-        console.log(response);
-
         console.log(req);
-        res.end();
+        for (const config of notificationConfigs) {
+          if (req.url === `/${config.id}`) {
+            const clientContextData = JSON.stringify({
+              foo: "foo",
+            });
+
+            const payload = JSON.stringify({
+              data: "foo",
+            });
+
+            const lambda = new aws.Lambda({
+              apiVersion: "2015-03-31",
+              endpoint: "http://localhost:3002",
+              region: "us-west-2",
+              accessKeyId: "fake",
+              secretAccessKey: "fake",
+            });
+            const params = {
+              ClientContext: Buffer.from(clientContextData).toString("base64"),
+              FunctionName: config.functionName,
+              InvocationType: "RequestResponse",
+              Payload: payload,
+            };
+
+            const response = await lambda.invoke(params).promise();
+            res.end();
+            return;
+          }
+        }
       },
     });
     httpPort = aaaa.port;
+    console.log(httpPort);
+    for (const config of notificationConfigs) {
+      console.log(`MINIO_NOTIFY_WEBHOOK_ENABLE_${config.id}`);
+      env[`MINIO_NOTIFY_WEBHOOK_ENABLE_${config.id}`] = "on";
+      env[`MINIO_NOTIFY_WEBHOOK_ENDPOINT_${config.id}`] =
+        `http://127.0.0.1:${httpPort}/${config.id}`;
+    }
     closeServer = aaaa.close;
   }
 
   // Spawn Minio
-  const closeMinio = await spawnMinio(config, httpPort);
+
+  const closeMinio = await spawnMinio(config, env);
 
   // Create each bucket
   for (const config of bucketConfigs) {

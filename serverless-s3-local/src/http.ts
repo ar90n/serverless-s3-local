@@ -5,7 +5,7 @@ const handleRequest = (handler: Handler) => {
     req: http.IncomingMessage,
     res: http.ServerResponse,
   ): Promise<void> => {
-    if (req.url === handler.endpoint) {
+    if (req.url?.startsWith(handler.endpoint)) {
       return handler.callback(req, res).catch((err) => {
         console.error(err);
         res.statusCode = 500;

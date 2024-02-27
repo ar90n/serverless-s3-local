@@ -1,5 +1,4 @@
 import { start, MinioConfig, NotificationConfig, BucketConfig } from "./minio";
-import * as Minio from "minio";
 import { Logging } from "serverless/classes/Plugin";
 import { Logger, createLogger } from "./logger";
 import Serverless, { FunctionDefinitionHandler } from "serverless";
@@ -8,9 +7,9 @@ import {
   S3,
 } from "serverless/plugins/aws/provider/awsProvider";
 
-type AWSS3BucketResource = {
+type AWSS3BucketResource = Omit<CloudFormationResource, "Type"> & {
   Type: "AWS::S3::Bucket";
-} & CloudFormationResource;
+};
 
 const isAWSS3BucketResource = (
   resource: CloudFormationResource,
@@ -27,6 +26,42 @@ const getResources = (serverless: Serverless): CloudFormationResource[] => {
   return Object.values(
     serverless.service.resources.Resources || serverless.service.resources,
   );
+};
+
+const getAWSS3BucketResources = (
+  serverless: Serverless,
+): AWSS3BucketResource[] => {
+  return getResources(serverless).flatMap((resource) => {
+    if (!isAWSS3BucketResource(resource)) {
+      return [];
+    }
+
+    return resource;
+  });
+};
+
+const getS3Events = (
+  serverless: Serverless,
+): { functionName: string; event: S3 }[] => {
+  console.log(serverless.service.getAllFunctions());
+  console.log(
+    serverless.service
+      .getAllFunctions()
+      .map((n: string) => serverless.service.getFunction(n)),
+  );
+  return serverless.service
+    .getAllFunctions()
+    .map((n) => serverless.service.getFunction(n))
+    .flatMap((func) => {
+      const functionName = `${func.name}`;
+      return (func.events || []).flatMap((event) => {
+        if (event.s3 === undefined) {
+          return [];
+        }
+
+        return { functionName, event: event.s3 };
+      });
+    });
 };
 
 export default class ServerlessS3Local {
@@ -53,77 +88,23 @@ export default class ServerlessS3Local {
     this.log.warning("start handler called");
 
     const minioConfig: MinioConfig = getCustomMinoConfig(this.serverless); // Update this as per your configuration
-    const notificationConfigs: NotificationConfig[] = this.serverless.service
-      .getAllFunctions()
-      .filter((functionName) => {
-        return this.serverless.service
-          .getAllEventsInFunction(functionName)
-          .some((event) => {
-            return "s3" in event;
-          });
-      })
-      .map((functionName): NotificationConfig => {
-        const f = this.serverless.service.getFunction(functionName);
-        const s3Event = f.events.filter((event) => {
-          return "s3" in event;
-        })[0].s3;
-        if (!s3Event) {
-          throw new Error("s3 event not found");
-        }
-
-        if (typeof s3Event === "string") {
-          const bucketNotification = new Minio.NotificationConfig();
-          const arn = Minio.buildARN("minio", "sqs", "", "1", "webhook");
-          const queue = new Minio.QueueConfig(arn);
-          queue.addEvent(Minio.ObjectCreatedAll);
-          queue.addEvent(Minio.ObjectRemovedAll);
-          bucketNotification.add(queue);
-
-          return {
-            bucketName: s3Event,
-            bucketNotificationConfig: bucketNotification,
-          };
-        }
-
-        const bucketNotification = new Minio.NotificationConfig();
-        const arn = Minio.buildARN("minio", "sqs", "", "1", "webhook");
-        const queue = new Minio.QueueConfig(arn);
-        for (const rule of s3Event.rules || []) {
-          if (typeof rule.prefix === "string") {
-            queue.addFilterSuffix(rule.prefix);
-          }
-          if (typeof rule.suffix === "string") {
-            queue.addFilterSuffix(rule.suffix);
-          }
-        }
-        queue.addEvent(s3Event.event);
-        bucketNotification.add(queue);
-
-        return {
-          bucketName: s3Event.bucket,
-          bucketNotificationConfig: bucketNotification,
-        };
-      });
-
-    const bucketConfigs: BucketConfig[] = getResources(this.serverless).flatMap(
-      (resource) => {
-        if (!isAWSS3BucketResource(resource)) {
-          return [];
-        }
-
-        return {
-          Name: resource.Properties.BucketName,
-          Region: "us-east-1",
-        };
-      },
+    const notificationConfigs: NotificationConfig[] = getS3Events(
+      this.serverless,
+    ).map(({ functionName, event }) =>
+      NotificationConfig.of(functionName, event),
     );
+    const bucketConfigs: BucketConfig[] = getAWSS3BucketResources(
+      this.serverless,
+    ).map((resource) => ({
+      Name: resource.Properties.BucketName,
+      Region: "us-east-2",
+    }));
 
     this.stopMinio = await start(
       minioConfig,
       bucketConfigs,
       notificationConfigs,
     );
-    // You can call stopMinio() when you want to stop Minio
 
     process.on("SIGINT", this.endHandler.bind(this));
     process.on("SIGTERM", this.endHandler.bind(this));
