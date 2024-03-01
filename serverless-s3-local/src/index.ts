@@ -1,23 +1,13 @@
 import { start, MinioConfig, NotificationConfig, BucketConfig } from "./minio";
+import { BucketResource, EventHandler, isAWSS3BucketResource } from "./s3";
 import { Logging } from "serverless/classes/Plugin";
 import { Logger, createLogger } from "./logger";
-import Serverless, { FunctionDefinitionHandler } from "serverless";
-import {
-  CloudFormationResource,
-  S3,
-} from "serverless/plugins/aws/provider/awsProvider";
+import Serverless from "serverless";
 
-type AWSS3BucketResource = Omit<CloudFormationResource, "Type"> & {
-  Type: "AWS::S3::Bucket";
-};
+import { CloudFormationResource } from "serverless/plugins/aws/provider/awsProvider";
+import Service from "serverless/classes/Service";
 
-const isAWSS3BucketResource = (
-  resource: CloudFormationResource,
-): resource is AWSS3BucketResource => {
-  return resource.Type === "AWS::S3::Bucket";
-};
-
-const getCustomMinoConfig = (serverless: Serverless): MinioConfig => {
+const getCustomConfig = (serverless: Serverless): Service.Custom => {
   const custom = serverless.service.custom || {};
   return custom.minio || {};
 };
@@ -28,9 +18,7 @@ const getResources = (serverless: Serverless): CloudFormationResource[] => {
   );
 };
 
-const getAWSS3BucketResources = (
-  serverless: Serverless,
-): AWSS3BucketResource[] => {
+const getS3BucketResources = (serverless: Serverless): BucketResource[] => {
   return getResources(serverless).flatMap((resource) => {
     if (!isAWSS3BucketResource(resource)) {
       return [];
@@ -40,26 +28,22 @@ const getAWSS3BucketResources = (
   });
 };
 
-const getS3Events = (
-  serverless: Serverless,
-): { functionName: string; event: S3 }[] => {
-  console.log(serverless.service.getAllFunctions());
-  console.log(
-    serverless.service
-      .getAllFunctions()
-      .map((n: string) => serverless.service.getFunction(n)),
-  );
+const getS3Handler = (serverless: Serverless): EventHandler[] => {
   return serverless.service
     .getAllFunctions()
     .map((n) => serverless.service.getFunction(n))
     .flatMap((func) => {
-      const functionName = `${func.name}`;
+      const name = `${func.name}`;
       return (func.events || []).flatMap((event) => {
         if (event.s3 === undefined) {
           return [];
         }
 
-        return { functionName, event: event.s3 };
+        if (typeof event.s3 === "string") {
+          return EventHandler.defaultOf(name, event.s3);
+        }
+
+        return { name, event: event.s3 };
       });
     });
 };
@@ -77,7 +61,7 @@ export default class ServerlessS3Local {
     this.log = createLogger(log);
     this.stopMinio = undefined;
 
-    this.log.warning("constructor");
+    this.log.info("constructor");
     this.hooks = {
       "before:offline:start": this.startHandler.bind(this),
       "after:offline:end": this.endHandler.bind(this),
@@ -85,25 +69,21 @@ export default class ServerlessS3Local {
   }
 
   private async startHandler() {
-    this.log.warning("start handler called");
+    this.log.info("start handler called");
 
-    const minioConfig: MinioConfig = getCustomMinoConfig(this.serverless); // Update this as per your configuration
-    const notificationConfigs: NotificationConfig[] = getS3Events(
-      this.serverless,
-    ).map(({ functionName, event }) =>
-      NotificationConfig.of(functionName, event),
+    const minioConfig = MinioConfig.of(getCustomConfig(this.serverless));
+    const bucketConfigs = getS3BucketResources(this.serverless).map(
+      BucketConfig.of,
     );
-    const bucketConfigs: BucketConfig[] = getAWSS3BucketResources(
-      this.serverless,
-    ).map((resource) => ({
-      Name: resource.Properties.BucketName,
-      Region: "us-east-2",
-    }));
+    const notificationConfigs = getS3Handler(this.serverless).map(
+      NotificationConfig.of,
+    );
 
     this.stopMinio = await start(
       minioConfig,
       bucketConfigs,
       notificationConfigs,
+      this.log,
     );
 
     process.on("SIGINT", this.endHandler.bind(this));
@@ -113,9 +93,9 @@ export default class ServerlessS3Local {
   }
 
   private async endHandler() {
-    this.log.warning("end handler called");
+    this.log.info("end handler called");
     if (!this.stopMinio) {
-      this.log.warning("Minio is not running");
+      this.log.error("Minio is not running");
       return;
     }
 

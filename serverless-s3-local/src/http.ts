@@ -5,7 +5,8 @@ const handleRequest = (handler: Handler) => {
     req: http.IncomingMessage,
     res: http.ServerResponse,
   ): Promise<void> => {
-    if (req.url?.startsWith(handler.endpoint)) {
+    const endpoint = handler.endpoint || "";
+    if (req.url?.startsWith(endpoint)) {
       return handler.callback(req, res).catch((err) => {
         console.error(err);
         res.statusCode = 500;
@@ -27,7 +28,7 @@ const listen = (server: http.Server, port: number): Promise<void> => {
 };
 
 export type Handler = {
-  endpoint: string;
+  endpoint?: string;
   callback: (
     req: http.IncomingMessage,
     res: http.ServerResponse,
