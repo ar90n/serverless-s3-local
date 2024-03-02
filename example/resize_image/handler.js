@@ -1,5 +1,4 @@
-import { Readable } from "stream"
-import path from "path"
+import path from "path";
 
 import {
   S3Client,
@@ -11,17 +10,20 @@ import sharp from "sharp";
 const client = new S3Client({
   forcePathStyle: true,
   credentials: {
-    accessKeyId: "S3RVER",
-    secretAccessKey: "S3RVER",
+    accessKeyId: "minioadmin",
+    secretAccessKey: "minioadmin",
   },
-  endpoint: "http://localhost:8000",
+  endpoint: "http://localhost:9000",
 });
 
-export const webhook = (event, context, callback) => {
-  callback(null, "ok");
+export const webhook = async (event, context) => {
+  return {
+    statusCode: 200,
+    body: JSON.stringify("ok"),
+  };
 };
 
-export const s3hook = (event, context) => {
+export const s3hook = async (event, context) => {
   const received_key = event.Records[0].s3.object.key;
   const get_param = {
     Bucket: "local-bucket",
@@ -37,18 +39,19 @@ export const s3hook = (event, context) => {
       stream.on("end", () => resolve(Buffer.concat(chunks)));
     });
 
-  client
-    .send(new GetObjectCommand(get_param))
-    .then((data) => streamToBuffer(data.Body))
-    .then((data) => sharp(data).resize(320).toBuffer())
-    .then((data) => {
-      const put_param = {
-        Bucket: "local-bucket",
-        Key: `processed/${filename}`,
-        Body: data,
-      };
-      return client.send(new PutObjectCommand(put_param));
-    })
-    .then(() => context.done())
-    .catch((err) => context.done("fail"));
+  const data = await client.send(new GetObjectCommand(get_param));
+  const buf = await streamToBuffer(data.Body);
+  const sharp_data = await sharp(buf).resize(320).toBuffer();
+
+  const put_param = {
+    Bucket: "local-bucket",
+    Key: `processed/${filename}`,
+    Body: sharp_data,
+  };
+  await client.send(new PutObjectCommand(put_param));
+
+  return {
+    statusCode: 200,
+    body: JSON.stringify("ok"),
+  };
 };

@@ -1,3 +1,4 @@
+import { randomHexString } from "./util";
 import {
   CloudFormationResource,
   S3,
@@ -43,6 +44,45 @@ export namespace EventHandler {
     },
   });
 }
+
+export type Object = {
+  key: string;
+  sequencer: string;
+  size?: number;
+  eTag?: string;
+};
+
+export type EventPayload = {
+  Records: {
+    eventVersion: string;
+    eventSource: string;
+    awsRegion: string;
+    eventTime: string;
+    eventName: string;
+    userIdentity: {
+      principalId: string;
+    };
+    requestParameters: {
+      sourceIPAddress: string;
+    };
+    responseElements: {
+      "x-amz-request-id": string;
+      "x-amz-id-2": string;
+    };
+    s3: {
+      s3SchemaVersion: string;
+      configurationId: string;
+      bucket: {
+        name: string;
+        ownerIdentity: {
+          principalId: string;
+        };
+        arn: string;
+      };
+      object: Object;
+    };
+  }[];
+};
 
 export type BucketResource = Omit<CloudFormationResource, "Type"> & {
   Type: "AWS::S3::Bucket";

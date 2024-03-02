@@ -7,7 +7,6 @@ plugins:
   - serverless-offline
 custom:
   minio:
-    hostname: 127.0.0.1
     port: 9000
     # Uncomment the first line only if you want to use cors with specified policy
     # Uncomment the second line only if you don't want to use cors

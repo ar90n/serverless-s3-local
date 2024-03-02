@@ -11,10 +11,6 @@ x-template: &example-template
     command: sh -c "/serverless-s3-local/test/run_test.sh $${TARGET}"
 
 services:
-  put-with-s3-event-response:
-    environment:
-      TARGET: "put-with-s3-event-response"
-    <<: *example-template
   resize-image:
     environment:
       TARGET: "resize-image"

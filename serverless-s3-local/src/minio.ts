@@ -12,9 +12,11 @@ import Aws from "serverless/plugins/aws/provider/awsProvider";
 import { IncomingMessage, ServerResponse } from "http";
 
 const MINIO_CMD = process.env.MINIO_CMD || "minio";
-const DEFAULT_HOSTNAME = "127.0.0.1";
+const DEFAULT_ADDRESS = "127.0.0.1";
 const DEFAULT_PORT = 9000;
-const DEFAULT_ENDPOINT = DEFAULT_HOSTNAME;
+const DEFAULT_ENDPOINT = DEFAULT_ADDRESS;
+const DEFAULT_ACCESS_KEY = "minioadmin";
+const DEFAULT_SECRET_KEY = "minioadmin";
 
 export type NotificationConfig = {
   id: string;
@@ -35,7 +37,7 @@ export namespace NotificationConfig {
     const queue = new Minio.QueueConfig(arn);
     for (const rule of event.rules || []) {
       if (typeof rule.prefix === "string") {
-        queue.addFilterSuffix(rule.prefix);
+        queue.addFilterPrefix(rule.prefix);
       }
       if (typeof rule.suffix === "string") {
         queue.addFilterSuffix(rule.suffix);
@@ -81,31 +83,38 @@ export namespace BucketConfig {
 }
 
 export type MinioConfig = {
-  hostname: string;
+  address: string;
   port: number;
   directory: string;
+  accessKey: string;
+  secretKey: string;
 };
 
 export namespace MinioConfig {
   export const of = ({
-    hostname,
+    address,
     port,
     directory,
+    accessKey,
+    secretKey,
   }: Partial<MinioConfig>): MinioConfig => {
     if (!directory) {
       directory = createTempDirectory();
     }
 
     return {
-      hostname: hostname || DEFAULT_HOSTNAME,
+      address: address || DEFAULT_ADDRESS,
       port: port || DEFAULT_PORT,
       directory,
+      accessKey: accessKey || DEFAULT_ACCESS_KEY,
+      secretKey: secretKey || DEFAULT_SECRET_KEY,
     };
   };
 }
 
 type MinioError = Error & { code: string };
 export namespace MinioError {
+  // biome-ignore lint/suspicious/noExplicitAny: use for type guard
   export const is = (error: any): error is MinioError => {
     if (!error) return false;
 
@@ -126,14 +135,20 @@ const waitFor = (minio: ChildProcessWithoutNullStreams): Promise<void> => {
 };
 
 const spawnMinio = async (
-  { hostname, directory, port }: MinioConfig,
+  { address, directory, port, accessKey, secretKey }: MinioConfig,
   webhookEnv: { [key: string]: string },
   log: Logger = nullLogger,
 ) => {
-  const env = { ...process.env, ...webhookEnv } as { [key: string]: string };
+  const env = {
+    ...process.env,
+    ...webhookEnv,
+    MINIO_ACCESS_KEY: accessKey,
+    MINIO_SECRET_KEY: secretKey,
+  } as { [key: string]: string };
+
   const minio = spawnProcess(
     MINIO_CMD,
-    ["server", directory, "--address", `${hostname}:${port}`],
+    ["server", directory, "--address", `${address}:${port}`],
     { env },
   );
 
@@ -158,7 +173,7 @@ const spawnMinio = async (
 
 const makeBucket = (
   client: Minio.Client,
-  { Name, Region }: BucketConfig,
+  { Name, Region }: { Name: string; Region: string },
 ): Promise<void> => {
   return new Promise((resolve, reject) => {
     client.makeBucket(Name, Region, (err) => {
@@ -178,8 +193,6 @@ const createClient = (config: MinioConfig): Minio.Client => {
   const client = new Minio.Client({
     endPoint: DEFAULT_ENDPOINT,
     useSSL: false,
-    accessKey: "minioadmin",
-    secretKey: "minioadmin",
     ...config,
   });
 
@@ -188,36 +201,39 @@ const createClient = (config: MinioConfig): Minio.Client => {
 
 const createWebhookCallback = (notificationConfigs: NotificationConfig[]) => {
   return async (req: IncomingMessage, res: ServerResponse<IncomingMessage>) => {
-    console.log(req);
-    for (const config of notificationConfigs) {
-      if (req.url === `/${config.id}`) {
-        const clientContextData = JSON.stringify({
-          foo: "foo",
-        });
+    let body = "";
 
-        const payload = JSON.stringify({
-          data: "foo",
-        });
+    req.on("data", (chunk) => {
+      body += chunk;
+    });
 
-        const lambda = new aws.Lambda({
-          apiVersion: "2015-03-31",
-          endpoint: "http://localhost:3002",
-          region: "us-west-2",
-          accessKeyId: "fake",
-          secretAccessKey: "fake",
-        });
-        const params = {
-          ClientContext: Buffer.from(clientContextData).toString("base64"),
-          FunctionName: config.functionName,
-          InvocationType: "RequestResponse",
-          Payload: payload,
-        };
+    req.on("end", async () => {
+      for (const config of notificationConfigs) {
+        if (req.url === `/${config.id}`) {
+          const clientContextData = JSON.stringify({});
 
-        const response = await lambda.invoke(params).promise();
-        res.end();
-        return;
+          const payload = decodeURIComponent(body);
+
+          const lambda = new aws.Lambda({
+            apiVersion: "2015-03-31",
+            endpoint: "http://localhost:3002",
+            region: "us-west-2",
+            accessKeyId: "fake",
+            secretAccessKey: "fake",
+          });
+          const params = {
+            ClientContext: Buffer.from(clientContextData).toString("base64"),
+            FunctionName: config.functionName,
+            InvocationType: "RequestResponse",
+            Payload: payload,
+          };
+
+          await lambda.invoke(params).promise();
+          res.end();
+          return;
+        }
       }
-    }
+    });
   };
 };
 
@@ -256,14 +272,19 @@ export const start = async (
 
   // Spawn Minio
   const closeMinio = await spawnMinio(minioConfig, env, log);
-
   const client = createClient(minioConfig);
-  // Create each bucket
+
+  // Create buckets
   for (const config of bucketConfigs) {
     await makeBucket(client, config);
   }
-  // Set each bucket notification
+  // Set bucket notification
   for (const { bucketName, bucketNotificationConfig } of notificationConfigs) {
+    // Create bucket if not exists
+    await makeBucket(client, {
+      Name: bucketName,
+      Region: Minio.DEFAULT_REGION,
+    });
     await client.setBucketNotification(bucketName, bucketNotificationConfig);
   }
 

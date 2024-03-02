@@ -1,18 +1,13 @@
 service: serverless-s3-local-example
-
 provider:
   name: aws
-  runtime: python3.8
-
+  runtime: python3.11
 plugins:
   - serverless-s3-local
   - serverless-offline
-
 custom:
-  s3:
-    port: 8000
-    directory: /tmp
-
+  minio:
+    port: 9000
 functions:
   webhook:
     handler: handler.webhook
