@@ -6,6 +6,8 @@ serverless-s3-local
 [![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/amplify-education/serverless-domain-manager/master/LICENSE)
 [![npm downloads](https://img.shields.io/npm/dt/serverless-s3-local.svg?style=flat)](https://www.npmjs.com/package/serverless-s3-local)
 
+**`v0.9.X` is under developing. This version will have BREAKING CHANGES.**
+
 serverless-s3-local is a Serverless plugin to run S3 clone in local.
 This is aimed to accelerate development of AWS Lambda functions by local testing.
 I think it is good to collaborate with serverless-offline.
