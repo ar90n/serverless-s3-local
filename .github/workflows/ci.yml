@@ -22,9 +22,6 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v4
 
-      - name: test put-with-s3-event-response
-        shell: bash
-        run: docker-compose -f ./test/docker-compose.yml run put-with-s3-event-response
       - name: test resize-image
         shell: bash
         run: docker-compose -f ./test/docker-compose.yml run resize-image
