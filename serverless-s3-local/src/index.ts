@@ -14,18 +14,16 @@ const getCustomConfig = (serverless: Serverless): Service.Custom => {
 
 const getResources = (serverless: Serverless): CloudFormationResource[] => {
   return Object.values(
-    serverless.service.resources.Resources || serverless.service.resources,
+    serverless.service.resources?.Resources ??
+      serverless.service.resources ??
+      [],
   );
 };
 
 const getS3BucketResources = (serverless: Serverless): BucketResource[] => {
-  return getResources(serverless).flatMap((resource) => {
-    if (!isAWSS3BucketResource(resource)) {
-      return [];
-    }
-
-    return resource;
-  });
+  return getResources(serverless).flatMap((resource) =>
+    isAWSS3BucketResource(resource) ? resource : [],
+  );
 };
 
 const getS3Handler = (serverless: Serverless): EventHandler[] => {

@@ -1,30 +1,36 @@
 const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3");
 
-const webhook = (event, context, callback) => {
+const webhook = async (event, context) => {
   const client = new S3Client({
     forcePathStyle: true,
     credentials: {
-      accessKeyId: "S3RVER",
-      secretAccessKey: "S3RVER",
+      accessKeyId: "minioadmin",
+      secretAccessKey: "minioadmin",
     },
-    endpoint: "http://localhost:8000",
+    endpoint: "http://localhost:9000",
   });
-  client
-    .send(
-      new PutObjectCommand({
-        Bucket: "local-bucket",
-        Key: "1234",
-        Body: Buffer.from("abcd"),
-      })
-    )
-    .then(() => {
-      callback(null, "ok");
-    });
+
+  await client.send(
+    new PutObjectCommand({
+      Bucket: "local-bucket",
+      Key: "1234",
+      Body: Buffer.from("abcd"),
+    }),
+  );
+
+  return {
+    statusCode: 200,
+    body: JSON.stringify("ok"),
+  };
 };
 
-const s3hook = (event, context) => {
+const s3hook = async (event, context) => {
   console.log(JSON.stringify(event));
   console.log(JSON.stringify(context));
+  return {
+    statusCode: 200,
+    body: JSON.stringify("ok"),
+  };
 };
 
 export { webhook, s3hook };

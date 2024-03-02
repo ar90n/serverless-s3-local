@@ -8,10 +8,10 @@ import sharp from "sharp";
 const client = new S3Client({
   forcePathStyle: true,
   credentials: {
-    accessKeyId: "S3RVER",
-    secretAccessKey: "S3RVER",
+    accessKeyId: "minioadmin",
+    secretAccessKey: "minioadmin",
   },
-  endpoint: `http://localhost:8000`,
+  endpoint: "http://localhost:9000",
   region: "us-east-1",
 });
 
@@ -34,7 +34,7 @@ it("jpeg resize", async () => {
       Bucket: "local-bucket",
       Key: "incoming/img.jpg",
       Body: buffer,
-    })
+    }),
   );
 
   await sleep(3000);
