@@ -1,8 +1,6 @@
-import got from "got";
-
 it("works with async/await", async () => {
-  const { body } = await got("http://localhost:3000/dev", {
-    responseType: "json",
-  });
+  const body = await fetch("http://localhost:3000/dev").then((res) =>
+    res.json(),
+  );
   expect(body).toEqual("ok");
 });
