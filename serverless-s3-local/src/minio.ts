@@ -7,7 +7,7 @@ import { Logger, nullLogger } from "./logger";
 import { createTempDirectory } from "./util";
 import { startServer as startHttpServer } from "./http";
 import aws from "aws-sdk";
-import { BucketResource, EventHandler } from "./s3";
+import { BucketPolicyResource, BucketResource, EventHandler } from "./s3";
 import Aws from "serverless/plugins/aws/provider/awsProvider";
 import { IncomingMessage, ServerResponse } from "http";
 
@@ -82,6 +82,23 @@ export namespace BucketConfig {
   };
 }
 
+export type BucketPolicy = {
+  Bucket: string;
+  PolicyString: string;
+};
+
+export namespace BucketPolicy {
+  export const of = (resource: BucketPolicyResource): BucketPolicy => {
+    return {
+      Bucket: resource.Properties.Bucket,
+      PolicyString: JSON.stringify({
+        ...resource.Properties.PolicyDocument,
+        Version: "2012-10-17",
+      }),
+    };
+  };
+}
+
 export type MinioConfig = {
   address: string;
   port: number;
@@ -125,7 +142,6 @@ export namespace MinioError {
 const waitFor = (minio: ChildProcessWithoutNullStreams): Promise<void> => {
   return new Promise((resolve) => {
     minio.stdout.on("data", (data) => {
-      console.log(new Buffer(data).toString("utf8"));
       if (data.includes("S3-API:")) {
         // Assuming this log line indicates that Minio has started
         resolve();
@@ -263,7 +279,8 @@ const spawnWebhookIfNeed = async (
 
 export const start = async (
   minioConfig: MinioConfig,
-  bucketConfigs: BucketConfig[],
+  bucketConfigs: Record<string, BucketConfig>,
+  bucketPolicies: BucketPolicy[],
   notificationConfigs: NotificationConfig[],
   log: Logger = nullLogger,
 ): Promise<() => void> => {
@@ -275,8 +292,12 @@ export const start = async (
   const client = createClient(minioConfig);
 
   // Create buckets
-  for (const config of bucketConfigs) {
+  for (const config of Object.values(bucketConfigs)) {
     await makeBucket(client, config);
+  }
+  // Set bucket policy
+  for (const { Bucket, PolicyString } of bucketPolicies) {
+    await client.setBucketPolicy(Bucket, PolicyString);
   }
   // Set bucket notification
   for (const { bucketName, bucketNotificationConfig } of notificationConfigs) {
