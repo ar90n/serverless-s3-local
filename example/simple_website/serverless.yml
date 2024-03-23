@@ -1,0 +1,46 @@
+service: serverless-s3-local-example
+provider:
+  name: aws
+  runtime: nodejs18.x
+plugins:
+  - serverless-s3-local
+  - serverless-offline
+custom:
+  minio:
+    port: 9000
+    # Uncomment the first line only if you want to use cors with specified policy
+    # Uncomment the second line only if you don't want to use cors
+    # Not uncomment the these lines only if your wanto use cors with default policy
+    # cors: relative/path/to/your/cors.xml
+    # website: relative/path/to/your/website.xml
+resources:
+  Resources:
+    StaticSite:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: test-site
+        AccessControl: PublicRead
+        WebsiteConfiguration:
+          IndexDocument: index.html
+          ErrorDocument: error.html
+    StaticSiteS3BucketPolicy:
+      Type: AWS::S3::BucketPolicy
+      Properties:
+        Bucket:
+          Ref: StaticSite
+        PolicyDocument:
+          Statement:
+            - Sid: PublicReadGetObject
+              Effect: Allow
+              Principal: "*"
+              Action:
+              - s3:GetObject
+              Resource:
+                Fn::Join: ["", ["arn:aws:s3:::",{"Ref": "StaticSite"},"/*"]]
+functions:
+  webhook:
+    handler: handler.webhook
+    events:
+      - http:
+          path: /
+          method: get

@@ -93,3 +93,13 @@ export const isAWSS3BucketResource = (
 ): resource is BucketResource => {
   return resource.Type === "AWS::S3::Bucket";
 };
+
+export type BucketPolicyResource = Omit<CloudFormationResource, "Type"> & {
+  Type: "AWS::S3::BucketPolicy";
+};
+
+export const isAWSS3BucketPolicyResource = (
+  resource: CloudFormationResource,
+): resource is BucketPolicyResource => {
+  return resource.Type === "AWS::S3::BucketPolicy";
+};
