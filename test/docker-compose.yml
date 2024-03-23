@@ -31,6 +31,10 @@ services:
     environment:
       TARGET: "webpack-support"
     <<: *example-template
+  simple-website:
+    environment:
+      TARGET: "simple-website"
+    <<: *example-template
 
 volumes:
   work:
