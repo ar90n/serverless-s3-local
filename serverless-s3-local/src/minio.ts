@@ -5,7 +5,7 @@ import {
 import * as Minio from "minio";
 import { Logger, nullLogger } from "./logger";
 import { createTempDirectory } from "./util";
-import { startServer as startHttpServer } from "./http";
+import { startServer as startHttpServer } from "./webhook";
 import aws from "aws-sdk";
 import { BucketPolicyResource, BucketResource, EventHandler } from "./s3";
 import Aws from "serverless/plugins/aws/provider/awsProvider";
