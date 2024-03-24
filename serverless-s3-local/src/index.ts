@@ -1,8 +1,7 @@
-import {
-  NotificationConfig,
-  BucketConfig,
-  BucketPolicy,
-} from "./backend/minio";
+import Serverless from "serverless";
+import { Logging } from "serverless/classes/Plugin";
+import { default as Resource } from "cloudform-types/types/resource";
+
 import {
   BucketPolicyResource,
   BucketResource,
@@ -10,13 +9,10 @@ import {
   isAWSS3BucketPolicyResource,
   isAWSS3BucketResource,
 } from "./s3";
-import { start, StorageConfig } from "./storage";
-import { Logging } from "serverless/classes/Plugin";
+import { BucketConfig, BucketPolicy, StartFunc } from "./storage";
 import { Logger, createLogger } from "./logger";
 import { parse as parseResources } from "./resources";
-import Serverless from "serverless";
-
-import { default as Resource } from "cloudform-types/types/resource";
+import { start as startMinioStorage, MinioConfig } from "./backend/minio";
 
 // biome-ignore lint/suspicious/noExplicitAny: Custom has any type
 const getCustomConfig = (serverless: Serverless): Record<string, any> => {
@@ -29,7 +25,6 @@ const getResources = (serverless: Serverless): [string, Resource][] => {
     serverless.service.resources?.Resources ??
     serverless.service.resources ??
     {};
-  console.log(parseResources(resources));
   return Object.entries(parseResources(resources));
 };
 
@@ -69,6 +64,25 @@ const getS3Handler = (serverless: Serverless): EventHandler[] => {
     });
 };
 
+const getStartFunc = (serverless: Serverless): StartFunc => {
+  const config = MinioConfig.of(getCustomConfig(serverless));
+
+  return async (
+    bucketConfigs,
+    bucketPolicies,
+    eventHandlers,
+    log,
+  ): Promise<() => void> => {
+    return await startMinioStorage(
+      config,
+      bucketConfigs,
+      bucketPolicies,
+      eventHandlers,
+      log,
+    );
+  };
+};
+
 export default class ServerlessS3Local {
   log: Logger;
   stopStorage?: () => void;
@@ -92,7 +106,6 @@ export default class ServerlessS3Local {
   private async startHandler() {
     this.log.info("start handler called");
 
-    const config = StorageConfig.of(getCustomConfig(this.serverless));
     const bucketConfigs = Object.fromEntries(
       getS3BucketResources(this.serverless).map(([logicalId, resource]) => [
         logicalId,
@@ -102,15 +115,13 @@ export default class ServerlessS3Local {
     const bucketPolicies = getS3BucketPolicies(this.serverless).map(
       ([_, resource]) => BucketPolicy.of(resource),
     );
-    const notificationConfigs = getS3Handler(this.serverless).map(
-      NotificationConfig.of,
-    );
+    const eventHandlers = getS3Handler(this.serverless);
 
+    const start = getStartFunc(this.serverless);
     this.stopStorage = await start(
-      config,
       bucketConfigs,
       bucketPolicies,
-      notificationConfigs,
+      eventHandlers,
       this.log,
     );
 

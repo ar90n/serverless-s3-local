@@ -9,7 +9,7 @@ custom:
   s3Local:
     minio:
       port: 9000
-    proxyPort: 2929
+      websiteProxyPort: 2929
 resources:
   Resources:
     StaticSite:

@@ -3,14 +3,19 @@ import {
   spawn as spawnProcess,
 } from "child_process";
 import * as Minio from "minio";
+import aws from "aws-sdk";
+import { S3 } from "serverless/plugins/aws/provider/awsProvider";
+import { IncomingMessage, ServerResponse } from "http";
+
 import { Logger, nullLogger } from "../logger";
 import { createTempDirectory } from "../util";
 import { startServer as startHttpServer } from "./webhook";
-import { WebsiteConfig } from "../webproxy";
-import aws from "aws-sdk";
-import { BucketPolicyResource, BucketResource, EventHandler } from "../s3";
-import { S3 } from "serverless/plugins/aws/provider/awsProvider";
-import { IncomingMessage, ServerResponse } from "http";
+import { EventHandler } from "../s3";
+import { BucketConfig, BucketPolicy, WebsiteConfig } from "../storage";
+import {
+  startServer as startProxyServer,
+  DEFAULT_PORT as DEFAULT_PROXY_PORT,
+} from "./webproxy";
 
 const MINIO_CMD = process.env.MINIO_CMD || "minio";
 const DEFAULT_ADDRESS = "127.0.0.1";
@@ -69,53 +74,13 @@ export namespace NotificationConfig {
   };
 }
 
-export type BucketConfig = {
-  Name: string;
-  Region: string;
-  Website?: WebsiteConfig;
-};
-
-export namespace BucketConfig {
-  export const of = (resource: BucketResource): BucketConfig => {
-    return {
-      Name: resource.Properties.BucketName,
-      Region: resource.Properties.Region || Minio.DEFAULT_REGION,
-      Website: resource.Properties.WebsiteConfiguration
-        ? {
-            Bucket: resource.Properties.BucketName,
-            IndexDocument:
-              resource.Properties.WebsiteConfiguration.IndexDocument,
-            ErrorDocument:
-              resource.Properties.WebsiteConfiguration.ErrorDocument,
-          }
-        : undefined,
-    };
-  };
-}
-
-export type BucketPolicy = {
-  Bucket: string;
-  PolicyString: string;
-};
-
-export namespace BucketPolicy {
-  export const of = (resource: BucketPolicyResource): BucketPolicy => {
-    return {
-      Bucket: resource.Properties.Bucket,
-      PolicyString: JSON.stringify({
-        ...resource.Properties.PolicyDocument,
-        Version: "2012-10-17",
-      }),
-    };
-  };
-}
-
 export type MinioConfig = {
   address: string;
   port: number;
   directory: string;
   accessKey: string;
   secretKey: string;
+  websiteProxyPort: number;
 };
 
 export namespace MinioConfig {
@@ -125,6 +90,7 @@ export namespace MinioConfig {
     directory,
     accessKey,
     secretKey,
+    websiteProxyPort,
   }: Partial<MinioConfig>): MinioConfig => {
     if (!directory) {
       directory = createTempDirectory();
@@ -136,6 +102,7 @@ export namespace MinioConfig {
       directory,
       accessKey: accessKey || DEFAULT_ACCESS_KEY,
       secretKey: secretKey || DEFAULT_SECRET_KEY,
+      websiteProxyPort: websiteProxyPort || DEFAULT_PROXY_PORT,
     };
   };
 }
@@ -288,28 +255,59 @@ const spawnWebhookIfNeed = async (
   return { close, env };
 };
 
+const spawnProxyServer = async (
+  config: MinioConfig,
+  websites: WebsiteConfig[],
+): Promise<{ port: number; close: () => void }> => {
+  const { port, close } = await startProxyServer({
+    Port: config.websiteProxyPort ?? DEFAULT_PROXY_PORT,
+    TargetEndpoint: `http://${config.address}:${config.port}`,
+    Websites: websites,
+  });
+
+  return { port, close };
+};
+
+const collectWebsiteConfigs = (
+  configs: Record<string, BucketConfig>,
+): WebsiteConfig[] => {
+  return Object.values(configs).flatMap((config) => {
+    if (config.Website) {
+      return [config.Website];
+    }
+    return [];
+  });
+};
+
 export const start = async (
-  minioConfig: MinioConfig,
+  config: MinioConfig,
   bucketConfigs: Record<string, BucketConfig>,
   bucketPolicies: BucketPolicy[],
-  notificationConfigs: NotificationConfig[],
+  eventHanders: EventHandler[],
   log: Logger = nullLogger,
 ): Promise<() => void> => {
+  const closeFuncs = [] as (() => void)[];
+
+  const notificationConfigs = eventHanders.map(NotificationConfig.of);
   const { close: closeWebhook, env } =
     await spawnWebhookIfNeed(notificationConfigs);
+  closeFuncs.push(closeWebhook);
 
   // Spawn Minio
-  const closeMinio = await spawnMinio(minioConfig, env, log);
-  const client = createClient(minioConfig);
+  const closeMinio = await spawnMinio(config, env, log);
+  const client = createClient(config);
+  closeFuncs.push(closeMinio);
 
   // Create buckets
   for (const config of Object.values(bucketConfigs)) {
     await makeBucket(client, config);
   }
+
   // Set bucket policy
   for (const { Bucket, PolicyString } of bucketPolicies) {
     await client.setBucketPolicy(Bucket, PolicyString);
   }
+
   // Set bucket notification
   for (const { bucketName, bucketNotificationConfig } of notificationConfigs) {
     // Create bucket if not exists
@@ -320,8 +318,16 @@ export const start = async (
     await client.setBucketNotification(bucketName, bucketNotificationConfig);
   }
 
+  const websites = collectWebsiteConfigs(bucketConfigs);
+  if (0 < websites.length) {
+    const { port, close } = await spawnProxyServer(config, websites);
+    log.info(`Proxy server started at http://localhost:${port}`);
+    closeFuncs.push(close);
+  }
+
   return () => {
-    closeMinio();
-    closeWebhook();
+    for (const close of closeFuncs.reverse()) {
+      close();
+    }
   };
 };

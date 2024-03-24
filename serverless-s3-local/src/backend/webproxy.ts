@@ -1,11 +1,9 @@
 import Koa from "koa";
 import proxy from "koa-proxy";
 
-export type WebsiteConfig = {
-  Bucket: string;
-  IndexDocument: string;
-  ErrorDocument: string;
-};
+import { WebsiteConfig } from "../storage";
+
+export const DEFAULT_PORT = 2929;
 
 export type ProxyConfig = {
   Port: number;
