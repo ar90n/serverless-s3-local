@@ -3,11 +3,12 @@ import {
   spawn as spawnProcess,
 } from "child_process";
 import * as Minio from "minio";
-import { Logger, nullLogger } from "./logger";
-import { createTempDirectory } from "./util";
+import { Logger, nullLogger } from "../logger";
+import { createTempDirectory } from "../util";
 import { startServer as startHttpServer } from "./webhook";
+import { startServer as startProxyServer, WebsiteConfig } from "../webproxy";
 import aws from "aws-sdk";
-import { BucketPolicyResource, BucketResource, EventHandler } from "./s3";
+import { BucketPolicyResource, BucketResource, EventHandler } from "../s3";
 import Aws from "serverless/plugins/aws/provider/awsProvider";
 import { IncomingMessage, ServerResponse } from "http";
 
@@ -71,6 +72,7 @@ export namespace NotificationConfig {
 export type BucketConfig = {
   Name: string;
   Region: string;
+  Website?: WebsiteConfig;
 };
 
 export namespace BucketConfig {
@@ -78,6 +80,15 @@ export namespace BucketConfig {
     return {
       Name: resource.Properties.BucketName,
       Region: resource.Properties.Region || Minio.DEFAULT_REGION,
+      Website: resource.Properties.WebsiteConfiguration
+        ? {
+            Bucket: resource.Properties.BucketName,
+            IndexDocument:
+              resource.Properties.WebsiteConfiguration.IndexDocument,
+            ErrorDocument:
+              resource.Properties.WebsiteConfiguration.ErrorDocument,
+          }
+        : undefined,
     };
   };
 }
