@@ -1,8 +1,5 @@
-import { randomHexString } from "./util";
-import {
-  CloudFormationResource,
-  S3,
-} from "serverless/plugins/aws/provider/awsProvider";
+import { S3 } from "serverless/plugins/aws/provider/awsProvider";
+import { default as Resource } from "cloudform-types/types/resource";
 
 export const events = [
   "s3:ObjectCreated:*",
@@ -84,22 +81,26 @@ export type EventPayload = {
   }[];
 };
 
-export type BucketResource = Omit<CloudFormationResource, "Type"> & {
+export type BucketResource = Omit<Resource, "Type" | "Properties"> & {
   Type: "AWS::S3::Bucket";
+  Properties: Required<Resource>["Properties"];
 };
 
 export const isAWSS3BucketResource = (
-  resource: CloudFormationResource,
+  resource: Resource,
 ): resource is BucketResource => {
-  return resource.Type === "AWS::S3::Bucket";
+  return (
+    resource.Type === "AWS::S3::Bucket" && resource.Properties !== undefined
+  );
 };
 
-export type BucketPolicyResource = Omit<CloudFormationResource, "Type"> & {
+export type BucketPolicyResource = Omit<Resource, "Type" | "Properties"> & {
   Type: "AWS::S3::BucketPolicy";
+  Properties: Required<Resource>["Properties"];
 };
 
 export const isAWSS3BucketPolicyResource = (
-  resource: CloudFormationResource,
+  resource: Resource,
 ): resource is BucketPolicyResource => {
   return resource.Type === "AWS::S3::BucketPolicy";
 };
