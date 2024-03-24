@@ -16,8 +16,7 @@ import { Logger, createLogger } from "./logger";
 import { parse as parseResources } from "./resources";
 import Serverless from "serverless";
 
-import { CloudFormationResource } from "serverless/plugins/aws/provider/awsProvider";
-import Service from "serverless/classes/Service";
+import { default as Resource } from "cloudform-types/types/resource";
 
 // biome-ignore lint/suspicious/noExplicitAny: Custom has any type
 const getCustomConfig = (serverless: Serverless): Record<string, any> => {
@@ -25,9 +24,7 @@ const getCustomConfig = (serverless: Serverless): Record<string, any> => {
   return custom.s3Local || {};
 };
 
-const getResources = (
-  serverless: Serverless,
-): [string, CloudFormationResource][] => {
+const getResources = (serverless: Serverless): [string, Resource][] => {
   const resources =
     serverless.service.resources?.Resources ??
     serverless.service.resources ??

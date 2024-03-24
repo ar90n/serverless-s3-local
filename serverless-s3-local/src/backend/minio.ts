@@ -6,10 +6,10 @@ import * as Minio from "minio";
 import { Logger, nullLogger } from "../logger";
 import { createTempDirectory } from "../util";
 import { startServer as startHttpServer } from "./webhook";
-import { startServer as startProxyServer, WebsiteConfig } from "../webproxy";
+import { WebsiteConfig } from "../webproxy";
 import aws from "aws-sdk";
 import { BucketPolicyResource, BucketResource, EventHandler } from "../s3";
-import Aws from "serverless/plugins/aws/provider/awsProvider";
+import { S3 } from "serverless/plugins/aws/provider/awsProvider";
 import { IncomingMessage, ServerResponse } from "http";
 
 const MINIO_CMD = process.env.MINIO_CMD || "minio";
@@ -33,7 +33,7 @@ export namespace NotificationConfig {
   const buildWebhookARN = (id: string): string => {
     return Minio.buildARN("minio", "sqs", "", id, "webhook");
   };
-  const createQueueConfig = (id: string, event: Aws.S3): Minio.QueueConfig => {
+  const createQueueConfig = (id: string, event: S3): Minio.QueueConfig => {
     const arn = buildWebhookARN(id);
     const queue = new Minio.QueueConfig(arn);
     for (const rule of event.rules || []) {
