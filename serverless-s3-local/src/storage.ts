@@ -1,82 +1,58 @@
-import {
-  MinioConfig,
-  BucketConfig,
-  BucketPolicy,
-  NotificationConfig,
-  start as startMinio,
-} from "./backend/minio";
-import { Logger, nullLogger } from "./logger";
-import { WebsiteConfig, startServer as startProxyServer } from "./webproxy";
+import { BucketPolicyResource, BucketResource, EventHandler } from "./s3";
+import { Logger } from "./logger";
 
-const DEFAULT_PROXY_PORT = 2929;
+const DEFAULT_REGION = "us-east-1";
 
-export type StorageConfig = {
-  Minio: MinioConfig;
-  proxyPort?: number;
+export type WebsiteConfig = {
+  Bucket: string;
+  IndexDocument: string;
+  ErrorDocument: string;
 };
 
-export namespace StorageConfig {
-  // biome-ignore lint/suspicious/noExplicitAny: Custom has any type
-  export const of = (config: Record<string, any>): StorageConfig => {
+export type BucketConfig = {
+  Name: string;
+  Region: string;
+  Website?: WebsiteConfig;
+};
+
+export namespace BucketConfig {
+  export const of = (resource: BucketResource): BucketConfig => {
     return {
-      Minio: MinioConfig.of(config.minio),
-      proxyPort: config.proxyPort,
+      Name: resource.Properties.BucketName,
+      Region: resource.Properties.Region || DEFAULT_REGION,
+      Website: resource.Properties.WebsiteConfiguration
+        ? {
+            Bucket: resource.Properties.BucketName,
+            IndexDocument:
+              resource.Properties.WebsiteConfiguration.IndexDocument,
+            ErrorDocument:
+              resource.Properties.WebsiteConfiguration.ErrorDocument,
+          }
+        : undefined,
     };
   };
 }
 
-const spawnProxyServer = async (
-  config: StorageConfig,
-  websites: WebsiteConfig[],
-): Promise<{ port: number; close: () => void }> => {
-  const { port, close } = await startProxyServer({
-    Port: config.proxyPort ?? DEFAULT_PROXY_PORT,
-    TargetEndpoint: `http://${config.Minio.address}:${config.Minio.port}`,
-    Websites: websites,
-  });
-
-  return { port, close };
+export type BucketPolicy = {
+  Bucket: string;
+  PolicyString: string;
 };
 
-const collectWebsiteConfigs = (
-  configs: Record<string, BucketConfig>,
-): WebsiteConfig[] => {
-  return Object.values(configs).flatMap((config) => {
-    if (config.Website) {
-      return [config.Website];
-    }
-    return [];
-  });
-};
+export namespace BucketPolicy {
+  export const of = (resource: BucketPolicyResource): BucketPolicy => {
+    return {
+      Bucket: resource.Properties.Bucket,
+      PolicyString: JSON.stringify({
+        ...resource.Properties.PolicyDocument,
+        Version: "2012-10-17",
+      }),
+    };
+  };
+}
 
-export const start = async (
-  config: StorageConfig,
+export type StartFunc = (
   bucketConfigs: Record<string, BucketConfig>,
   bucketPolicies: BucketPolicy[],
-  notificationConfigs: NotificationConfig[],
-  log: Logger = nullLogger,
-): Promise<() => void> => {
-  const closeFuncs: (() => void)[] = [];
-
-  const closeMinio = await startMinio(
-    config.Minio,
-    bucketConfigs,
-    bucketPolicies,
-    notificationConfigs,
-    log,
-  );
-  closeFuncs.push(closeMinio);
-
-  const websites = collectWebsiteConfigs(bucketConfigs);
-  if (0 < websites.length) {
-    const { port, close } = await spawnProxyServer(config, websites);
-    log.info(`Proxy server started at http://localhost:${port}`);
-    closeFuncs.push(close);
-  }
-
-  return () => {
-    for (const close of closeFuncs) {
-      close();
-    }
-  };
-};
+  eventHanders: EventHandler[],
+  log?: Logger,
+) => Promise<() => void>;
