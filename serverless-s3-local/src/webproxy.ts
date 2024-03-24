@@ -28,7 +28,9 @@ const createProxy = (config: ProxyConfig): Koa.Middleware => {
   });
 };
 
-export const startServer = async (config: ProxyConfig) => {
+export const startServer = async (
+  config: ProxyConfig,
+): Promise<{ port: number; close: () => void }> => {
   const app = new Koa();
   app.use(createProxy(config));
 

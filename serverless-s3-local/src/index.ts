@@ -1,5 +1,4 @@
 import {
-  MinioConfig,
   NotificationConfig,
   BucketConfig,
   BucketPolicy,
@@ -11,7 +10,7 @@ import {
   isAWSS3BucketPolicyResource,
   isAWSS3BucketResource,
 } from "./s3";
-import { start } from "./storage";
+import { start, StorageConfig } from "./storage";
 import { Logging } from "serverless/classes/Plugin";
 import { Logger, createLogger } from "./logger";
 import { parse as parseResources } from "./resources";
@@ -20,9 +19,10 @@ import Serverless from "serverless";
 import { CloudFormationResource } from "serverless/plugins/aws/provider/awsProvider";
 import Service from "serverless/classes/Service";
 
-const getCustomConfig = (serverless: Serverless): Service.Custom => {
+// biome-ignore lint/suspicious/noExplicitAny: Custom has any type
+const getCustomConfig = (serverless: Serverless): Record<string, any> => {
   const custom = serverless.service.custom || {};
-  return custom.minio || {};
+  return custom.s3Local || {};
 };
 
 const getResources = (
@@ -74,7 +74,7 @@ const getS3Handler = (serverless: Serverless): EventHandler[] => {
 
 export default class ServerlessS3Local {
   log: Logger;
-  stopMinio?: () => void;
+  stopStorage?: () => void;
   hooks: { [key: string]: () => void };
 
   constructor(
@@ -83,7 +83,7 @@ export default class ServerlessS3Local {
     { log }: Logging,
   ) {
     this.log = createLogger(log);
-    this.stopMinio = undefined;
+    this.stopStorage = undefined;
 
     this.log.info("constructor");
     this.hooks = {
@@ -95,7 +95,7 @@ export default class ServerlessS3Local {
   private async startHandler() {
     this.log.info("start handler called");
 
-    const minioConfig = MinioConfig.of(getCustomConfig(this.serverless));
+    const config = StorageConfig.of(getCustomConfig(this.serverless));
     const bucketConfigs = Object.fromEntries(
       getS3BucketResources(this.serverless).map(([logicalId, resource]) => [
         logicalId,
@@ -109,11 +109,7 @@ export default class ServerlessS3Local {
       NotificationConfig.of,
     );
 
-    const config = {
-      Minio: minioConfig,
-      proxyPort: 2929,
-    };
-    this.stopMinio = await start(
+    this.stopStorage = await start(
       config,
       bucketConfigs,
       bucketPolicies,
@@ -129,13 +125,13 @@ export default class ServerlessS3Local {
 
   private async endHandler() {
     this.log.info("end handler called");
-    if (!this.stopMinio) {
+    if (!this.stopStorage) {
       this.log.error("Minio is not running");
       return;
     }
 
-    this.stopMinio();
-    this.stopMinio = undefined;
+    this.stopStorage();
+    this.stopStorage = undefined;
   }
 }
 
