@@ -6,13 +6,10 @@ plugins:
   - serverless-s3-local
   - serverless-offline
 custom:
-  minio:
-    port: 9000
-    # Uncomment the first line only if you want to use cors with specified policy
-    # Uncomment the second line only if you don't want to use cors
-    # Not uncomment the these lines only if your wanto use cors with default policy
-    # cors: relative/path/to/your/cors.xml
-    # website: relative/path/to/your/website.xml
+  s3Local:
+    minio:
+      port: 9000
+    proxyPort: 2929
 resources:
   Resources:
     StaticSite:

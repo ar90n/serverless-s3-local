@@ -1,0 +1,49 @@
+import Koa from "koa";
+import proxy from "koa-proxy";
+
+export type WebsiteConfig = {
+  Bucket: string;
+  IndexDocument: string;
+  ErrorDocument: string;
+};
+
+export type ProxyConfig = {
+  Port: number;
+  TargetEndpoint: string;
+  Websites: WebsiteConfig[];
+};
+
+const createProxy = (config: ProxyConfig): Koa.Middleware => {
+  return proxy({
+    host: config.TargetEndpoint,
+    map: (path) => {
+      for (const website of config.Websites) {
+        const pattern = new RegExp(`^/${website.Bucket}(\/.*)?$`);
+        if (pattern.test(path)) {
+          return `${website.Bucket}/${website.IndexDocument}`;
+        }
+      }
+      return path;
+    },
+  });
+};
+
+export const startServer = async (config: ProxyConfig) => {
+  const app = new Koa();
+  app.use(createProxy(config));
+
+  const server = app.listen(config.Port);
+  const address = server.address();
+  if (address === null) {
+    throw new Error("Server failed to start");
+  }
+  if (typeof address === "string") {
+    throw new Error("Server started with pipe or domain socket");
+  }
+
+  console.log("fasdfsadfasdf start !!!!!!!");
+  return {
+    port: address.port,
+    close: () => server.close(),
+  };
+};

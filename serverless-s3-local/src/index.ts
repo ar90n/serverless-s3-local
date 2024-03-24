@@ -1,10 +1,9 @@
 import {
-  start,
   MinioConfig,
   NotificationConfig,
   BucketConfig,
   BucketPolicy,
-} from "./minio";
+} from "./backend/minio";
 import {
   BucketPolicyResource,
   BucketResource,
@@ -12,6 +11,7 @@ import {
   isAWSS3BucketPolicyResource,
   isAWSS3BucketResource,
 } from "./s3";
+import { start } from "./storage";
 import { Logging } from "serverless/classes/Plugin";
 import { Logger, createLogger } from "./logger";
 import { parse as parseResources } from "./resources";
@@ -109,8 +109,12 @@ export default class ServerlessS3Local {
       NotificationConfig.of,
     );
 
+    const config = {
+      Minio: minioConfig,
+      proxyPort: 2929,
+    };
     this.stopMinio = await start(
-      minioConfig,
+      config,
       bucketConfigs,
       bucketPolicies,
       notificationConfigs,
