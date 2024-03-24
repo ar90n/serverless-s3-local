@@ -8,8 +8,9 @@ plugins:
   - serverless-offline
 custom:
   webpackIncludeModules: true
-  minio:
-    port: 9000
+  s3Local:
+    minio:
+      port: 9000
 resources:
   Resources:
     NewResource:
