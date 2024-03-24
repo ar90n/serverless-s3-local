@@ -6,8 +6,9 @@ plugins:
   - serverless-s3-local
   - serverless-offline
 custom:
-  minio:
-    port: 9000
+  s3Local:
+    minio:
+      port: 9000
 resources:
   Resources:
     NewResource:
