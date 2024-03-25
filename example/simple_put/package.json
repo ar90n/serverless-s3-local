@@ -5,9 +5,10 @@
     "main": "handler.js",
     "scripts": {
         "start": "serverless offline --host 0.0.0.0 start",
-        "test": "jest"
+        "test": "NODE_OPTIONS=--experimental-vm-modules jest"
     },
     "dependencies": {
         "serverless-s3-local": "*"
-    }
+    },
+    "type": "module"
 }

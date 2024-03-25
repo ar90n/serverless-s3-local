@@ -1,6 +1,6 @@
-const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3");
+import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3"
 
-module.exports.webhook = (event, context, callback) => {
+export const webhook = (event, context, callback) => {
   const client = new S3Client({
     forcePathStyle: true,
     credentials: {
@@ -22,7 +22,7 @@ module.exports.webhook = (event, context, callback) => {
     });
 };
 
-module.exports.s3EventResponse = (event, context, callback) => {
+export const s3EventResponse = (event, context, callback) => {
   console.log("S3 Event HEARD");
   callback(null, "ok");
 };

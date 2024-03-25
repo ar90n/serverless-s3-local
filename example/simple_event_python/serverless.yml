@@ -2,7 +2,7 @@ service: serverless-s3-local-example
 
 provider:
   name: aws
-  runtime: python3.6
+  runtime: python3.8
 
 plugins:
   - serverless-s3-local

@@ -13,7 +13,7 @@ jobs:
   bump:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - name: Switch branch
@@ -25,14 +25,14 @@ jobs:
       - name: Get branch
         id: get_branch
         run: echo ::set-output name=BRANCH::${GITHUB_REF/refs\/heads\//}
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v4
         with:
-          node-version: 12
+          node-version: 18
       - name: Bump version
         id: bump_version
         run: |
           pushd  serverless-s3-local
-          version=$(npm version ${{ github.event.inputs.bumpTarget }})
+          version=$(npm version ${{ github.event.inputs.bumpTarget }} --no-workspaces-update | tail -n 1)
           echo ::set-output name=VERSION::${version}
           popd
       - name: Commit pyproject.toml
@@ -49,7 +49,7 @@ jobs:
         env:
           VERSION: ${{ steps.bump_version.outputs.VERSION }}
       - name: Create pull request
-        uses: actions/github-script@v6
+        uses: actions/github-script@v7
         env:
           BRANCH: ${{ steps.get_branch.outputs.BRANCH }}
           VERSION: ${{ steps.bump_version.outputs.VERSION }}

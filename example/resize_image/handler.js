@@ -1,10 +1,13 @@
-const { Readable } = require("stream");
-const path = require("path");
-const {
+import { Readable } from "stream"
+import path from "path"
+
+import {
   S3Client,
   PutObjectCommand,
   GetObjectCommand,
-} = require("@aws-sdk/client-s3");
+} from "@aws-sdk/client-s3";
+import sharp from "sharp";
+
 const client = new S3Client({
   forcePathStyle: true,
   credentials: {
@@ -13,13 +16,12 @@ const client = new S3Client({
   },
   endpoint: "http://localhost:8000",
 });
-const sharp = require("sharp");
 
-module.exports.webhook = (event, context, callback) => {
+export const webhook = (event, context, callback) => {
   callback(null, "ok");
 };
 
-module.exports.s3hook = (event, context) => {
+export const s3hook = (event, context) => {
   const received_key = event.Records[0].s3.object.key;
   const get_param = {
     Bucket: "local-bucket",

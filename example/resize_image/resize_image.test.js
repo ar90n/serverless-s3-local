@@ -1,9 +1,9 @@
-const {
+import {
   S3Client,
   PutObjectCommand,
   GetObjectCommand,
-} = require("@aws-sdk/client-s3");
-const sharp = require("sharp");
+} from "@aws-sdk/client-s3";
+import sharp from "sharp";
 
 const client = new S3Client({
   forcePathStyle: true,

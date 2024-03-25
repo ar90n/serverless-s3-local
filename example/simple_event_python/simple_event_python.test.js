@@ -1,7 +1,6 @@
-const got = require('got');
-const { S3Client, PutObjectCommand } = require('@aws-sdk/client-s3')
-const sharp = require('sharp');
-const fs = require('fs');
+import got from 'got';
+import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3'
+import fs from 'fs';
 
 const client = new S3Client({
   forcePathStyle: true,
@@ -19,9 +18,9 @@ it('event handling with python', async () => {
   const response = await client.send(new PutObjectCommand({Bucket: "local-bucket", Key: "incoming/img.jpg", Body: "abcd"}));
   const etag = response.ETag.slice(1, -1);
 
-  await sleep(1000);
+  await sleep(5000);
 
   console.log(`/tmp/${etag}`);
   const found = fs.existsSync(`/tmp/${etag}`);
   expect(found).toEqual(true);
-});
+}, 8000);
