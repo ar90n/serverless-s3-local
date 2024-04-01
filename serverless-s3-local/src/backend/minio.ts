@@ -117,15 +117,23 @@ export namespace MinioError {
   };
 }
 
-const waitFor = (minio: ChildProcessWithoutNullStreams): Promise<void> => {
-  return new Promise((resolve) => {
-    minio.stdout.on("data", (data) => {
-      if (data.includes("S3-API:")) {
-        // Assuming this log line indicates that Minio has started
-        resolve();
+const waitFor = async (
+  minio: ChildProcessWithoutNullStreams,
+): Promise<void> => {
+  while (true) {
+    try {
+      const { status } = await fetch("http://localhost:9000/minio/health/live");
+      if (status === 200) {
+        return;
       }
-    });
-  });
+    } catch (e) {
+      // ignore
+    }
+
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+  }
+
+  throw new Error("Minio server is not ready");
 };
 
 const spawnMinio = async (
