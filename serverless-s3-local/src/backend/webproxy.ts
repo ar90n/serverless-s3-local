@@ -1,7 +1,7 @@
 import Koa from "koa";
 import proxy from "koa-proxy";
 
-import { WebsiteConfig } from "../storage";
+import { WebsiteConfig } from "../storage.js";
 
 export const DEFAULT_PORT = 2929;
 
@@ -41,7 +41,6 @@ export const startServer = async (
     throw new Error("Server started with pipe or domain socket");
   }
 
-  console.log("fasdfsadfasdf start !!!!!!!");
   return {
     port: address.port,
     close: () => server.close(),

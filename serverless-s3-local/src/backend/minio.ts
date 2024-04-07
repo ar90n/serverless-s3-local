@@ -1,78 +1,30 @@
-import {
-  ChildProcessWithoutNullStreams,
-  spawn as spawnProcess,
-} from "child_process";
+import { spawn as spawnProcess } from "child_process";
 import * as Minio from "minio";
-import aws from "aws-sdk";
-import { S3 } from "serverless/plugins/aws/provider/awsProvider";
-import { IncomingMessage, ServerResponse } from "http";
+import * as fs from "fs";
+import { default as stream } from "node:stream";
+import type { ReadableStream } from "node:stream/web";
 
-import { Logger, nullLogger } from "../logger";
-import { createTempDirectory } from "../util";
-import { startServer as startHttpServer } from "./webhook";
-import { EventHandler } from "../s3";
-import { BucketConfig, BucketPolicy, WebsiteConfig } from "../storage";
+import { Logger, nullLogger } from "../logger.js";
+import { createTempDirectory, waitFor } from "../util.js";
+import {
+  EventHandler,
+  BucketConfig,
+  BucketPolicy,
+  WebsiteConfig,
+} from "../storage.js";
 import {
   startServer as startProxyServer,
   DEFAULT_PORT as DEFAULT_PROXY_PORT,
-} from "./webproxy";
+} from "./webproxy.js";
 
 const MINIO_CMD = process.env.MINIO_CMD || "minio";
+const MY_MINIO_LOCATION =
+  process.env.MY_MINIO_LOCATION || "~/.serverless-s3-local/minio";
 const DEFAULT_ADDRESS = "127.0.0.1";
 const DEFAULT_PORT = 9000;
 const DEFAULT_ENDPOINT = DEFAULT_ADDRESS;
 const DEFAULT_ACCESS_KEY = "minioadmin";
 const DEFAULT_SECRET_KEY = "minioadmin";
-
-export type NotificationConfig = {
-  id: string;
-  bucketName: string;
-  functionName: string;
-  bucketNotificationConfig: Minio.NotificationConfig;
-};
-
-export namespace NotificationConfig {
-  const createId = (): string => {
-    return Math.random().toString(36).slice(-8);
-  };
-  const buildWebhookARN = (id: string): string => {
-    return Minio.buildARN("minio", "sqs", "", id, "webhook");
-  };
-  const createQueueConfig = (id: string, event: S3): Minio.QueueConfig => {
-    const arn = buildWebhookARN(id);
-    const queue = new Minio.QueueConfig(arn);
-    for (const rule of event.rules || []) {
-      if (typeof rule.prefix === "string") {
-        queue.addFilterPrefix(rule.prefix);
-      }
-      if (typeof rule.suffix === "string") {
-        queue.addFilterSuffix(rule.suffix);
-      }
-    }
-    queue.addEvent(event.event);
-    return queue;
-  };
-  const createBucketNotificationConfig = (queue: Minio.QueueConfig) => {
-    const bucketNotification = new Minio.NotificationConfig();
-    bucketNotification.add(queue);
-    return bucketNotification;
-  };
-  export const of = ({
-    name: functionName,
-    event,
-  }: EventHandler): NotificationConfig => {
-    const id = createId();
-    const queue = createQueueConfig(id, event);
-    const bucketNotificationConfig = createBucketNotificationConfig(queue);
-
-    return {
-      id,
-      bucketName: event.bucket,
-      functionName,
-      bucketNotificationConfig,
-    };
-  };
-}
 
 export type MinioConfig = {
   address: string;
@@ -81,6 +33,7 @@ export type MinioConfig = {
   accessKey: string;
   secretKey: string;
   websiteProxyPort: number;
+  useMyMinio: boolean;
 };
 
 export namespace MinioConfig {
@@ -91,6 +44,7 @@ export namespace MinioConfig {
     accessKey,
     secretKey,
     websiteProxyPort,
+    useMyMinio,
   }: Partial<MinioConfig>): MinioConfig => {
     if (!directory) {
       directory = createTempDirectory();
@@ -103,6 +57,7 @@ export namespace MinioConfig {
       accessKey: accessKey || DEFAULT_ACCESS_KEY,
       secretKey: secretKey || DEFAULT_SECRET_KEY,
       websiteProxyPort: websiteProxyPort || DEFAULT_PROXY_PORT,
+      useMyMinio: useMyMinio || false,
     };
   };
 }
@@ -117,39 +72,89 @@ export namespace MinioError {
   };
 }
 
-const waitFor = async (
-  minio: ChildProcessWithoutNullStreams,
-): Promise<void> => {
-  while (true) {
-    try {
-      const { status } = await fetch("http://localhost:9000/minio/health/live");
-      if (status === 200) {
-        return;
-      }
-    } catch (e) {
-      // ignore
+const isHealthy = async (address: string, port: number): Promise<boolean> => {
+  try {
+    const { status } = await fetch(
+      `http://${address}:${port}/minio/health/live`,
+    );
+    if (status === 200) {
+      return true;
     }
-
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+  } catch (e) {
+    // ignore
   }
 
-  throw new Error("Minio server is not ready");
+  return false;
+};
+
+const getMinioURL = (): string => {
+  const arch = process.arch === "x64" ? "amd64" : "arm64";
+  const paltform =
+    process.platform === "win32"
+      ? "windows"
+      : process.platform === "darwin"
+        ? "darwin"
+        : "linux";
+  return `https://dl.min.io/server/minio/release/${paltform}-${arch}/minio`;
+};
+
+const fetchFileFromWeb = async (
+  url: string,
+  verbose: boolean,
+): Promise<stream.Readable> => {
+  const { body } = await fetch(url);
+  const ret = stream.Readable.fromWeb(body as ReadableStream<Uint8Array>);
+
+  if (verbose) {
+    let downloadSize = 0;
+    const NOTIFY_CHUNK_SIZE = 1024 * 1024;
+    ret.on("data", (chunk) => {
+      const prev = Math.trunc(downloadSize / NOTIFY_CHUNK_SIZE);
+      downloadSize += chunk.length;
+      if (Math.trunc(downloadSize / NOTIFY_CHUNK_SIZE) !== prev) {
+        process.stderr.write(".");
+      }
+    });
+  }
+  return ret;
 };
 
 const spawnMinio = async (
-  { address, directory, port, accessKey, secretKey }: MinioConfig,
-  webhookEnv: { [key: string]: string },
+  { address, directory, port, accessKey, secretKey, useMyMinio }: MinioConfig,
+  handlers: EventHandler[],
   log: Logger = nullLogger,
 ) => {
+  // Download minio
+  if (useMyMinio) {
+    const minioUrl = getMinioURL();
+
+    if (!fs.existsSync(MY_MINIO_LOCATION)) {
+      log.info(`Downloading minio from ${minioUrl} to ${MY_MINIO_LOCATION}`);
+      const s = await fetchFileFromWeb(minioUrl, true);
+      const fileStream = fs.createWriteStream(MY_MINIO_LOCATION);
+      await stream.promises.finished(s.pipe(fileStream));
+      fs.chmodSync(MY_MINIO_LOCATION, 0o755);
+    }
+  }
+  const minio_cmd = useMyMinio ? MY_MINIO_LOCATION : MINIO_CMD;
+
+  const notifyEnv: Record<string, string> = handlers
+    .map((h) => h.id)
+    .reduce((acc: Record<string, string>, id: string) => {
+      acc[`MINIO_NOTIFY_WEBHOOK_ENABLE_${id}`] = "on";
+      acc[`MINIO_NOTIFY_WEBHOOK_ENDPOINT_${id}`] = "http://127.0.0.1";
+      return acc;
+    }, {});
+
   const env = {
     ...process.env,
-    ...webhookEnv,
+    ...notifyEnv,
     MINIO_ACCESS_KEY: accessKey,
     MINIO_SECRET_KEY: secretKey,
   } as { [key: string]: string };
 
   const minio = spawnProcess(
-    MINIO_CMD,
+    minio_cmd,
     ["server", directory, "--address", `${address}:${port}`],
     { env },
   );
@@ -166,7 +171,7 @@ const spawnMinio = async (
     log.info(`child process exited with code ${code}`);
   });
 
-  await waitFor(minio);
+  await waitFor(async () => isHealthy(address, port), 1000, 120);
 
   return () => {
     minio.kill("SIGTERM");
@@ -191,6 +196,7 @@ const makeBucket = (
     });
   });
 };
+
 const createClient = (config: MinioConfig): Minio.Client => {
   const client = new Minio.Client({
     endPoint: DEFAULT_ENDPOINT,
@@ -199,68 +205,6 @@ const createClient = (config: MinioConfig): Minio.Client => {
   });
 
   return client;
-};
-
-const createWebhookCallback = (notificationConfigs: NotificationConfig[]) => {
-  return async (req: IncomingMessage, res: ServerResponse<IncomingMessage>) => {
-    let body = "";
-
-    req.on("data", (chunk) => {
-      body += chunk;
-    });
-
-    req.on("end", async () => {
-      for (const config of notificationConfigs) {
-        if (req.url === `/${config.id}`) {
-          const clientContextData = JSON.stringify({});
-
-          const payload = decodeURIComponent(body);
-
-          const lambda = new aws.Lambda({
-            apiVersion: "2015-03-31",
-            endpoint: "http://localhost:3002",
-            region: "us-west-2",
-            accessKeyId: "fake",
-            secretAccessKey: "fake",
-          });
-          const params = {
-            ClientContext: Buffer.from(clientContextData).toString("base64"),
-            FunctionName: config.functionName,
-            InvocationType: "RequestResponse",
-            Payload: payload,
-          };
-
-          await lambda.invoke(params).promise();
-          res.end();
-          return;
-        }
-      }
-    });
-  };
-};
-
-const spawnWebhookIfNeed = async (
-  notificationConfigs: NotificationConfig[],
-) => {
-  if (notificationConfigs.length === 0) {
-    return {
-      close: () => {},
-      env: {},
-    };
-  }
-
-  const { close, port } = await startHttpServer({
-    callback: createWebhookCallback(notificationConfigs),
-  });
-
-  const env = {} as { [key: string]: string };
-  for (const { id } of notificationConfigs) {
-    env[`MINIO_NOTIFY_WEBHOOK_ENABLE_${id}`] = "on";
-    env[`MINIO_NOTIFY_WEBHOOK_ENDPOINT_${id}`] =
-      `http://127.0.0.1:${port}/${id}`;
-  }
-
-  return { close, env };
 };
 
 const spawnProxyServer = async (
@@ -287,22 +231,53 @@ const collectWebsiteConfigs = (
   });
 };
 
+const createBucketNotificationConfig = ({
+  id,
+  prefix,
+  suffix,
+  event,
+}: EventHandler): Minio.NotificationConfig => {
+  const arn = Minio.buildARN("minio", "sqs", "", id, "webhook");
+  const queue = new Minio.QueueConfig(arn);
+  queue.addFilterPrefix(prefix);
+  queue.addFilterSuffix(suffix);
+  queue.addEvent(event);
+
+  const bucketNotificationConfig = new Minio.NotificationConfig();
+  bucketNotificationConfig.add(queue);
+
+  return bucketNotificationConfig;
+};
+
+const bindEventHandler = (
+  client: Minio.Client,
+  handler: EventHandler,
+): (() => void) => {
+  const listener = client.listenBucketNotification(
+    handler.bucket,
+    handler.prefix,
+    handler.suffix,
+    [handler.event],
+  );
+  listener.on("notification", async (record) => {
+    if (record) {
+      await handler.invoke(record);
+    }
+  });
+  return () => listener.stop();
+};
+
 export const start = async (
   config: MinioConfig,
   bucketConfigs: Record<string, BucketConfig>,
   bucketPolicies: BucketPolicy[],
-  eventHanders: EventHandler[],
+  eventHandlers: EventHandler[],
   log: Logger = nullLogger,
 ): Promise<() => void> => {
   const closeFuncs = [] as (() => void)[];
 
-  const notificationConfigs = eventHanders.map(NotificationConfig.of);
-  const { close: closeWebhook, env } =
-    await spawnWebhookIfNeed(notificationConfigs);
-  closeFuncs.push(closeWebhook);
-
   // Spawn Minio
-  const closeMinio = await spawnMinio(config, env, log);
+  const closeMinio = await spawnMinio(config, eventHandlers, log);
   const client = createClient(config);
   closeFuncs.push(closeMinio);
 
@@ -317,13 +292,21 @@ export const start = async (
   }
 
   // Set bucket notification
-  for (const { bucketName, bucketNotificationConfig } of notificationConfigs) {
+  for (const handler of eventHandlers) {
+    const bucketNotificationConfig = createBucketNotificationConfig(handler);
+
     // Create bucket if not exists
     await makeBucket(client, {
-      Name: bucketName,
+      Name: handler.bucket,
       Region: Minio.DEFAULT_REGION,
     });
-    await client.setBucketNotification(bucketName, bucketNotificationConfig);
+    await client.setBucketNotification(
+      handler.bucket,
+      bucketNotificationConfig,
+    );
+
+    const close = bindEventHandler(client, handler);
+    closeFuncs.push(close);
   }
 
   const websites = collectWebsiteConfigs(bucketConfigs);

@@ -1,7 +1,6 @@
 import * as fs from "fs";
 import * as os from "os";
 import * as path from "path";
-import * as crypto from "crypto";
 
 export const createTempDirectory = (): string => {
   const tempDirectoryPrefix = path.join(os.tmpdir(), "serverless-s3-local");
@@ -9,11 +8,15 @@ export const createTempDirectory = (): string => {
   return tempDirectory;
 };
 
-export const randomHexString = (length: number): string => {
-  return crypto
-    .randomBytes(Math.ceil(length / 2))
-    .toString("hex")
-    .slice(0, length);
+export const generateRandomString = (): string => {
+  let result = "";
+  const characters =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  const charactersLength = characters.length;
+  for (let i = 0; i < 16; i++) {
+    result += characters.charAt(Math.floor(Math.random() * charactersLength));
+  }
+  return result;
 };
 
 export const streamToBuffer = async (
@@ -31,4 +34,22 @@ export const streamToBuffer = async (
       reject(error);
     });
   });
+};
+
+export const waitFor = async (
+  callback: () => Promise<boolean>,
+  sleepTimeMs: number,
+  retryCount: number,
+): Promise<void> => {
+  for (let i = 0; i < retryCount; i++) {
+    if (await callback()) {
+      return;
+    }
+
+    await new Promise((resolve) => setTimeout(resolve, sleepTimeMs));
+  }
+
+  throw new Error(
+    "Timeout exceeded while waiting for the condition to be true",
+  );
 };

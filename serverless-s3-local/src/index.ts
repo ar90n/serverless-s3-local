@@ -1,18 +1,20 @@
-import Serverless from "serverless";
+import Serverless, { FunctionDefinition } from "serverless";
 import { Logging } from "serverless/classes/Plugin";
 import { default as Resource } from "cloudform-types/types/resource";
 
 import {
-  BucketPolicyResource,
-  BucketResource,
+  EventPayload,
   EventHandler,
-  isAWSS3BucketPolicyResource,
-  isAWSS3BucketResource,
-} from "./s3";
-import { BucketConfig, BucketPolicy, StartFunc } from "./storage";
-import { Logger, createLogger } from "./logger";
-import { parse as parseResources } from "./resources";
-import { start as startMinioStorage, MinioConfig } from "./backend/minio";
+  BucketConfig,
+  BucketPolicy,
+} from "./storage.js";
+import { Logger, createLogger } from "./logger.js";
+import {
+  extractBucketPolicyResources,
+  extractBucketResources,
+  parse as parseResources,
+} from "./resources.js";
+import { getStartFunc } from "./backend/index.js";
 
 // biome-ignore lint/suspicious/noExplicitAny: Custom has any type
 const getCustomConfig = (serverless: Serverless): Record<string, any> => {
@@ -20,67 +22,63 @@ const getCustomConfig = (serverless: Serverless): Record<string, any> => {
   return custom.s3Local || {};
 };
 
-const getResources = (serverless: Serverless): [string, Resource][] => {
+const getResources = (serverless: Serverless): Record<string, Resource> => {
   const resources =
     serverless.service.resources?.Resources ??
     serverless.service.resources ??
     {};
-  return Object.entries(parseResources(resources));
+  return parseResources(resources);
 };
 
-const getS3BucketResources = (
+const getBucketConfigs = (
   serverless: Serverless,
-): [string, BucketResource][] => {
-  return getResources(serverless).flatMap(([logicalId, resource]) =>
-    isAWSS3BucketResource(resource) ? [[logicalId, resource]] : [],
+): Record<string, BucketConfig> => {
+  const bucketResources = extractBucketResources(getResources(serverless));
+  return Object.entries(bucketResources).reduce(
+    (acc: Record<string, BucketConfig>, [logicalId, resource]) => {
+      acc[logicalId] = BucketConfig.of(resource);
+      return acc;
+    },
+    {},
   );
 };
 
-const getS3BucketPolicies = (
-  serverless: Serverless,
-): [string, BucketPolicyResource][] => {
-  return getResources(serverless).flatMap(([logicalId, resource]) =>
-    isAWSS3BucketPolicyResource(resource) ? [[logicalId, resource]] : [],
+const getBucketPolicies = (serverless: Serverless): BucketPolicy[] => {
+  const bucketPolicyResources = extractBucketPolicyResources(
+    getResources(serverless),
+  );
+
+  return Object.entries(bucketPolicyResources).map(([_, resource]) =>
+    BucketPolicy.of(resource),
   );
 };
 
-const getS3Handler = (serverless: Serverless): EventHandler[] => {
+const getEventHandlers = async (
+  serverless: Serverless,
+  options: Serverless.Options,
+): Promise<EventHandler[]> => {
+  const { default: Lambda } = await import("serverless-offline/lambda");
+  const lambda = new Lambda(serverless, options);
+
   return serverless.service
     .getAllFunctions()
     .map((n) => serverless.service.getFunction(n))
-    .flatMap((func) => {
+    .flatMap((func: FunctionDefinition) => {
       const name = `${func.name}`;
+      lambda.create([{ functionKey: name, functionDefinition: func }]);
+
+      const handler = async (event: EventPayload) => {
+        const f = lambda.get(name);
+        f.setEvent({ Records: [event] });
+        await f.runHandler();
+      };
       return (func.events || []).flatMap((event) => {
-        if (event.s3 === undefined) {
+        if (!event.s3) {
           return [];
         }
-
-        if (typeof event.s3 === "string") {
-          return EventHandler.defaultOf(name, event.s3);
-        }
-
-        return { name, event: event.s3 };
+        return EventHandler.of(event.s3, handler);
       });
     });
-};
-
-const getStartFunc = (serverless: Serverless): StartFunc => {
-  const config = MinioConfig.of(getCustomConfig(serverless));
-
-  return async (
-    bucketConfigs,
-    bucketPolicies,
-    eventHandlers,
-    log,
-  ): Promise<() => void> => {
-    return await startMinioStorage(
-      config,
-      bucketConfigs,
-      bucketPolicies,
-      eventHandlers,
-      log,
-    );
-  };
 };
 
 export default class ServerlessS3Local {
@@ -106,18 +104,11 @@ export default class ServerlessS3Local {
   private async startHandler() {
     this.log.info("start handler called");
 
-    const bucketConfigs = Object.fromEntries(
-      getS3BucketResources(this.serverless).map(([logicalId, resource]) => [
-        logicalId,
-        BucketConfig.of(resource),
-      ]),
-    );
-    const bucketPolicies = getS3BucketPolicies(this.serverless).map(
-      ([_, resource]) => BucketPolicy.of(resource),
-    );
-    const eventHandlers = getS3Handler(this.serverless);
+    const bucketConfigs = getBucketConfigs(this.serverless);
+    const bucketPolicies = getBucketPolicies(this.serverless);
+    const eventHandlers = await getEventHandlers(this.serverless, this.options);
 
-    const start = getStartFunc(this.serverless);
+    const start = getStartFunc(getCustomConfig(this.serverless));
     this.stopStorage = await start(
       bucketConfigs,
       bucketPolicies,
