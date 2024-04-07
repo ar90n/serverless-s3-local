@@ -34,9 +34,9 @@ jobs:
       - name: test simple-put
         shell: bash
         run: docker-compose -f ./test/docker-compose.yml run simple-put
-      - name: test webpack-support
+      - name: test simple-website
         shell: bash
-        run: docker-compose -f ./test/docker-compose.yml run webpack-support
+        run: docker-compose -f ./test/docker-compose.yml run simple-website
       - uses: 8398a7/action-slack@v3
         with:
           status: ${{ job.status }}
