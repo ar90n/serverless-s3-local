@@ -8,8 +8,8 @@
         "test": "NODE_OPTIONS=--experimental-vm-modules jest"
     },
     "dependencies": {
-        "sharp": "0.33.3",
-        "serverless-s3-local": "*"
+        "serverless-s3-local": "*",
+        "sharp": "^0.33.3"
     },
     "type": "module"
 }
