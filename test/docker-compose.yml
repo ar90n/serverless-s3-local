@@ -27,10 +27,6 @@ services:
     environment:
       TARGET: "simple-put"
     <<: *example-template
-  webpack-support:
-    environment:
-      TARGET: "webpack-support"
-    <<: *example-template
   simple-website:
     environment:
       TARGET: "simple-website"

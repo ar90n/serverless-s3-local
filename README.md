@@ -120,7 +120,6 @@ Feature
 ===============
 * Start local S3 server with specified root directory and port.
 * Create buckets at launching.
-* Support serverless-webpack
 * Support S3 events.
 
 Triggering AWS Events offline
@@ -141,7 +140,6 @@ See also
 ===============
 * [minio](https://min.io)
 * [serverless-offline](https://github.com/dherault/serverless-offline)
-* [serverless-webpack](https://github.com/serverless-heaven/serverless-webpack)
 
 License
 ===============
