@@ -10,7 +10,6 @@ on:
     tags-ignore:
       - v*
 
-
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   # This workflow contains a single job called "build"
@@ -21,22 +20,12 @@ jobs:
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v4
-
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '21'
+      - run: npm ci
       - name: test resize-image
-        shell: bash
-        run: docker-compose -f ./test/docker-compose.yml run resize-image
-      - name: test simple-event
-        shell: bash
-        run: docker-compose -f ./test/docker-compose.yml run simple-event
-      - name: test simple-event-python
-        shell: bash
-        run: docker-compose -f ./test/docker-compose.yml run simple-event-python
-      - name: test simple-put
-        shell: bash
-        run: docker-compose -f ./test/docker-compose.yml run simple-put
-      - name: test simple-website
-        shell: bash
-        run: docker-compose -f ./test/docker-compose.yml run simple-website
+        run: npx jest ./test/
       - uses: 8398a7/action-slack@v3
         with:
           status: ${{ job.status }}

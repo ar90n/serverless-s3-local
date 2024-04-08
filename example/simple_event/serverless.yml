@@ -5,6 +5,11 @@ provider:
 plugins:
   - serverless-s3-local
   - serverless-offline
+custom:
+  s3Local:
+    minio:
+      port: 9000
+      fetchFromWeb: false
 functions:
   webhook:
     handler: handler.webhook

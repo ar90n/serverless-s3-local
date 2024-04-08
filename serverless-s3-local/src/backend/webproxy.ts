@@ -16,7 +16,7 @@ const createProxy = (config: ProxyConfig): Koa.Middleware => {
     host: config.TargetEndpoint,
     map: (path) => {
       for (const website of config.Websites) {
-        const pattern = new RegExp(`^/${website.Bucket}(\/.*)?$`);
+        const pattern = new RegExp(`^/${website.Bucket}(\/)?$`);
         if (pattern.test(path)) {
           return `${website.Bucket}/${website.IndexDocument}`;
         }
@@ -30,6 +30,17 @@ export const startServer = async (
   config: ProxyConfig,
 ): Promise<{ port: number; close: () => void }> => {
   const app = new Koa();
+  app.use(async (ctx, next) => {
+    await next();
+    if (ctx.status === 404) {
+      for (const website of config.Websites) {
+        const pattern = new RegExp(`^/${website.Bucket}(\/.*)?$`);
+        if (pattern.test(ctx.request.path)) {
+          ctx.redirect(`/${website.Bucket}/${website.ErrorDocument}`);
+        }
+      }
+    }
+  });
   app.use(createProxy(config));
 
   const server = app.listen(config.Port);

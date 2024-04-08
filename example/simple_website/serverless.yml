@@ -10,6 +10,7 @@ custom:
     minio:
       port: 9000
       websiteProxyPort: 2929
+      fetchFromWeb: true
 resources:
   Resources:
     StaticSite:

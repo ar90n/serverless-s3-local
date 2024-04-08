@@ -1,0 +1,21 @@
+service: serverless-s3-py-test
+provider:
+  name: aws
+  runtime: python3.11
+plugins:
+  - serverless-s3-local
+  - serverless-offline
+custom:
+  s3Local:
+    minio:
+      port: 9001
+functions:
+  copy_file:
+    handler: handler.copy_file
+    events:
+      - s3:
+          bucket: local-bucket
+          event: s3:ObjectCreated:*
+          rules:
+            - prefix: incoming/
+            - suffix: .txt

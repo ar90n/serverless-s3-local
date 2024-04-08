@@ -1,0 +1,16 @@
+{
+    "name": "test",
+    "version": "1.1.0",
+    "private": true,
+    "main": "handler.js",
+    "scripts": {
+        "start": "bash -c \"serverless offline --config ${SERVERLESS_YML_FILE:-serverless.yml} --host 0.0.0.0 start\"",
+        "test": "NODE_OPTIONS=--experimental-vm-modules jest",
+        "fmt": "biome format --write .",
+        "lint": "biome lint ."
+    },
+    "dependencies": {
+        "serverless-s3-local": "*"
+    },
+    "type": "module"
+}

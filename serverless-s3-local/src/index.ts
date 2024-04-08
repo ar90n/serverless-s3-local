@@ -91,6 +91,30 @@ export default class ServerlessS3Local {
     private options: Serverless.Options,
     { log }: Logging,
   ) {
+    this.serverless.configSchemaHandler.defineCustomProperties({
+      type: "object",
+      properties: {
+        s3Local: {
+          type: "object",
+          properties: {
+            minio: {
+              type: "object",
+              properties: {
+                address: { type: "string" },
+                port: { type: "number" },
+                directory: { type: "string" },
+                accessKey: { type: "string" },
+                secretKey: { type: "string" },
+                websiteProxyPort: { type: "number" },
+                fetchFromWeb: { type: "boolean" },
+              },
+              additionalProperties: false,
+            },
+          },
+        },
+      },
+    });
+
     this.log = createLogger(log);
     this.stopStorage = undefined;
 
@@ -115,6 +139,7 @@ export default class ServerlessS3Local {
       eventHandlers,
       this.log,
     );
+    console.log("Serverless-S3-Local started.");
 
     process.on("SIGINT", this.endHandler.bind(this));
     process.on("SIGTERM", this.endHandler.bind(this));

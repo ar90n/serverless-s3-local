@@ -9,6 +9,7 @@ custom:
   s3Local:
     minio:
       port: 9000
+      fetchFromWeb: true
 resources:
   Resources:
     NewResource:

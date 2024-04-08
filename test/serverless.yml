@@ -1,0 +1,28 @@
+service: serverless-s3-js-test
+provider:
+  name: aws
+  runtime: nodejs18.x
+plugins:
+  - serverless-s3-local
+  - serverless-offline
+functions:
+  copy_file:
+    handler: handler.copy_file
+    events:
+      - s3:
+          bucket: local-bucket
+          event: s3:ObjectCreated:*
+          rules:
+            - prefix: copy_file/incoming/
+            - suffix: .txt
+  save_context:
+    handler: handler.save_context
+    environment:
+      ENV_000: 123
+      ENV_001: 456
+    events:
+      - s3:
+          bucket: local-bucket
+          event: s3:ObjectCreated:*
+          rules:
+            - prefix: save_context/trigger/

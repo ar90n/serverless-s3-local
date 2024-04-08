@@ -3,7 +3,7 @@ import { MinioConfig, start } from "./minio";
 
 // biome-ignore lint/suspicious/noExplicitAny: Custom has any type
 export const getStartFunc = (config: Record<string, any>): StartFunc => {
-  const minioConfig = MinioConfig.of(config);
+  const minioConfig = MinioConfig.of(config.minio || {});
 
   return async (
     bucketConfigs,

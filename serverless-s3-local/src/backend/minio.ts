@@ -1,6 +1,7 @@
 import { spawn as spawnProcess } from "child_process";
 import * as Minio from "minio";
 import * as fs from "fs";
+import * as path from "path";
 import { default as stream } from "node:stream";
 import type { ReadableStream } from "node:stream/web";
 
@@ -19,10 +20,11 @@ import {
 
 const MINIO_CMD = process.env.MINIO_CMD || "minio";
 const MY_MINIO_LOCATION =
-  process.env.MY_MINIO_LOCATION || "~/.serverless-s3-local/minio";
-const DEFAULT_ADDRESS = "127.0.0.1";
+  process.env.MY_MINIO_LOCATION ||
+  `${process.env.HOME}/.serverless-s3-local/minio`;
+const DEFAULT_ADDRESS = "0.0.0.0";
 const DEFAULT_PORT = 9000;
-const DEFAULT_ENDPOINT = DEFAULT_ADDRESS;
+const DEFAULT_ENDPOINT = "127.0.0.1";
 const DEFAULT_ACCESS_KEY = "minioadmin";
 const DEFAULT_SECRET_KEY = "minioadmin";
 
@@ -33,7 +35,7 @@ export type MinioConfig = {
   accessKey: string;
   secretKey: string;
   websiteProxyPort: number;
-  useMyMinio: boolean;
+  fetchFromWeb: boolean;
 };
 
 export namespace MinioConfig {
@@ -44,7 +46,7 @@ export namespace MinioConfig {
     accessKey,
     secretKey,
     websiteProxyPort,
-    useMyMinio,
+    fetchFromWeb,
   }: Partial<MinioConfig>): MinioConfig => {
     if (!directory) {
       directory = createTempDirectory();
@@ -57,7 +59,7 @@ export namespace MinioConfig {
       accessKey: accessKey || DEFAULT_ACCESS_KEY,
       secretKey: secretKey || DEFAULT_SECRET_KEY,
       websiteProxyPort: websiteProxyPort || DEFAULT_PROXY_PORT,
-      useMyMinio: useMyMinio || false,
+      fetchFromWeb: fetchFromWeb || false,
     };
   };
 }
@@ -95,6 +97,7 @@ const getMinioURL = (): string => {
       : process.platform === "darwin"
         ? "darwin"
         : "linux";
+  console.error(`arch: ${arch}, platform: ${paltform}`);
   return `https://dl.min.io/server/minio/release/${paltform}-${arch}/minio`;
 };
 
@@ -106,37 +109,33 @@ const fetchFileFromWeb = async (
   const ret = stream.Readable.fromWeb(body as ReadableStream<Uint8Array>);
 
   if (verbose) {
-    let downloadSize = 0;
-    const NOTIFY_CHUNK_SIZE = 1024 * 1024;
-    ret.on("data", (chunk) => {
-      const prev = Math.trunc(downloadSize / NOTIFY_CHUNK_SIZE);
-      downloadSize += chunk.length;
-      if (Math.trunc(downloadSize / NOTIFY_CHUNK_SIZE) !== prev) {
-        process.stderr.write(".");
-      }
-    });
+    process.stderr.write("Downloading minio...");
   }
   return ret;
 };
 
 const spawnMinio = async (
-  { address, directory, port, accessKey, secretKey, useMyMinio }: MinioConfig,
+  { address, directory, port, accessKey, secretKey, fetchFromWeb }: MinioConfig,
   handlers: EventHandler[],
   log: Logger = nullLogger,
 ) => {
   // Download minio
-  if (useMyMinio) {
+  console.log(`fetchFromWeb: ${fetchFromWeb}`);
+  if (fetchFromWeb) {
     const minioUrl = getMinioURL();
 
     if (!fs.existsSync(MY_MINIO_LOCATION)) {
       log.info(`Downloading minio from ${minioUrl} to ${MY_MINIO_LOCATION}`);
       const s = await fetchFileFromWeb(minioUrl, true);
+      await fs.promises.mkdir(path.dirname(MY_MINIO_LOCATION), {
+        recursive: true,
+      });
       const fileStream = fs.createWriteStream(MY_MINIO_LOCATION);
-      await stream.promises.finished(s.pipe(fileStream));
+      await stream.promises.finished(s.pipe(fileStream).on());
       fs.chmodSync(MY_MINIO_LOCATION, 0o755);
     }
   }
-  const minio_cmd = useMyMinio ? MY_MINIO_LOCATION : MINIO_CMD;
+  const minio_cmd = fetchFromWeb ? MY_MINIO_LOCATION : MINIO_CMD;
 
   const notifyEnv: Record<string, string> = handlers
     .map((h) => h.id)
