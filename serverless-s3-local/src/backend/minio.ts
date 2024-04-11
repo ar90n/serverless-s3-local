@@ -97,7 +97,6 @@ const getMinioURL = (): string => {
       : process.platform === "darwin"
         ? "darwin"
         : "linux";
-  console.error(`arch: ${arch}, platform: ${paltform}`);
   return `https://dl.min.io/server/minio/release/${paltform}-${arch}/minio`;
 };
 
@@ -120,7 +119,6 @@ const spawnMinio = async (
   log: Logger = nullLogger,
 ) => {
   // Download minio
-  console.log(`fetchFromWeb: ${fetchFromWeb}`);
   if (fetchFromWeb) {
     const minioUrl = getMinioURL();
 
@@ -131,7 +129,7 @@ const spawnMinio = async (
         recursive: true,
       });
       const fileStream = fs.createWriteStream(MY_MINIO_LOCATION);
-      await stream.promises.finished(s.pipe(fileStream).on());
+      await stream.promises.finished(s.pipe(fileStream));
       fs.chmodSync(MY_MINIO_LOCATION, 0o755);
     }
   }

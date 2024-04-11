@@ -24,8 +24,8 @@ jobs:
         with:
           node-version: '21'
       - run: npm ci
-      - name: test resize-image
-        run: npx jest ./test/
+      - name: test
+        run: DEBUG=testcontainers* npx jest ./test/
       - uses: 8398a7/action-slack@v3
         with:
           status: ${{ job.status }}
