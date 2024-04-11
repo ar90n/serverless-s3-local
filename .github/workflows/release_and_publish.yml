@@ -40,13 +40,9 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 18
-      - name: Install yarn
-        run: npm install -g yarn
       - name: Publish package
         run: |
-          yarn install
-          pushd  serverless-s3-local
-          yarn publish
-          popd
+          npm install
+          npm -w serverless-s3-local publish
         env:
           NPM_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
