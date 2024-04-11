@@ -1,6 +1,6 @@
 {
     "name": "serverless-s3-local",
-    "version": "0.9.0",
+    "version": "0.8.9999999999",
     "author": "Masahiro Wada",
     "main": "dist/index.js",
     "dependencies": {
