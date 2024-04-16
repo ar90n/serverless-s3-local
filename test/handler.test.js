@@ -134,6 +134,30 @@ describe("test js event handlers", () => {
       Buffer.concat(await stream.toArray()).toString("utf-8"),
     );
 
-    //expect(actual).toEqual({});
+    const { event } = actual;
+    expect(event).toHaveProperty("Records");
+    expect(event.Records).toHaveLength(1);
+
+    const record = event.Records[0];
+    expect(record).toHaveProperty("eventVersion");
+    expect(record).toHaveProperty("eventSource");
+    expect(record).toHaveProperty("awsRegion");
+    expect(record).toHaveProperty("eventTime");
+    expect(record).toHaveProperty("eventName");
+    expect(record).toHaveProperty("userIdentity");
+    expect(record).toHaveProperty("requestParameters");
+    expect(record).toHaveProperty("responseElements");
+    expect(record).toHaveProperty("s3");
+    expect(record.s3).toHaveProperty("s3SchemaVersion");
+    expect(record.s3).toHaveProperty("configurationId");
+    expect(record.s3).toHaveProperty("bucket");
+    expect(record.s3.bucket).toHaveProperty("name");
+    expect(record.s3.bucket).toHaveProperty("ownerIdentity");
+    expect(record.s3.bucket).toHaveProperty("arn");
+    expect(record.s3).toHaveProperty("object");
+    expect(record.s3.object).toHaveProperty("key");
+    expect(record.s3.object).toHaveProperty("size");
+    expect(record.s3.object).toHaveProperty("eTag");
+    expect(record.s3.object).toHaveProperty("sequencer");
   });
 });
