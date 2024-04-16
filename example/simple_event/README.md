@@ -3,6 +3,6 @@
 ## Start server
 ```
 $ cd serverless-s3-local
-$ yarn install
-$ yarn workspace simple-event run start
+$ npm install
+$ npm -w simple-event run start
 ```

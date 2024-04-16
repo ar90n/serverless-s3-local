@@ -16,20 +16,25 @@ I think it is good to collaborate with serverless-offline.
 
 Installation
 ===============
-Use npm
+**Use npm**
 ```bash
 npm install serverless-s3-local --save-dev
 ```
 
-Use serverless plugin install
+**Use serverless plugin install**
 ```bash
 sls plugin install --name serverless-s3-local
 ```
 
 Setup MINIO
 ===============
-serverless-s3-local uses `minio` as its backend.
+serverless-s3-local uses `minio` as its backend. So you have to install minio your environment.
+
+**Install manually**
 Please see [these documents](https://min.io/docs) and install minio into your environment.
+
+**Fetch from web at first launch of serverless-s3-local**
+Use `fetchFromWeb` property. If this property is set true, serverless-s3-local fetches minio binary from web.
 
 Example
 ===============
@@ -44,8 +49,10 @@ plugins:
   - serverless-s3-local
   - serverless-offline
 custom:
-  minot:
-    port: 9000
+  s3Local:
+    minio:
+      port: 9000
+      fetchFromWeb: false
 resources:
   Resources:
     NewResource:
@@ -62,20 +69,21 @@ functions:
   s3hook:
     handler: handler.s3hook
     events:
-      - s3: local-bucket
-        event: s3:*
-
+      - s3: 
+          bucket: local-bucket
+          event: s3:ObjectCreated:Put
+          existing: true
 ```
 
 **handler.js**
 ```js
-const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3");
+import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 
-module.exports.webhook = async (event, context) => {
+export const webhook = async (event, context) => {
   const client = new S3Client({
     forcePathStyle: true,
     credentials: {
-      accessKeyId: "minioadmin", // This specific key is required when working offline
+      accessKeyId: "minioadmin",
       secretAccessKey: "minioadmin",
     },
     endpoint: "http://localhost:9000",
@@ -86,18 +94,22 @@ module.exports.webhook = async (event, context) => {
       Bucket: "local-bucket",
       Key: "1234",
       Body: Buffer.from("abcd"),
-    })
+    }),
   );
-
-  return "ok"
+  return {
+    statusCode: 200,
+    body: JSON.stringify("ok"),
+  };
 };
 
-module.exports.s3hook = async (event, context) => {
+export const s3hook = async (event, context) => {
   console.log(JSON.stringify(event));
   console.log(JSON.stringify(context));
   console.log(JSON.stringify(process.env));
-
-  return "ok"
+  return {
+    statusCode: 200,
+    body: JSON.stringify("ok"),
+  };
 };
 ```
 
@@ -105,7 +117,7 @@ Configuration options
 ===============
 
 Configuration options can be defined in multiple ways. They will be parsed with the following priority:
-- `custom.minio` in serverless.yml
+- `custom.s3Local.minio` in serverless.yml
 - Default values (see table below)
 
 | Option | Description                                                                                                                                                      | Type | Default value |
@@ -115,6 +127,8 @@ Configuration options can be defined in multiple ways. They will be parsed with 
 | directory | The location where the S3 files will be created. The directory must exist, it won't be created                                                                   | string | `null` (create temp directory automatically)|
 | accessKeyId | The Access Key Id to authenticate requests                                                                                                                       | string | `'minioadmin'` |
 | secretAccessKey | The Secret Access Key to authenticate requests                                                                                                                   | string | `'minioadmin'` |
+| websiteProxyPort | The port that website proxy server use | number | 2929 |
+| fetchFromWeb | Flag for fetching minio binary from web | boolean | false |
 
 Feature
 ===============
@@ -135,6 +149,16 @@ aws_secret_access_key = minioadmin
  `aws --endpoint http://localhost:4569 s3 cp ~/tmp/data.csv s3://local-bucket/userdata.csv --profile s3local`
 
 You should see the event trigger in the serverless offline console: `info: PUT /local-bucket/user-data.csv 200 16ms 0b` and a new object with metadata will appear in your local bucket.
+
+Website Proxy
+===============
+
+minio doesn't support `IndexDocument` and `ErrorDocument` when buckets are exposed as webserver. serverless-s3-local provide a proxy webserver to provide these features.
+
+Motivation of starting to developt v0.9.X even if there area breaking changes
+===============
+
+It is completely personal reason. I cannot continue to maintain motivation of maintain its codebases. So I decided to simplify features and rewrite typescript. If you want to continue to use v0.8.X, please use v0.8.4 or fork it.
 
 See also
 ===============

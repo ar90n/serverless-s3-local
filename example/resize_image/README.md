@@ -4,8 +4,8 @@ This example is a demo to resize image which is uploaded to s3.
 ## Start server
 ```
 $ cd serverless-s3-local
-$ yarn install
-$ yarn workspace resize-image-put run start
+$ npm install
+$ npm -w resize-image-put run start
 ```
 
 ## Send a request
