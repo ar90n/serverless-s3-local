@@ -148,16 +148,16 @@
     tslib "^2.6.2"
     uuid "^9.0.1"
 
-"@aws-sdk/client-lambda@^3.496.0":
-  version "3.549.0"
-  resolved "https://registry.yarnpkg.com/@aws-sdk/client-lambda/-/client-lambda-3.549.0.tgz#19250fa69b4aff359e7f3cb33090909d931640e1"
-  integrity sha512-VdLltPf6fUDBFHPJBtYsWnM+nvdau7KuRlwwGnYzmYap79ifE538JTXE6AGyGcIp3YP44BlFtWgvW26kvDbX9g==
+"@aws-sdk/client-lambda@^3.509.0":
+  version "3.556.0"
+  resolved "https://registry.yarnpkg.com/@aws-sdk/client-lambda/-/client-lambda-3.556.0.tgz#942c97de620b0841c8b1d2823b826b40c890c1ba"
+  integrity sha512-HrsdCySeoHA1WTxzOT42ct+Se71ncwRv+vJ3Le6NmUV9oRQ6h7Bw7OYliB5wadP8GHWV7egbbvR+Dy8SwuENvw==
   dependencies:
     "@aws-crypto/sha256-browser" "3.0.0"
     "@aws-crypto/sha256-js" "3.0.0"
-    "@aws-sdk/client-sts" "3.549.0"
-    "@aws-sdk/core" "3.549.0"
-    "@aws-sdk/credential-provider-node" "3.549.0"
+    "@aws-sdk/client-sts" "3.556.0"
+    "@aws-sdk/core" "3.556.0"
+    "@aws-sdk/credential-provider-node" "3.556.0"
     "@aws-sdk/middleware-host-header" "3.535.0"
     "@aws-sdk/middleware-logger" "3.535.0"
     "@aws-sdk/middleware-recursion-detection" "3.535.0"
@@ -168,7 +168,7 @@
     "@aws-sdk/util-user-agent-browser" "3.535.0"
     "@aws-sdk/util-user-agent-node" "3.535.0"
     "@smithy/config-resolver" "^2.2.0"
-    "@smithy/core" "^1.4.1"
+    "@smithy/core" "^1.4.2"
     "@smithy/eventstream-serde-browser" "^2.2.0"
     "@smithy/eventstream-serde-config-resolver" "^2.2.0"
     "@smithy/eventstream-serde-node" "^2.2.0"
@@ -176,21 +176,21 @@
     "@smithy/hash-node" "^2.2.0"
     "@smithy/invalid-dependency" "^2.2.0"
     "@smithy/middleware-content-length" "^2.2.0"
-    "@smithy/middleware-endpoint" "^2.5.0"
-    "@smithy/middleware-retry" "^2.3.0"
+    "@smithy/middleware-endpoint" "^2.5.1"
+    "@smithy/middleware-retry" "^2.3.1"
     "@smithy/middleware-serde" "^2.3.0"
     "@smithy/middleware-stack" "^2.2.0"
     "@smithy/node-config-provider" "^2.3.0"
     "@smithy/node-http-handler" "^2.5.0"
     "@smithy/protocol-http" "^3.3.0"
-    "@smithy/smithy-client" "^2.5.0"
+    "@smithy/smithy-client" "^2.5.1"
     "@smithy/types" "^2.12.0"
     "@smithy/url-parser" "^2.2.0"
     "@smithy/util-base64" "^2.3.0"
     "@smithy/util-body-length-browser" "^2.2.0"
     "@smithy/util-body-length-node" "^2.3.0"
-    "@smithy/util-defaults-mode-browser" "^2.2.0"
-    "@smithy/util-defaults-mode-node" "^2.3.0"
+    "@smithy/util-defaults-mode-browser" "^2.2.1"
+    "@smithy/util-defaults-mode-node" "^2.3.1"
     "@smithy/util-endpoints" "^1.2.0"
     "@smithy/util-middleware" "^2.2.0"
     "@smithy/util-retry" "^2.2.0"
@@ -2078,10 +2078,10 @@
     "@hapi/validate" "^2.0.1"
     "@hapi/wreck" "^18.0.1"
 
-"@hapi/hapi@^21.3.2":
-  version "21.3.8"
-  resolved "https://registry.yarnpkg.com/@hapi/hapi/-/hapi-21.3.8.tgz#595a0c1a2ddada2fdc61d17a52221fb5d8174f96"
-  integrity sha512-2YGNQZTnWKAWiexoLxvsSFFpJvFBJKhtRzARNxR6G1dHbDfL1WPQBXF00rmMRJLdo+oi7d+Ntgdno6V+z+js7w==
+"@hapi/hapi@^21.3.3":
+  version "21.3.9"
+  resolved "https://registry.yarnpkg.com/@hapi/hapi/-/hapi-21.3.9.tgz#953220abe26d12a7cbd308a57e434dedf0278cb3"
+  integrity sha512-AT5m+Rb8iSOFG3zWaiEuTJazf4HDYl5UpRpyxMJ3yR+g8tOEmqDv6FmXrLHShdvDOStAAepHGnr1G7egkFSRdw==
   dependencies:
     "@hapi/accept" "^6.0.1"
     "@hapi/ammo" "^6.0.1"
@@ -6892,7 +6892,7 @@ jmespath@0.16.0:
   resolved "https://registry.yarnpkg.com/jmespath/-/jmespath-0.16.0.tgz#b15b0a85dfd4d930d43e69ed605943c802785076"
   integrity sha512-9FzQjJ7MATs1tSpnco1K6ayiYE3figslrXA72G2HQ/n76RzvYlofyi5QM+iX4YRs/pu3yzxlVQSST23+dMDknw==
 
-jose@^5.2.0:
+jose@^5.2.1:
   version "5.2.4"
   resolved "https://registry.yarnpkg.com/jose/-/jose-5.2.4.tgz#c0d296caeeed0b8444a8b8c3b68403d61aa4ed72"
   integrity sha512-6ScbIk2WWCeXkmzF6bRPmEuaqy1m8SbsRFMa/FLrSCkGIhj8OLVG/IH+XHVmNMx/KUo8cVWEE6oKR4dJ+S0Rkg==
@@ -8520,14 +8520,14 @@ serialize-javascript@^6.0.1:
     randombytes "^2.1.0"
 
 serverless-offline@^13.0.0:
-  version "13.3.3"
-  resolved "https://registry.yarnpkg.com/serverless-offline/-/serverless-offline-13.3.3.tgz#84f5a7cc0ad29f3240e549961a04567cb03a1dc5"
-  integrity sha512-KVw+khABJumgHsOrddtRvjKY5CDPCShOS4SYPvXXvmOrsOcS/upLEPdgcExXgAaF3OUBRsrHmroqXiLko06cbw==
+  version "13.3.4"
+  resolved "https://registry.yarnpkg.com/serverless-offline/-/serverless-offline-13.3.4.tgz#c21e380a0bf41bb2306badc8d27dc0f7d2965fb5"
+  integrity sha512-/nsJboP0C5v3r8r8W8K5jTjETNYhy/RqUc4ufHWV5o+IpNrcukeFvfMdFBbigHPJuC9aUqHIYbmqEVhnDO2L6Q==
   dependencies:
-    "@aws-sdk/client-lambda" "^3.496.0"
+    "@aws-sdk/client-lambda" "^3.509.0"
     "@hapi/boom" "^10.0.1"
     "@hapi/h2o2" "^10.0.4"
-    "@hapi/hapi" "^21.3.2"
+    "@hapi/hapi" "^21.3.3"
     "@serverless/utils" "^6.15.0"
     array-unflat-js "^0.1.3"
     boxen "^7.1.1"
@@ -8537,7 +8537,7 @@ serverless-offline@^13.0.0:
     fs-extra "^11.2.0"
     is-wsl "^3.1.0"
     java-invoke-local "0.0.6"
-    jose "^5.2.0"
+    jose "^5.2.1"
     js-string-escape "^1.0.1"
     jsonpath-plus "^8.0.0"
     jsonschema "^1.4.1"
