@@ -1,0 +1,25 @@
+name: Publish
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+      with:
+       fetch-depth: 0
+    - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+    - name: Publish package
+      run: |
+        npm install
+        npm -w serverless-s3-local publish
+      env:
+        NPM_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
