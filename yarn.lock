@@ -3452,7 +3452,7 @@
     traverse "^0.6.6"
     ws "^7.5.3"
 
-"@serverless/utils@^6.13.1", "@serverless/utils@^6.14.0", "@serverless/utils@^6.15.0":
+"@serverless/utils@^6.13.1", "@serverless/utils@^6.14.0":
   version "6.15.0"
   resolved "https://registry.yarnpkg.com/@serverless/utils/-/utils-6.15.0.tgz#499255c517581b1edd8c2bfedbcf61cc7aaa7539"
   integrity sha512-7eDbqKv/OBd11jjdZjUwFGN8sHWkeUqLeHXHQxQ1azja2IM7WIH+z/aLgzR6LhB3/MINNwtjesDpjGqTMj2JKQ==
@@ -9878,15 +9878,14 @@ serialize-javascript@^6.0.1:
     randombytes "^2.1.0"
 
 serverless-offline@^13.0.0:
-  version "13.5.0"
-  resolved "https://registry.yarnpkg.com/serverless-offline/-/serverless-offline-13.5.0.tgz#142bb88a84ec1b1fda45107adf3f0d6836539173"
-  integrity sha512-t+xyBTjYBtkyywrP3UnhNFFxQ03QflIn/20ImW3BnkSYr/5Sl6yX6coHoYx7X5QoVaOeHIAROs+WID0WR/IKyQ==
+  version "13.6.0"
+  resolved "https://registry.yarnpkg.com/serverless-offline/-/serverless-offline-13.6.0.tgz#1f102ed797ebe562511bd00d92986700c6533a1f"
+  integrity sha512-aSMg9TNfFjVj4QFmHqPzLwbwCSVmrpeoe96ozOXaesn2VX+4lyS+kTF1TXh4pZd5/ef9cfcma3jcqmgnShrUyA==
   dependencies:
     "@aws-sdk/client-lambda" "^3.509.0"
     "@hapi/boom" "^10.0.1"
     "@hapi/h2o2" "^10.0.4"
     "@hapi/hapi" "^21.3.3"
-    "@serverless/utils" "^6.15.0"
     array-unflat-js "^0.1.3"
     boxen "^7.1.1"
     chalk "^5.3.0"
