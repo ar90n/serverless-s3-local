@@ -442,18 +442,18 @@
     "@smithy/util-waiter" "^3.0.0"
     tslib "^2.6.2"
 
-"@aws-sdk/client-s3@3.590.0", "@aws-sdk/client-s3@^3.53.1":
-  version "3.590.0"
-  resolved "https://registry.yarnpkg.com/@aws-sdk/client-s3/-/client-s3-3.590.0.tgz#27a419c3827f9b95cd74637391541a714693aff6"
-  integrity sha512-so+pNua0ihsHaSdskw8HCwruoYTAfYSEs3ix4GD1++83C96KaJp3udAutYiCA+84JXg9zitFa7eK7ORJAVZmTw==
+"@aws-sdk/client-s3@3.592.0", "@aws-sdk/client-s3@^3.588.0":
+  version "3.592.0"
+  resolved "https://registry.yarnpkg.com/@aws-sdk/client-s3/-/client-s3-3.592.0.tgz#ed9cfb1e968ecad06b716ffc20c02687ca789801"
+  integrity sha512-abn1XYk9HW2nXIvyD6ldwrNcF5/7a2p06OSWEr7zVTo954kArg8N0yTsy83ezznEHZfaZpdZn/DLDl2GxrE1Xw==
   dependencies:
     "@aws-crypto/sha1-browser" "3.0.0"
     "@aws-crypto/sha256-browser" "3.0.0"
     "@aws-crypto/sha256-js" "3.0.0"
-    "@aws-sdk/client-sso-oidc" "3.590.0"
-    "@aws-sdk/client-sts" "3.590.0"
-    "@aws-sdk/core" "3.588.0"
-    "@aws-sdk/credential-provider-node" "3.590.0"
+    "@aws-sdk/client-sso-oidc" "3.592.0"
+    "@aws-sdk/client-sts" "3.592.0"
+    "@aws-sdk/core" "3.592.0"
+    "@aws-sdk/credential-provider-node" "3.592.0"
     "@aws-sdk/middleware-bucket-endpoint" "3.587.0"
     "@aws-sdk/middleware-expect-continue" "3.577.0"
     "@aws-sdk/middleware-flexible-checksums" "3.587.0"
@@ -473,7 +473,7 @@
     "@aws-sdk/util-user-agent-node" "3.587.0"
     "@aws-sdk/xml-builder" "3.575.0"
     "@smithy/config-resolver" "^3.0.1"
-    "@smithy/core" "^2.1.1"
+    "@smithy/core" "^2.2.0"
     "@smithy/eventstream-serde-browser" "^3.0.0"
     "@smithy/eventstream-serde-config-resolver" "^3.0.0"
     "@smithy/eventstream-serde-node" "^3.0.0"
@@ -506,18 +506,18 @@
     "@smithy/util-waiter" "^3.0.0"
     tslib "^2.6.2"
 
-"@aws-sdk/client-s3@^3.588.0":
-  version "3.592.0"
-  resolved "https://registry.yarnpkg.com/@aws-sdk/client-s3/-/client-s3-3.592.0.tgz#ed9cfb1e968ecad06b716ffc20c02687ca789801"
-  integrity sha512-abn1XYk9HW2nXIvyD6ldwrNcF5/7a2p06OSWEr7zVTo954kArg8N0yTsy83ezznEHZfaZpdZn/DLDl2GxrE1Xw==
+"@aws-sdk/client-s3@^3.53.1":
+  version "3.590.0"
+  resolved "https://registry.yarnpkg.com/@aws-sdk/client-s3/-/client-s3-3.590.0.tgz#27a419c3827f9b95cd74637391541a714693aff6"
+  integrity sha512-so+pNua0ihsHaSdskw8HCwruoYTAfYSEs3ix4GD1++83C96KaJp3udAutYiCA+84JXg9zitFa7eK7ORJAVZmTw==
   dependencies:
     "@aws-crypto/sha1-browser" "3.0.0"
     "@aws-crypto/sha256-browser" "3.0.0"
     "@aws-crypto/sha256-js" "3.0.0"
-    "@aws-sdk/client-sso-oidc" "3.592.0"
-    "@aws-sdk/client-sts" "3.592.0"
-    "@aws-sdk/core" "3.592.0"
-    "@aws-sdk/credential-provider-node" "3.592.0"
+    "@aws-sdk/client-sso-oidc" "3.590.0"
+    "@aws-sdk/client-sts" "3.590.0"
+    "@aws-sdk/core" "3.588.0"
+    "@aws-sdk/credential-provider-node" "3.590.0"
     "@aws-sdk/middleware-bucket-endpoint" "3.587.0"
     "@aws-sdk/middleware-expect-continue" "3.577.0"
     "@aws-sdk/middleware-flexible-checksums" "3.587.0"
@@ -537,7 +537,7 @@
     "@aws-sdk/util-user-agent-node" "3.587.0"
     "@aws-sdk/xml-builder" "3.575.0"
     "@smithy/config-resolver" "^3.0.1"
-    "@smithy/core" "^2.2.0"
+    "@smithy/core" "^2.1.1"
     "@smithy/eventstream-serde-browser" "^3.0.0"
     "@smithy/eventstream-serde-config-resolver" "^3.0.0"
     "@smithy/eventstream-serde-node" "^3.0.0"
