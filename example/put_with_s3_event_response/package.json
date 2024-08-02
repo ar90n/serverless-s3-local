@@ -11,7 +11,7 @@
         "serverless-s3-local": "*"
     },
     "devDependencies": {
-        "serverless-offline": "^13.0.0"
+        "serverless-offline": "^14.0.0"
     },
     "type": "module"
 }
