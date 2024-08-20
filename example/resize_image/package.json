@@ -9,7 +9,7 @@
     },
     "dependencies": {
         "serverless-s3-local": "*",
-        "sharp": "0.32.6"
+        "sharp": "0.33.5"
     },
     "type": "module"
 }
